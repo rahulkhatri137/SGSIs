@@ -58,10 +58,9 @@ ZIP_NAME="$PROJECT_DIR/tmp/dummy"
 echo "zip_file: $(ls "$PROJECT_DIR"/tmp)" || exit 1
    "$PROJECT_DIR"/make.sh --AB Generic update.zip --fix-bug
 
-sudo rm -rf "$PROJECT_DIR/output/Guide.txt"
-sudo rm -rf "$PROJECT_DIR/output/Patch3.zip"
+sudo rm -rf "$PROJECT_DIR/tmp"
 sudo rm -rf "$PROJECT_DIR/workspace"
-sudo rm -rf "$PROJECT_DIR/output/makemesar.zip"
+sudo rm -rf "$PROJECT_DIR/SGSI"
 sudo mv "$PROJECT_DIR/output/system.img" "$PROJECT_DIR/output/$NAME-AB-$date-RK137SGSI.img"
 ls "$PROJECT_DIR"/output || exit 1
 echo "-> Porting SGSI done!"
