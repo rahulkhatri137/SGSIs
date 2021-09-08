@@ -174,10 +174,10 @@ case $os_repackage_type in
     $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/" $size -j "0" -T "1230768000" -L "/" -I "256" -M "/" -m "0" $configdir/$target_contexts > /dev/null 2>&1
     ;;
   "--A-ONLY_CONFIG"|"--a-only_config")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts" /dev/null 2>&1
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts" > /dev/null 2>&1
     ;;
   "--AB_CONFIG"|"--ab_config")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts" /dev/null 2>&1
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts" > /dev/null 2>&1
     ;;
 esac
 
