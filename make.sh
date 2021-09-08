@@ -68,10 +68,10 @@ function firmware_extract() {
   partition_list="system vendor system_ext odm product reserve boot vendor_boot"
   
   if [ -e $firmware ];then
-    7z x -y "$firmware" -o"./tmp/"
+    7z x -y "$firmware" -o"./tmp/" > /dev/null 2>&1
   fi
   if [ -e $LOCALDIR/tmp/$firmware ];then
-    7z x -y "$LOCALDIR/tmp/$firmware" -o"$LOCALDIR/tmp/"
+    7z x -y "$LOCALDIR/tmp/$firmware" -o"$LOCALDIR/tmp/" > /dev/null 2>&1
   fi
 
   for i in $(ls $LOCALDIR/tmp);do
@@ -90,10 +90,10 @@ function firmware_extract() {
       mv ./payload.bin ../payload/
       cd ../payload
       echo $UNZIPINGPLB
-      python ./payload.py ./payload.bin ./out
+      python ./payload.py ./payload.bin ./out > /dev/null 2>&1
+      echo "-> Moving Files to workspace"
       for i in $partition_list ;do
         if [ -e ./out/$i.img ];then
-          echo $MOVINGIMG
           mv ./out/$i.img $IMAGESDIR/
         fi
       done
@@ -152,9 +152,9 @@ fi
 firmware_extract
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
-  echo "./SGSI.sh $build_type $os_type $other_args"
+  echo "-> SGSI Time :)"
   ./SGSI.sh $build_type $os_type $other_args
-  ./workspace_cleanup.sh
+  ./workspace_cleanup.sh > /dev/null 2>&1
   exit 0
 else
   echo $NOTFOUNDSYSTEMIMG

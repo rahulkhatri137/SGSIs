@@ -143,7 +143,7 @@ case $os_repackage_type in
 esac
 
 if [ ! -d $systemdir ];then
-  echo "$SYSTEMDIR_NF"
+  echo "$SYSTEMDIR_NF" > /dev/null 2>&1
   exit
 fi
 
@@ -157,7 +157,7 @@ _________________
 
 `du -sk $systemdir | awk '{print $1}' | bc -q | sed 's/$/&B/'`
 _________________
-"
+" > /dev/null 2>&1
 size=`du -sk $systemdir | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
 echo "$CURR_IMG_REPACK_SIZE: ${size} B"
 echo ""
@@ -168,34 +168,35 @@ echo ""
 
 case $os_repackage_type in
   "-A"|"-a"|"--a-only")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -L "system" -I "256" -M "/system" -m "0" $configdir/$target_contexts
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -L "system" -I "256" -M "/system" -m "0" $configdir/$target_contexts > /dev/null 2>&1
     ;;
   "--AB"|"--ab")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/" $size -j "0" -T "1230768000" -L "/" -I "256" -M "/" -m "0" $configdir/$target_contexts
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/" $size -j "0" -T "1230768000" -L "/" -I "256" -M "/" -m "0" $configdir/$target_contexts > /dev/null 2>&1
     ;;
   "--A-ONLY_CONFIG"|"--a-only_config")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts"   
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts" /dev/null 2>&1
     ;;
   "--AB_CONFIG"|"--ab_config")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts"
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts" /dev/null 2>&1
     ;;
 esac
 
 if [ -s $TARGETDIR/system.img ];then
   echo "$PACK_STR$SUCCESS_STR"
-  echo "$OUTPUTTO_STR: $LOCALDIR/SGSI"
+  echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   echo ""
   exit
 fi
 
 if [ -s $TARGETDIR/system.img ];then
-  rm -rf $LOCALDIR/SGSI
-  mkdir -p $LOCALDIR/SGSI
-  mv -f $TARGETDIR/system.img ./SGSI/
+  rm -rf $LOCALDIR/output
+  rm -rf $LOCALDIR/tmp
+  mkdir -p $LOCALDIR/output
+  mv -f $TARGETDIR/system.img ./output/
   cp -frp $system/build.prop $TARGETDIR/
-  ./get_build_info.sh "$TARGETDIR" "$LOCALDIR/SGSI/system.img" > $LOCALDIR/SGSI/build_info.txt
+  ./get_build_info.sh "$TARGETDIR" "$LOCALDIR/output/system.img" > $LOCALDIR/output/build_info.txt
   rm -rf $TARGETDIR/build.prop
-  ./copy.sh
-  chmod -R 777 $LOCALDIR/SGSI
+  ./copy.sh > /dev/null 2>&1
+  chmod -R 777 $LOCALDIR/output
 fi
