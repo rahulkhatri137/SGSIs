@@ -62,7 +62,7 @@ fi
 
 function normal() {
   # Process ramdisk's system for all rom
-  echo "$PROCESSING_RAMDISK_SYSTEM"
+  echo "-> $PROCESSING_RAMDISK_SYSTEM"
   ramdisk_modify() {
     rm -rf "$systemdir/../persist"
     rm -rf "$systemdir/../bt_firmware"
@@ -98,14 +98,14 @@ function normal() {
     fi
   }
   ramdisk_modify
-  echo "$PROCESS_SUCCESS"
+  echo "-> $PROCESS_SUCCESS"
  
   # Common apex_vndk process
   cd ./make/apex_vndk_start
-  ./make.sh
+  ./make.sh > /dev/null 2>&1
   cd $LOCALDIR 
 
-  echo "$OTHER_PROCESSINGS"
+  echo "-> $OTHER_PROCESSINGS"
 
   # Reset manifest_custom
   true > ./make/add_etc_vintf_patch/manifest_custom
@@ -300,17 +300,17 @@ function normal() {
 
   # Replace to AOSP Camera
   #cd ./make/camera
-  #./camera.sh
+  #./camera.sh > /dev/null 2>&1
   #cd $LOCALDIR
 
   # Detect ROM Type
   cd ./make
-  ./romtype.sh "$os_type"
+  ./romtype.sh "$os_type" > /dev/null 2>&1
   cd $LOCALDIR
 
   # ROM Patch Process
   cd ./make/rom_make_patch
-  ./make.sh
+  ./make.sh > /dev/null 2>&1
   cd $LOCALDIR
 
   # Add oem_build
@@ -335,9 +335,9 @@ function normal() {
 }
 
 function fix_bug() {
-    echo "$START_BUG_FIX"
+    echo "-> $START_BUG_FIX"
     cd ./fixbug
-    ./fixbug.sh "$os_type"
+    ./fixbug.sh "$os_type" > /dev/null 2>&1
     cd $LOCALDIR
 }
 
@@ -348,19 +348,19 @@ fi
 rm -rf ./SGSI
 
 # Sparse Image To Raw Image
-./simg2img.sh "$IMAGESDIR"
+./simg2img.sh "$IMAGESDIR" > /dev/null 2>&1
 
 # Mount Partitions
-#./mount_partition.sh
+#./mount_partition.sh > /dev/null 2>&1
 cd $LOCALDIR
 
 # Extract Image
-./image_extract.sh
+./image_extract.sh > /dev/null 2>&1
 
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
-  echo "$DYNAMIC_PARTITION_DETECTED"
-  ./partition_merge.sh
+  echo "-> $DYNAMIC_PARTITION_DETECTED : Merging partitions"
+  ./partition_merge.sh > /dev/null 2>&1
 fi
 
 if [[ ! -d $systemdir/product ]];then
@@ -372,22 +372,22 @@ elif [[ ! -d $systemdir/system_ext ]];then
 fi
 
 model="$(cat $systemdir/build.prop | grep 'model')"
-echo "$CURR_DEVICE_PROPS:"
-echo "$model"
+echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
+echo "$model" > /dev/null 2>&1
 
 if [ -L $systemdir/vendor ];then
-  echo "$IS_NORMAL_PT"
-  echo "$START_NOR_PROCESS_PLAN"
+  echo "-> $IS_NORMAL_PT"
+  echo "-> $START_NOR_PROCESS_PLAN"
   case $build_type in
       "--AB"|"--ab")
       echo "AB"
       normal
       # Merge FS DATA
       cd ./make/apex_flat
-      ./add_apex_fs.sh
+      ./add_apex_fs.sh > /dev/null 2>&1
       cd $LOCALDIR
       cd ./make
-      ./add_repack_fs.sh
+      ./add_repack_fs.sh > /dev/null 2>&1
       cd $LOCALDIR
       # Format output
       for i in $(ls $configdir);do
@@ -397,11 +397,11 @@ if [ -L $systemdir/vendor ];then
           sed -i '/^\s*$/d' $configdir/$i
         fi
       done
-      echo "$SGSI_IFY_SUCCESS"
+      echo "-> $SGSI_IFY_SUCCESS"
       if (echo $other_args | grep -qo -- "--fix-bug") ;then
         fix_bug
       fi
-      echo "$SIGNING_WITH_AOSPKEY"
+      echo "-> $SIGNING_WITH_AOSPKEY"
       python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log
       ./makeimg.sh "--ab${use_config}"
       exit 0
