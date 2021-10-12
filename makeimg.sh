@@ -159,9 +159,17 @@ _________________
 _________________
 " > /dev/null 2>&1
 size=`du -sk $systemdir | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
-echo "$CURR_IMG_REPACK_SIZE: ${size} B"
-echo ""
+bytesToHuman() {
+    b=${1:-0}; d=''; s=0; S=(Bytes {K,M,G,T,P,E,Z,Y}iB)
+    while ((b > 1024)); do
+        d="$(printf ".%02d" $((b % 1024 * 100 / 1024)))"
+        b=$((b / 1024))
+        let s++
+    done
+    echo "$b$d ${S[$s]}"
+}
 
+echo "-> Packing Image..."
 #mke2fs+e2fsdroid 打包
 #$bin/mke2fs -L / -t ext4 -b 4096 $TARGETDIR/system.img $size
 #$bin/e2fsdroid -e -T 0 -S $configdir/system_file_contexts -C $configdir/system_fs_config  -a /system -f ./out/system $TARGETDIR/system.img
@@ -182,21 +190,24 @@ case $os_repackage_type in
 esac
 
 if [ -s $TARGETDIR/system.img ];then
-  echo "$PACK_STR$SUCCESS_STR"
+  echo "-> Created image $NAME-AB-$date-RK137SGSI.img | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   echo ""
   exit
 fi
 
+outputtreename="System-Tree.txt"
+outputtree="$OUTDIR/$outputtreename"
+if [ ! -f "$outputtree" ]; then
+    tree $systemdir >> "$outputtree" 2> "$outputtree"
+fi
+
 if [ -s $TARGETDIR/system.img ];then
-  rm -rf $LOCALDIR/output
   rm -rf $LOCALDIR/tmp
-  mkdir -p $LOCALDIR/output
   mv -f $TARGETDIR/system.img ./output/
   cp -frp $system/build.prop $TARGETDIR/
-  ./get_build_info.sh "$TARGETDIR" "$LOCALDIR/output/system.img" > $LOCALDIR/output/build_info.txt
+  .$SCRIPTDIR/get_build_info.sh "$TARGETDIR" "$OUTDIR/system.img" > $OUTDIR/build-info.txt
   rm -rf $TARGETDIR/build.prop
-  ./copy.sh > /dev/null 2>&1
   chmod -R 777 $LOCALDIR/output
 fi

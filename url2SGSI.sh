@@ -1,8 +1,9 @@
 #!/bin/bash
 
-PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-
-DL="${PROJECT_DIR}/dl.sh"
+LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+source .$LOCALDIR/bin.sh
+source .$LOCALDIR/language_helper.sh
+DL="${SCRIPTDIR}/dl.sh"
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -35,32 +36,31 @@ DOWNLOAD()
 {
     URL="$1"
     ZIP_NAME="update.zip"
-    mkdir -p "$PROJECT_DIR/tmp"
+    mkdir -p "$LOCALDIR/tmp"
     echo "-> Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
-        ("${DL}" "${URL}" "$PROJECT_DIR/tmp" "$ZIP_NAME") || exit 1
+        ("${DL}" "${URL}" "$LOCALDIR/tmp" "$ZIP_NAME") || exit 1
     else
         if echo "${URL}" | grep -q "1drv.ms"; then URL=${URL/ms/ws}; fi
-        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$PROJECT_DIR/input" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$PROJECT_DIR/input/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
-        aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$PROJECT_DIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
-            wget -U "Mozilla/5.0" ${URL} -O "$PROJECT_DIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
+        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/input" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/input/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
+        aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
+            wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
         }
     fi
 }
-ZIP_NAME="$PROJECT_DIR/tmp/dummy"
+ZIP_NAME="$LOCALDIR/tmp/dummy"
     if [[ "$URL" == "http"* ]]; then
         # URL detected
         ACTUAL_ZIP_NAME=update.zip
-        ZIP_NAME="$PROJECT_DIR"/tmp/update.zip
+        ZIP_NAME="$LOCALDIR"/tmp/update.zip
         DOWNLOAD "$URL" "$ZIP_NAME"
         URL="$ZIP_NAME"
     fi
-echo "zip_file: $(ls "$PROJECT_DIR"/tmp)" || exit 1
-   "$PROJECT_DIR"/make.sh --AB Generic update.zip --fix-bug
+echo "zip_file: $(ls "$LOCALDIR"/tmp)" || exit 1
+   "$LOCALDIR"/make.sh --AB Generic update.zip --fix-bug
 
-sudo rm -rf "$PROJECT_DIR/tmp"
-sudo rm -rf "$PROJECT_DIR/workspace"
-sudo rm -rf "$PROJECT_DIR/SGSI"
-sudo mv "$PROJECT_DIR/output/system.img" "$PROJECT_DIR/output/$NAME-AB-$date-RK137SGSI.img"
-ls "$PROJECT_DIR"/output || exit 1
+sudo rm -rf "$LOCALDIR/tmp"
+sudo rm -rf "$LOCALDIR/workspace"
+sudo rm -rf "$LOCALDIR/SGSI"
+sudo mv "$LOCALDIR/output/system.img" "$LOCALDIR/output/$NAME-AB-$date-RK137SGSI.img"
 echo "-> Porting SGSI done!"

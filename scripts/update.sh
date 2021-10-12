@@ -12,8 +12,8 @@ if [ ! -d ".git" ];then
         echo "$UPDATER_MSG2"
         git init
         git checkout -B 12
-        git remote add origin https://github.com/xiaoxindada/SGSI-build-tool.git
-        git fetch https://github.com/xiaoxindada/SGSI-build-tool.git 12
+        git remote add origin https://github.com/rahulkhatri137/SGSI-build-tool.git
+        git fetch https://github.com/rahulkhatri137/SGSI-build-tool.git 12
         git remote -v
         git reset --hard FETCH_HEAD
         git clean -df
@@ -37,8 +37,8 @@ if [ ! -d ".git" ];then
         echo "正在强制使用git更新中,请准备好梯子"
         git init
         git checkout -B 12
-        git remote add origin https://github.com/xiaoxindada/SGSI-build-tool.git
-        git fetch https://github.com/xiaoxindada/SGSI-build-tool.git 12
+        git remote add origin https://github.com/rahulkhatri137/SGSI-build-tool.git
+        git fetch https://github.com/rahulkhatri137/SGSI-build-tool.git 12
         git remote -v
         git reset --hard FETCH_HEAD
         git clean -df

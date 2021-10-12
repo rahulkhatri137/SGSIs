@@ -84,14 +84,15 @@ function firmware_extract() {
   done
 
   cd $LOCALDIR/tmp
+  echo " -> Extracting Firmware..."
   for partition in $partition_list ;do
     # Detect payload.bin
     if [ -e ./payload.bin ];then
       mv ./payload.bin ../payload/
       cd ../payload
-      echo $UNZIPINGPLB
+      echo " -> $UNZIPINGPLB" > /dev/null 2>&1
       python ./payload.py ./payload.bin ./out > /dev/null 2>&1
-      echo "-> Moving Files to workspace"
+      echo "-> Moving Files to workspace..."
       for i in $partition_list ;do
         if [ -e ./out/$i.img ];then
           mv ./out/$i.img $IMAGESDIR/
@@ -104,7 +105,7 @@ function firmware_extract() {
 
     # Detect dat.br
     if [ -e ./${partition}.new.dat.br ];then
-      echo "$UNPACKING_STR ${partition}.new.dat.br"
+      echo "$UNPACKING_STR ${partition}.new.dat.br" > /dev/null 2>&1
       $bin/brotli -d ${partition}.new.dat.br
       python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img
       mv ./${partition}.img $IMAGESDIR/
@@ -113,7 +114,7 @@ function firmware_extract() {
   
     # Detect split new.dat
     if [ -e ./${partition}.new.dat.1 ];then
-      echo "$SPLIT_DETECTED ${partition}.new.dat, $MERGING_STR"
+      echo "$SPLIT_DETECTED ${partition}.new.dat, $MERGING_STR" > /dev/null 2>&1
       cat ./${partition}.new.dat.{1..999} 2>/dev/null >> ./${partition}.new.dat
       rm -rf ./${partition}.new.dat.{1..999}
       python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img
@@ -123,8 +124,8 @@ function firmware_extract() {
 
     # Detect general new.dat
     if [ -e ./${partition}.new.dat ];then
-      echo "$UNPACKING_STR ${partition}.new.dat"
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img
+      echo "$UNPACKING_STR ${partition}.new.dat" > /dev/null 2>&1
+      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1
       mv ./${partition}.img $IMAGESDIR/
     fi
 
@@ -151,6 +152,7 @@ fi
 
 firmware_extract
 cd $LOCALDIR
+mkdir -p $OUTDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "-> SGSI Time :)"
   ./SGSI.sh $build_type $os_type $other_args

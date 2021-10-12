@@ -62,7 +62,7 @@ fi
 
 function normal() {
   # Process ramdisk's system for all rom
-  echo "-> $PROCESSING_RAMDISK_SYSTEM"
+  echo "-> $PROCESSING_RAMDISK_SYSTEM" > /dev/null 2>&1
   ramdisk_modify() {
     rm -rf "$systemdir/../persist"
     rm -rf "$systemdir/../bt_firmware"
@@ -98,14 +98,14 @@ function normal() {
     fi
   }
   ramdisk_modify
-  echo "-> $PROCESS_SUCCESS"
+  echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
  
   # Common apex_vndk process
   cd ./make/apex_vndk_start
   ./make.sh > /dev/null 2>&1
   cd $LOCALDIR 
 
-  echo "-> $OTHER_PROCESSINGS"
+  echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
 
   # Reset manifest_custom
   true > ./make/add_etc_vintf_patch/manifest_custom
@@ -348,10 +348,10 @@ fi
 rm -rf ./SGSI
 
 # Sparse Image To Raw Image
-./simg2img.sh "$IMAGESDIR" > /dev/null 2>&1
+.$SCRIPTDIR/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1
 
 # Mount Partitions
-#./mount_partition.sh > /dev/null 2>&1
+#.$SCRIPTDIR/mount_partition.sh > /dev/null 2>&1
 cd $LOCALDIR
 
 # Extract Image
@@ -359,8 +359,8 @@ cd $LOCALDIR
 
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
-  echo "-> $DYNAMIC_PARTITION_DETECTED : Merging partitions"
-  ./partition_merge.sh > /dev/null 2>&1
+  echo "-> Merging dynamic partitions..."
+  .$SCRIPTDIR/partition_merge.sh > /dev/null 2>&1
 fi
 
 if [[ ! -d $systemdir/product ]];then
@@ -376,8 +376,8 @@ echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
 echo "$model" > /dev/null 2>&1
 
 if [ -L $systemdir/vendor ];then
-  echo "-> $IS_NORMAL_PT"
-  echo "-> $START_NOR_PROCESS_PLAN"
+  echo "-> $IS_NORMAL_PT" > /dev/null 2>&1
+  echo "-> $START_NOR_PROCESS_PLAN" > /dev/null 2>&1
   case $build_type in
       "--AB"|"--ab")
       echo "AB"

@@ -8,3 +8,5 @@ export LD_LIBRARY_PATH=$bin/$HOST/$platform/lib64
 export WORKSPACE=$TOOLDIR/workspace
 export IMAGESDIR=$WORKSPACE/images
 export TARGETDIR=$WORKSPACE/out
+export OUTDIR=$TOOLDIR/output
+export SCRIPTDIR=$TOOLDIR/scripts

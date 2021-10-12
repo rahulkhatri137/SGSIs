@@ -20,15 +20,13 @@ android_image_size=$(echo `(du -sm $image_file | awk '{print $1}' | sed 's/$/&MB
 build_date=$(date +%Y-%m-%d-%H:%M)
 
 echo "
-Manufacturer Name: $device_manufacturer
 Android Version: $android_version
-Android Codename: $android_code_name
-Product Name: $device_product
-Android SDK Version: $android_sdk
-Security Patch Level: $andriod_spl
-Device Model: $device_model
+Brand: $device_manufacturer
+Model: $device_model
+Product: $device_product
+Codename: $android_code_name
+Security Patch: $andriod_spl
+Fingerprint: $android_fingerprint
 Description: $description_info
-Build Fingerprint: $android_fingerprint
-Build Date: $build_date
-$android_image_name Size: $android_image_size
+Raw Image Size: $android_image_size
 "
