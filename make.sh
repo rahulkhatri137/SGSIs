@@ -84,7 +84,7 @@ function firmware_extract() {
   done
 
   cd $LOCALDIR/tmp
-  echo " -> Extracting Firmware..."
+  echo "-> Extracting Firmware..."
   for partition in $partition_list ;do
     # Detect payload.bin
     if [ -e ./payload.bin ];then
@@ -106,8 +106,8 @@ function firmware_extract() {
     # Detect dat.br
     if [ -e ./${partition}.new.dat.br ];then
       echo "$UNPACKING_STR ${partition}.new.dat.br" > /dev/null 2>&1
-      $bin/brotli -d ${partition}.new.dat.br
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img
+      $bin/brotli -d ${partition}.new.dat.br > /dev/null 2>&1
+      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1
       mv ./${partition}.img $IMAGESDIR/
       rm -rf ./${partition}.new.dat
     fi
@@ -117,7 +117,7 @@ function firmware_extract() {
       echo "$SPLIT_DETECTED ${partition}.new.dat, $MERGING_STR" > /dev/null 2>&1
       cat ./${partition}.new.dat.{1..999} 2>/dev/null >> ./${partition}.new.dat
       rm -rf ./${partition}.new.dat.{1..999}
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img
+      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1
       mv ./${partition}.img $IMAGESDIR/
       rm -rf ./${partition}.new.dat
     fi

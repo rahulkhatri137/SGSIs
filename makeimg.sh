@@ -190,7 +190,7 @@ case $os_repackage_type in
 esac
 
 if [ -s $TARGETDIR/system.img ];then
-  echo "-> Created image $NAME-AB-$date-RK137SGSI.img | Size: $(bytesToHuman $size)" 
+  echo "-> Created RK137SGSI image  | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   echo ""
@@ -207,7 +207,7 @@ if [ -s $TARGETDIR/system.img ];then
   rm -rf $LOCALDIR/tmp
   mv -f $TARGETDIR/system.img ./output/
   cp -frp $system/build.prop $TARGETDIR/
-  .$SCRIPTDIR/get_build_info.sh "$TARGETDIR" "$OUTDIR/system.img" > $OUTDIR/build-info.txt
+  ./scripts/get_build_info.sh "$TARGETDIR" "$OUTDIR/system.img" > $OUTDIR/build-info.txt
   rm -rf $TARGETDIR/build.prop
   chmod -R 777 $LOCALDIR/output
 fi

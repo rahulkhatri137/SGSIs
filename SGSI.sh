@@ -348,10 +348,10 @@ fi
 rm -rf ./SGSI
 
 # Sparse Image To Raw Image
-.$SCRIPTDIR/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1
+./scripts/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1
 
 # Mount Partitions
-#.$SCRIPTDIR/mount_partition.sh > /dev/null 2>&1
+#./scripts/mount_partition.sh > /dev/null 2>&1
 cd $LOCALDIR
 
 # Extract Image
@@ -360,7 +360,7 @@ cd $LOCALDIR
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
   echo "-> Merging dynamic partitions..."
-  .$SCRIPTDIR/partition_merge.sh > /dev/null 2>&1
+  ./scripts/partition_merge.sh > /dev/null 2>&1
 fi
 
 if [[ ! -d $systemdir/product ]];then
@@ -380,7 +380,6 @@ if [ -L $systemdir/vendor ];then
   echo "-> $START_NOR_PROCESS_PLAN" > /dev/null 2>&1
   case $build_type in
       "--AB"|"--ab")
-      echo "AB"
       normal
       # Merge FS DATA
       cd ./make/apex_flat

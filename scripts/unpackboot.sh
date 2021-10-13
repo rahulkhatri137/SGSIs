@@ -25,7 +25,7 @@ else
   rm -rf $(basename $boot_img)
   ./cleanup.sh
   cd $LOCALDIR
-  .$SCRIPTDIR/unpackboot_test.sh
+  ./scripts/unpackboot_test.sh
   [ $? != "0" ] && echo "解压失败" && exit
 fi
 cd $LOCALDIR

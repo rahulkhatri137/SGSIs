@@ -26,9 +26,9 @@ rm -rf ./make/config
 rm -rf ./make/apex_fs
 rm -rf ./make/lib_fs
 rm -rf ./extract
-true > .$SCRIPTDIR/1.sh
-true > .$SCRIPTDIR/2.sh
-true > .$SCRIPTDIR/3.sh
+true > ./scripts/1.sh
+true > ./scripts/2.sh
+true > ./scripts/3.sh
 find ./ -type f -name '*.pyc' -delete
 find ./ -type f -name '*.bak' -delete
 find ./ -type f -name '*.ozip' -delete

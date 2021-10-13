@@ -1,8 +1,8 @@
 #!/bin/bash
 
 LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-source .$LOCALDIR/bin.sh
-source .$LOCALDIR/language_helper.sh
+source ./bin.sh
+source ./language_helper.sh
 DL="${SCRIPTDIR}/dl.sh"
 
 POSITIONAL=()
@@ -56,7 +56,6 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
         DOWNLOAD "$URL" "$ZIP_NAME"
         URL="$ZIP_NAME"
     fi
-echo "zip_file: $(ls "$LOCALDIR"/tmp)" || exit 1
    "$LOCALDIR"/make.sh --AB Generic update.zip --fix-bug
 
 sudo rm -rf "$LOCALDIR/tmp"
