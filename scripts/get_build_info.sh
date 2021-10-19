@@ -23,8 +23,7 @@ echo "
 Android Version: $android_version
 Brand: $device_manufacturer
 Model: $device_model
-Product: $device_product
-Codename: $android_code_name
+Codename: $device_product
 Security Patch: $andriod_spl
 Fingerprint: $android_fingerprint
 Description: $description_info
