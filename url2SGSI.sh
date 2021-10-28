@@ -30,6 +30,7 @@ if [[ $TYPE == *":"* ]]; then
 else
     NAME=$TYPE
 fi
+TYPE=`echo "$TYPE" | cut -d ":" -f 1`
 date=`date +%Y%m%d`
 
 DOWNLOAD()
@@ -56,7 +57,7 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
         DOWNLOAD "$URL" "$ZIP_NAME"
         URL="$ZIP_NAME"
     fi
-   "$LOCALDIR"/make.sh --AB Generic update.zip --fix-bug
+   "$LOCALDIR"/make.sh --AB $TYPE update.zip --fix-bug
 
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
