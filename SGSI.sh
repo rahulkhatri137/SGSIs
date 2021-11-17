@@ -371,6 +371,18 @@ elif [[ ! -d $systemdir/system_ext ]];then
   exit 1
 fi
 
+ # Change Build Number
+if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
+    displayid="ro.build.display.id"
+elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
+    displayid="ro.system.build.id"
+elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
+    displayid="ro.build.id"
+fi
+displayid2=$(echo "$displayid" | sed 's/\./\\./g')
+bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
+sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
+
 model="$(cat $systemdir/build.prop | grep 'model')"
 echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
 echo "$model" > /dev/null 2>&1
