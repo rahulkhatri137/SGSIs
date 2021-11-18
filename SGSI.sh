@@ -310,7 +310,7 @@ function normal() {
 
   # ROM Patch Process
   cd ./make/rom_make_patch
-  ./make.sh > /dev/null 2>&1
+  ./make.sh
   cd $LOCALDIR
 
   # Add oem_build
@@ -382,6 +382,25 @@ fi
 displayid2=$(echo "$displayid" | sed 's/\./\\./g')
 bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
 sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
+
+# Vendor Overlays
+vendoroverlaysname="VendorOverlays.tar.gz"
+vendoroverlays="$OUTDIR/$vendoroverlaysname"
+if [[ -d "$TARGETDIR/system/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
+            mkdir -p "$OUTDIR/vendorOverlays"
+            cp -vrp $TARGETDIR/system/vendor/overlay/* "$OUTDIR/vendorOverlays" >/dev/null 2>&1
+fi
+if [[ -d "$TARGETDIR/system/system/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
+       mkdir -p "$OUTDIR/vendorOverlays"
+       cp -vrp $systemdir/vendor/overlay/* "$OUTDIR/vendorOverlays" >/dev/null 2>&1
+fi
+if [[ -d "$OUTDIR/vendorOverlays"]]; then
+            echo "-> Extracting Overlays..."
+            rm -rf "$OUTDIR/vendorOverlays/home"
+            tar -zcvf "$vendoroverlays" "$OUTDIR/vendorOverlays" >/dev/null 2>&1
+            rm -rf "$OUTDIR/vendorOverlays"
+else
+            echo "-> Overlays not found!"
 
 model="$(cat $systemdir/build.prop | grep 'model')"
 echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
