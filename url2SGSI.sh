@@ -5,12 +5,26 @@ source ./bin.sh
 source ./language_helper.sh
 DL="${SCRIPTDIR}/dl.sh"
 
+usage() {
+cat <<EOT
+Usage:
+    $0 <Firmware link> <Firmware type>
+    Firmware link: Firmware download link or local path
+    Firmware type: Firmware source type
+    Example: <Firmware link> <Firmware type>:<SGSI Name>
+EOT
+}
+
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
 key="$1"
 
 case $key in
+    --help|-h|-?)
+    usage
+    exit 1
+    ;;
     *)
     POSITIONAL+=("$1")
     shift
@@ -19,19 +33,37 @@ esac
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
+if [[ ! -n $2 ]]; then
+    echo "-> ERROR!"
+    echo " - Enter all needed parameters"
+    usage
+    exit 1
+fi
+
 URL=$1
 shift
-TYPE=$1
+GTYPE=$1
 shift
 
 ORIGINAL_URL=$URL
-if [[ $TYPE == *":"* ]]; then
-    NAME=`echo "$TYPE" | cut -d ":" -f 2`
+if [[ $GTYPE == *":"* ]]; then
+    NAME=`echo "$GTYPE" | cut -d ":" -f 2`
 else
-    NAME=$TYPE
+    NAME=$GTYPE
 fi
-TYPE=`echo "$TYPE" | cut -d ":" -f 1`
+if [[ $GTYPE == *":"* ]]; then
+    TYPE=`echo "$GTYPE" | cut -d ":" -f 1`
+else
+    TYPE=$GTYPE
+fi
 date=`date +%Y%m%d`
+
+if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
+  echo $UNSUPPORTED_ROM
+  echo $SUPPORTED_ROM_LIST
+  cat $LOCALDIR/make/rom_support_list.txt
+  exit 1
+fi
 
 DOWNLOAD()
 {

@@ -138,21 +138,18 @@ function firmware_extract() {
   cd $IMAGESDIR
 }
 
-echo $INITINGENV
 chmod -R 777 ./
 ./workspace_cleanup.sh > /dev/null 2>&1
 rm -rf $WORKSPACE
 mkdir -p $IMAGESDIR
 mkdir -p $TARGETDIR
-echo $ENVINITFINISH
-
+mkdir -p $OUTDIR
 if (echo $@ | grep -qo -- "--fix-bug") ;then
   other_args+=" --fix-bug"
 fi
 
 firmware_extract
 cd $LOCALDIR
-mkdir -p $OUTDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "-> SGSI Time :)"
   ./SGSI.sh $build_type $os_type $other_args
