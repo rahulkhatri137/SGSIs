@@ -47,9 +47,9 @@ shift
 
 ORIGINAL_URL=$URL
 if [[ $GTYPE == *":"* ]]; then
-    NAME=`echo "$GTYPE" | cut -d ":" -f 2`
+    N=`echo "$GTYPE" | cut -d ":" -f 2`
 else
-    NAME=$GTYPE
+    N=$GTYPE
 fi
 if [[ $GTYPE == *":"* ]]; then
     TYPE=`echo "$GTYPE" | cut -d ":" -f 1`
@@ -57,14 +57,14 @@ else
     TYPE=$GTYPE
 fi
 date=`date +%Y%m%d`
-
+FNAME=$N-AB-12-$date-RK137SGSI
 if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
   echo $UNSUPPORTED_ROM
   echo $SUPPORTED_ROM_LIST
   cat $LOCALDIR/make/rom_support_list.txt
   exit 1
 fi
-
+echo "export NAME=$FNAME" >> bin.sh
 DOWNLOAD()
 {
     URL="$1"
@@ -94,5 +94,5 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
 sudo rm -rf "$LOCALDIR/SGSI"
-sudo mv "$LOCALDIR/output/system.img" "$LOCALDIR/output/$NAME-AB-$date-RK137SGSI.img"
+sudo mv "$LOCALDIR/output/system.img" "$OUTDIR/$FNAME.img"
 echo "-> Porting SGSI done!"

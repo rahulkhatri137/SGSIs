@@ -190,7 +190,7 @@ case $os_repackage_type in
 esac
 
 if [ -s $TARGETDIR/system.img ];then
-  echo "-> Created RK137SGSI image  | Size: $(bytesToHuman $size)" 
+  echo "-> Created $NAME  | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   echo ""
