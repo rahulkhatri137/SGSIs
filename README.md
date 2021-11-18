@@ -5,10 +5,10 @@
 ## 本工具部分依赖来自:  
 * Erfan GSIs: https://github.com/erfanoabdi/ErfanGSIs  
 * MToolkit: https://github.com/Nightmare-MY
-* AndroidDump: https://github.com/AndroidDump/dumper
-* 对上述列表表示感谢  
+* AndroidDump: https://github.com/AndroidDump/dumper 
+* Stck-lzm: https://github.com/stck-lzm/badown 
 * Treble Experience: https://github.com/TrebleExperience
-
+* 对上述列表表示感谢
 ## 感谢九雨梦舟 https://github.com/pomelohan 的帮助  
 ## 感谢 Col_or https://github.com/color597 的帮助  
 ## 感谢 thka2016 https://github.com/thka2016 的帮助  

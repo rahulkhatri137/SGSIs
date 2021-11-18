@@ -8,4 +8,4 @@ source $LOCALDIR/../../language_helper.sh
 configdir="$TARGETDIR/config"
 systemdir="$TARGETDIR/system/system"
 
-echo "$FIXING_ROM"
+echo "-> $FIXING_ROM"

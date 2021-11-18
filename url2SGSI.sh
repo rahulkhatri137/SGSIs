@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Inspired from url2GSI from ErfanGSIs tool at https://github.com/erfanoabdi/ErfanGSIs
+# Copyright to Rahul at https://github.com/rahulkhatri137
+
 LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source ./bin.sh
 source ./language_helper.sh
@@ -94,5 +97,5 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
 sudo rm -rf "$LOCALDIR/SGSI"
-sudo mv "$LOCALDIR/output/system.img" "$OUTDIR/$FNAME.img"
+sudo mv "$LOCALDIR/output/system.img" "$OUTDIR/$FNAME.img" || exit 1
 echo "-> Porting SGSI done!"

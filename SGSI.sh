@@ -150,22 +150,13 @@ function normal() {
       cat $systemdir/build.prop | grep -qo 'qssi'
     }
     if qssi ;then
-      echo "$QSSI_DETECTED"
-      echo "$DEVICE_PROP_FIX_STARTED"
+      echo "-> Fixing device props..."
       brand=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.brand')
       device=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.device')
       manufacturer=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.manufacturer')
       model=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.model')
       mame=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.name')
-  
-      echo "$CURR_DEVICE_PROP:"
-      echo "$brand"
-      echo "$device"
-      echo "$manufacturer"
-      echo "$model"
-      echo "$mame"
 
-      echo "$FIXING_STR"
       sed -i '/ro.product.system./d' $systemdir/build.prop
       echo "" >> $systemdir/build.prop
       echo "# Device Settings" >> $systemdir/build.prop
@@ -175,7 +166,6 @@ function normal() {
       echo "$model" >> $systemdir/build.prop
       echo "$mame" >> $systemdir/build.prop
       sed -i 's/ro.product.vendor./ro.product.system./g' $systemdir/build.prop
-      echo "$FIX_FINISHED_STR"
     fi
  
     # Enable auto-adapting dpi
@@ -386,11 +376,11 @@ sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
 # Vendor Overlays
 vendoroverlaysname="VendorOverlays.tar.gz"
 vendoroverlays="$OUTDIR/$vendoroverlaysname"
-if [[ -d "$TARGETDIR/system/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
+if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
             mkdir -p "$OUTDIR/vendorOverlays"
             cp -vrp $TARGETDIR/system/vendor/overlay/* "$OUTDIR/vendorOverlays" >/dev/null 2>&1
 fi
-if [[ -d "$TARGETDIR/system/system/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
+if [[ -d "$TARGETDIR/system/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
        mkdir -p "$OUTDIR/vendorOverlays"
        cp -vrp $systemdir/vendor/overlay/* "$OUTDIR/vendorOverlays" >/dev/null 2>&1
 fi
@@ -400,7 +390,8 @@ if [[ -d "$OUTDIR/vendorOverlays"]]; then
             tar -zcvf "$vendoroverlays" "$OUTDIR/vendorOverlays" >/dev/null 2>&1
             rm -rf "$OUTDIR/vendorOverlays"
 else
-            echo "-> Overlays not found!"
+            echo "-> Skipped Vendor Overlays!"
+fi
 
 model="$(cat $systemdir/build.prop | grep 'model')"
 echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
