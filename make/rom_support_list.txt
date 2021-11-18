@@ -1,2 +1,9 @@
 Generic
 Pixel
+MIUI
+OxygenOS
+Nubia
+Flyme
+ColorOS
+FuntouchOS
+JoyUI
