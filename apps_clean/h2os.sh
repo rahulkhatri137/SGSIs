@@ -4,7 +4,12 @@ LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 systemdir=$1
 rm -rf $1/reserve/*
-
+rm -rf $1/product/data-app/*
+rm -rf $1/product/app/TrichromeLibrary
+rm -rf $1/product/app/WebViewGoogle
+rm -rf $1/product/media/audio/alarms/*
+rm -rf $1/product/media/audio/notifications/*
+rm -rf $1/product/media/audio/ringtones/*
 # Nuke OnePlus useless app apks
 rm -rf $1/app/GooglePay
 rm -rf $1/app/Netflix_Activation

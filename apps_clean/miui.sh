@@ -4,6 +4,31 @@ LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 systemdir=$1
 rm -rf $1/data-app/*
+rm -rf $1/priv-app/MIUIAod
+rm -rf $1/priv-app/MIUIBrowser
+rm -rf $1/priv-app/MIUICamera
+rm -rf $1/priv-app/MIUIContentExtension
+rm -rf $1/priv-app/MIUIMusic
+rm -rf $1/priv-app/MIUIVideo
+rm -rf $1/priv-app/MIUIGallery
+rm -rf $1/priv-app/Mirror
+rm -rf $1/priv-app/MIUIShare
+rm -rf $1/priv-app/MIUICalendar
+rm -rf $1/priv-app/MIUIYellowPage
+rm -rf $1/app/MiLink
+rm -rf $1/app/MILink
+rm -rf $1/app/MIPay
+rm -rf $1/app/mab
+rm -rf $1/app/MiSound  
+rm -rf $1/app/MIUIDeskClock
+rm -rf $1/app/MIUIFileExplorer 
+rm -rf $1/app/MIUISuperMarket 
+rm -rf $1/product/data-app/*
+rm -rf $1/product/app/TrichromeLibrary
+rm -rf $1/product/app/WebViewGoogle
+rm -rf $1/product/media/audio/alarms/*
+rm -rf $1/product/media/audio/notifications/*
+rm -rf $1/product/media/audio/ringtones/*
 # Nuke MIUI useless system apks
 rm -rf $1/app/cit
 rm -rf $1/app/MiuiCompass

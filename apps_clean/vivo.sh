@@ -87,7 +87,12 @@ rm -rf $1/product/priv-app/AndroidAutoStub
 rm -rf $1/product/priv-app/GoogleDialer
 rm -rf $1/product/priv-app/Velvet
 rm -rf $1/product/priv-app/Wellbeing
-
+rm -rf $1/product/data-app/*
+rm -rf $1/product/app/TrichromeLibrary
+rm -rf $1/product/app/WebViewGoogle
+rm -rf $1/product/media/audio/alarms/*
+rm -rf $1/product/media/audio/notifications/*
+rm -rf $1/product/media/audio/ringtones/*
 # I don't know if this a necessary apk, didn't tested yet.
 rm -rf $1/res/vcode/*.apk
 

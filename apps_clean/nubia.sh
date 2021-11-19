@@ -32,7 +32,12 @@ rm -rf $1/priv-app/PhotoEditor
 rm -rf $1/priv-app/ZQuickSearchBox
 rm -rf $1/priv-app/nubia_HaloVoice
 rm -rf $1/priv-app/nubia_touping
-
+rm -rf $1/product/data-app/*
+rm -rf $1/product/app/TrichromeLibrary
+rm -rf $1/product/app/WebViewGoogle
+rm -rf $1/product/media/audio/alarms/*
+rm -rf $1/product/media/audio/notifications/*
+rm -rf $1/product/media/audio/ringtones/*
 # Since we've dropped AOD, time to drop AOD themes
 rm -rf $1/system_ext/media/Settings/aod
 
