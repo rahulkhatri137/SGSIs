@@ -97,5 +97,10 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
 sudo rm -rf "$LOCALDIR/SGSI"
-sudo mv "$LOCALDIR/output/system.img" "$OUTDIR/$FNAME.img" || exit 1
-echo "-> Porting SGSI done!"
+if [ -f "$OUTDIR/system.img" ]; then
+   sudo mv "$LOCALDIR/output/system.img" "$OUTDIR/$FNAME.img" > /dev/null 2>&1
+   echo "-> Porting SGSI done!"
+else
+   echo "-> SGSI not found! Exiting..."
+   exit 1
+fi
