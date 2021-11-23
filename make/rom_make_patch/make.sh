@@ -9,3 +9,4 @@ configdir="$TARGETDIR/config"
 systemdir="$TARGETDIR/system/system"
 
 echo "-> $FIXING_ROM"
+$LOCALDIR/../../apps_clean/pixel.sh "$systemdir" > /dev/null 2>&1 
