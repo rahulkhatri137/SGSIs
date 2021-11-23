@@ -373,26 +373,6 @@ displayid2=$(echo "$displayid" | sed 's/\./\\./g')
 bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
 sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
 
-# Vendor Overlays
-vendoroverlaysname="VendorOverlays.tar.gz"
-vendoroverlays="$OUTDIR/$vendoroverlaysname"
-if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
-            mkdir -p "$OUTDIR/vendorOverlays"
-            cp -vrp $TARGETDIR/system/vendor/overlay/* "$OUTDIR/vendorOverlays" >/dev/null 2>&1
-fi
-if [[ -d "$TARGETDIR/system/vendor/overlay" && ! -f "$vendoroverlays" ]]; then
-       mkdir -p "$OUTDIR/vendorOverlays"
-       cp -vrp $systemdir/vendor/overlay/* "$OUTDIR/vendorOverlays" >/dev/null 2>&1
-fi
-if [[ -d "$OUTDIR/vendorOverlays"]]; then
-            echo "-> Extracting Overlays..."
-            rm -rf "$OUTDIR/vendorOverlays/home"
-            tar -zcvf "$vendoroverlays" "$OUTDIR/vendorOverlays" >/dev/null 2>&1
-            rm -rf "$OUTDIR/vendorOverlays"
-else
-            echo "-> Skipped Vendor Overlays!"
-fi
-
 model="$(cat $systemdir/build.prop | grep 'model')"
 echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
 echo "$model" > /dev/null 2>&1
