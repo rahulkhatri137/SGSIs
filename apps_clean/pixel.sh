@@ -6,13 +6,6 @@ cd $LOCALDIR
 # small debloat
 rm -rf $1/product/data-app/*
 rm -rf $1/product/app/TrichromeLibrary
-rm -rf $1/product/app/WebViewGoogle
-rm -rf $1/product/media/audio/alarms/*
-rm -rf $1/product/media/audio/notifications/*
-rm -rf $1/product/media/audio/ringtones/*
-rm -rf $1/product/data-app/*
-rm -rf $1/product/app/TrichromeLibrary
-rm -rf $1/product/app/WebViewGoogle
 rm -rf $1/product/media/audio/alarms/*
 rm -rf $1/product/media/audio/notifications/*
 rm -rf $1/product/media/audio/ringtones/*
