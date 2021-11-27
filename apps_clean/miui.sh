@@ -3,6 +3,10 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 systemdir=$1
+rm -rf $1/apex/*vndk.v28.apex
+rm -rf $1/apex/*vndk.v28
+rm -rf $1/../system_ext/apex/*vndk.v28
+rm -rf $1/../system_ext/apex/*vndk.v28.apex
 rm -rf $1/data-app/*
 rm -rf $1/priv-app/MIUIAod
 rm -rf $1/priv-app/MIUIBrowser
