@@ -15,12 +15,35 @@ echo "
 $SUPPORTED_ROM_STR:
 
 Pixel
+MIUI
+Flyme
+ColorOS
 --------------------
 "
 case "$os_type" in
   "Pixel")
     echo "$FIXING_STR"
     ./pixel.sh
+    exit
+    ;;
+  "MIUI")
+    echo "$FIXING_STR"
+    ./miui.sh
+    exit
+    ;;
+  "Flyme")
+    echo "$FIXING_STR"
+    ./flyme.sh
+    exit
+    ;;
+  "ColorOS")
+    echo "$FIXING_STR"
+    ./oppo.sh
+    exit
+    ;;
+  "OxygenOS")
+    echo "$FIXING_STR"
+    ./h2os.sh
     exit
     ;;
   *)

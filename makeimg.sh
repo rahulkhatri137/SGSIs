@@ -147,6 +147,12 @@ if [ ! -d $systemdir ];then
   exit
 fi
 
+# Codename
+codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$TARGETDIR/vendor/build.prop" | head -1)
+[[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.system.device=).*" -hs $system/build.prop | head -1)
+[[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.device=).*" -hs $system/build.prop | head -1)
+[[ -z "${codename}" ]] && codename=Generic
+
 echo "
 $CURR_IMG_SIZE:
 _________________
@@ -189,15 +195,24 @@ case $os_repackage_type in
     ;;
 esac
 
+#Out Variable
+date=`date +%Y%m%d`
+outputname="$NAME-12-$date-$codename-RK137SGSI"
+ioutputname="$NAME-AB-12-$date-$codename-RK137SGSI"
+outputimagename="$ioutputname".img
+outputtextname="Build-info-$outputname".txt
+output="$OUTDIR/$outputimagename"
+
 if [ -s $TARGETDIR/system.img ];then
-  echo "-> Created $NAME | Size: $(bytesToHuman $size)" 
+  echo "-> Created $outputname | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
-  echo ""
-  exit
+  echo "-> SGSI image not found! Exiting... "
+  exit 1
 fi
 
-outputtreename="System-Tree.txt"
+#System Tree
+outputtreename="System-Tree-$outputname".txt
 outputtree="$OUTDIR/$outputtreename"
 if [ ! -f "$outputtree" ]; then
     tree $systemdir >> "$outputtree" 2> "$outputtree"
@@ -205,9 +220,9 @@ fi
 
 if [ -s $TARGETDIR/system.img ];then
   rm -rf $LOCALDIR/tmp
-  mv -f $TARGETDIR/system.img ./output/
+  mv -f $TARGETDIR/system.img $output
   cp -frp $system/build.prop $TARGETDIR/
-  ./scripts/get_build_info.sh "$TARGETDIR" "$OUTDIR/system.img" > $OUTDIR/build-info.txt
+  $SCRIPTDIR/get_build_info.sh "$TARGETDIR" "$output"  > $OUTDIR/$outputtextname
   rm -rf $TARGETDIR/build.prop
   chmod -R 777 $LOCALDIR/output
 fi

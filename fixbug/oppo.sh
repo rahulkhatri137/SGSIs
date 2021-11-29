@@ -3,7 +3,7 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 
-romdir="$LOCALDIR/color"
+romdir="$LOCALDIR/oppo"
 systemdir="$LOCALDIR/../out/system/system"
 configdir="$LOCALDIR/../out/config"
 my_product_dir="$systemdir/../my_product"

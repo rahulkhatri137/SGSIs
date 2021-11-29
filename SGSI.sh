@@ -293,14 +293,11 @@ function normal() {
   #./camera.sh > /dev/null 2>&1
   #cd $LOCALDIR
 
-  # Detect ROM Type
-  cd ./make
-  ./romtype.sh "$os_type" > /dev/null 2>&1
-  cd $LOCALDIR
-
-  # ROM Patch Process
+  # Rom specific patch
   cd ./make/rom_make_patch
   ./make.sh
+  cd ..
+  ./romtype.sh "$os_type" > /dev/null 2>&1
   cd $LOCALDIR
 
   # Add oem_build
@@ -373,6 +370,17 @@ displayid2=$(echo "$displayid" | sed 's/\./\\./g')
 bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
 sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
 
+#Overlays
+outputvendoroverlaysname="VendorOverlays-$outputname".tar.gz
+outputvendoroverlays="$outdir/$outputvendoroverlaysname"
+if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
+        mkdir -p "$OUTDIR/vendorOverlays"
+        cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
+ if [ -d "$OUTDIR/vendorOverlays" ]; then
+        tar -zcvf "$outputvendoroverlays" "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
+        rm -rf "output/vendorOverlays"
+ fi
+fi
 model="$(cat $systemdir/build.prop | grep 'model')"
 echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
 echo "$model" > /dev/null 2>&1

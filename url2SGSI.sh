@@ -59,15 +59,15 @@ if [[ $GTYPE == *":"* ]]; then
 else
     TYPE=$GTYPE
 fi
-date=`date +%Y%m%d`
-FNAME=$N-AB-12-$date-RK137SGSI
+
 if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
   echo $UNSUPPORTED_ROM
   echo $SUPPORTED_ROM_LIST
   cat $LOCALDIR/make/rom_support_list.txt
   exit 1
 fi
-echo "export NAME=$FNAME" >> bin.sh
+
+echo "export NAME=$N" >> bin.sh
 DOWNLOAD()
 {
     URL="$1"
@@ -97,8 +97,7 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
 sudo rm -rf "$LOCALDIR/SGSI"
-if [ -f "$OUTDIR/system.img" ]; then
-   sudo mv "$LOCALDIR/output/system.img" "$OUTDIR/$FNAME.img" > /dev/null 2>&1
+if [ -d "$OUTDIR" ]; then
    echo "-> Porting SGSI done!"
 else
    echo "-> SGSI not found! Exiting..."
