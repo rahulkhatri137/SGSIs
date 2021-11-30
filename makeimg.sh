@@ -153,6 +153,26 @@ codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$TARGETDIR/vendor/b
 [[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.device=).*" -hs $system/build.prop | head -1)
 [[ -z "${codename}" ]] && codename=Generic
 
+#Out Variable
+date=`date +%Y%m%d`
+outputname="$NAME-12-$date-$codename-RK137SGSI"
+ioutputname="$NAME-AB-12-$date-$codename-RK137SGSI"
+outputimagename="$ioutputname".img
+outputtextname="Build-info-$outputname".txt
+output="$OUTDIR/$outputimagename"
+
+#Overlays
+outputvendoroverlaysname="VendorOverlays-$outputname".tar.gz
+outputvendoroverlays="$OUTDIR/$outputvendoroverlaysname"
+if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
+        mkdir -p "$OUTDIR/vendorOverlays"
+        cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
+ if [ -d "$OUTDIR/vendorOverlays" ]; then
+        tar -zcvf "$outputvendoroverlays" "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
+        rm -rf "output/vendorOverlays"
+ fi
+fi
+
 echo "
 $CURR_IMG_SIZE:
 _________________
@@ -194,14 +214,6 @@ case $os_repackage_type in
     $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts" > /dev/null 2>&1
     ;;
 esac
-
-#Out Variable
-date=`date +%Y%m%d`
-outputname="$NAME-12-$date-$codename-RK137SGSI"
-ioutputname="$NAME-AB-12-$date-$codename-RK137SGSI"
-outputimagename="$ioutputname".img
-outputtextname="Build-info-$outputname".txt
-output="$OUTDIR/$outputimagename"
 
 if [ -s $TARGETDIR/system.img ];then
   echo "-> Created $outputname | Size: $(bytesToHuman $size)" 
