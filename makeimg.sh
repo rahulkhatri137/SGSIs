@@ -168,6 +168,7 @@ if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
         mkdir -p "$OUTDIR/vendorOverlays"
         cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
  if [ -d "$OUTDIR/vendorOverlays" ]; then
+        echo "-> Extracting Vendor Overlays..."
         tar -zcvf "$outputvendoroverlays" "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
         rm -rf "output/vendorOverlays"
  fi

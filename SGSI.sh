@@ -358,6 +358,17 @@ elif [[ ! -d $systemdir/system_ext ]];then
   exit 1
 fi
 
+# Don't write binary XML files
+echo "# Don't write binary XML files" >> $systemdir/build.prop
+echo "persist.sys.binary_xml=false" >> $systemdir/build.prop
+echo "" >> $systemdir/build.prop
+
+# Support multi-sim
+sed -i "/persist.sys.fflag.override.settings_provider_model/d" $systemdir/build.prop
+echo "# Support multi-sim" >> $systemdir/build.prop
+echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/build.prop
+echo "" >> $systemdir/build.prop
+
  # Change Build Number
 if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
     displayid="ro.build.display.id"

@@ -58,3 +58,11 @@ if [ $(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut
   enable_apex
   cp -frp $LOCALDIR/system/* $systemdir/
 fi
+
+# Merge monet props stuff
+sed -i "/persist.sysui.monet/d" $systemdir/product/etc/build.prop
+sed -i "/ro.boot.vendor.overlay.theme/d" $systemdir/product/etc/build.prop
+echo "" >> $1/product/etc/build.prop
+echo "# Monet fix (Not fully)" >> $systemdir/product/etc/build.prop
+echo "persist.sysui.monet=true" >> $systemdir/product/etc/build.prop
+echo "ro.boot.vendor.overlay.theme=com.android.internal.systemui.navbar.gestural;com.google.android.systemui.gxoverlay" >> $systemdir/product/etc/build.prop
