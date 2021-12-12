@@ -220,7 +220,7 @@ if [ -s $TARGETDIR/system.img ];then
   echo "-> Created $outputname | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
-  echo "-> SGSI image not found! Exiting... "
+  rm -rf $OUTDIR 
   exit 1
 fi
 

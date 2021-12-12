@@ -100,11 +100,10 @@ function normal() {
   ramdisk_modify
   echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
  
-  # Common apex_vndk process
+ # Common apex_vndk process
   cd ./make/apex_vndk_start
   ./make.sh > /dev/null 2>&1
   cd $LOCALDIR 
-
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
 
   # Reset manifest_custom

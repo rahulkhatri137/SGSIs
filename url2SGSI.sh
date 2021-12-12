@@ -78,7 +78,7 @@ DOWNLOAD()
         ("${DL}" "${URL}" "$LOCALDIR/tmp" "$ZIP_NAME") || exit 1
     else
         if echo "${URL}" | grep -q "1drv.ms"; then URL=${URL/ms/ws}; fi
-        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/input" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/input/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
+        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
         aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
             wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
         }
@@ -92,7 +92,12 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
         DOWNLOAD "$URL" "$ZIP_NAME"
         URL="$ZIP_NAME"
     fi
-   "$LOCALDIR"/make.sh --AB $TYPE update.zip --fix-bug
+
+LEAVE() {
+    rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$LOCALDIR/tmp" "$LOCALDIR/SGSI"
+    exit 1
+}
+   "$LOCALDIR"/make.sh --AB $TYPE update.zip --fix-bug || LEAVE
 
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
@@ -101,5 +106,5 @@ if [ -d "$OUTDIR" ]; then
    echo "-> Porting SGSI done!"
 else
    echo "-> SGSI not found! Exiting..."
-   exit 1
+   LEAVE
 fi
