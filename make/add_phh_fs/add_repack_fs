@@ -28,3 +28,4 @@ system/system/etc/permissions/interfaces.xml 0 0 0644
 system/system/etc/usb_audio_policy_configuration.xml 0 0 0644
 system/system/framework/android.hardware.wifi.hostapd-V1.0-java.jar 0 0 0644
 system/system/framework/vendor.qti.hardware.radio.am-V1.0-java.jar 0 0 0644
+system/system/bin/netd 0 2000 0755

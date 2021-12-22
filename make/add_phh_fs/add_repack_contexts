@@ -26,3 +26,4 @@
 /system/system/bin/phh-on-boot\.sh u:object_r:update_engine_exec:s0
 /system/system/bin/phh-prop-handler\.sh u:object_r:update_engine_exec:s0
 /system/system/bin/rw-system\.sh u:object_r:update_engine_exec:s0
+/system/system/bin/netd u:object_r:netd_exec:s0

@@ -7,14 +7,16 @@ LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source ./bin.sh
 source ./language_helper.sh
 DL="${SCRIPTDIR}/dl.sh"
+fixbug=true
+dummy=false
 
 usage() {
 cat <<EOT
 Usage:
-    $0 <Firmware link> <Firmware type>
-    Firmware link: Firmware download link or local path
-    Firmware type: Firmware source type
-    Example: <Firmware link> <Firmware type>:<SGSI Name>
+$0 <Firmware link> <Firmware type>
+   Firmware link: Firmware download link or local path
+   Firmware type: Firmware source type
+   Example: <Firmware link> <Firmware type>:<SGSI Name>
 EOT
 }
 
@@ -27,6 +29,14 @@ case $key in
     --help|-h|-?)
     usage
     exit 1
+    ;;
+    --fb|-fb)
+    fixbug=false
+    shift
+    ;;
+    --ab|-ab)
+    dummy=true
+    shift
     ;;
     *)
     POSITIONAL+=("$1")
@@ -68,6 +78,7 @@ if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
 fi
 
 echo "export NAME=$N" >> bin.sh
+rm -rf tmp output workspace SGSI
 DOWNLOAD()
 {
     URL="$1"
@@ -94,17 +105,23 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
     fi
 
 LEAVE() {
+    echo "-> SGSI failed! Exiting..."
     rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$LOCALDIR/tmp" "$LOCALDIR/SGSI"
     exit 1
 }
-   "$LOCALDIR"/make.sh --AB $TYPE update.zip --fix-bug || LEAVE
+if [ $fixbug == true ]; then
+    "$LOCALDIR"/make.sh --AB $TYPE update.zip --fix-bug || LEAVE
+elif [ $fixbug == false ] ; then
+    "$LOCALDIR"/make.sh --AB $TYPE update.zip || LEAVE
+fi
 
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
 sudo rm -rf "$LOCALDIR/SGSI"
 if [ -d "$OUTDIR" ]; then
+   cd $OUTDIR
+   cp -fr B*txt README.txt > /dev/null 2>&1 || LEAVE
    echo "-> Porting SGSI done!"
 else
-   echo "-> SGSI not found! Exiting..."
    LEAVE
 fi

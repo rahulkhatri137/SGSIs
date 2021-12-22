@@ -11,3 +11,4 @@ boot/
 images/
 dtbo/
 dtbs/
+output/
