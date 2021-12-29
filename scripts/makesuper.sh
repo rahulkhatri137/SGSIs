@@ -4,7 +4,8 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
+source $LOCALDIR/../bin.sh
+source $LOCALDIR/../language_helper.sh
 
 partition_name="system system_ext vendor product odm system_a system_ext_a vendor_a product_a odm_a system_b system_ext_b vendor_b product_b odm_b"
 

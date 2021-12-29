@@ -5,14 +5,14 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
-source ./language_helper.sh
+source $LOCALDIR/bin.sh
+source $TOOLDIR/language_helper.sh
 
 Usage() {
 cat <<EOT
 Usage:
 $0 <Build Type> <OS Type> <Firmware Path> [Other args]
-  Build Type: [--AB|--ab] or [-A|-a|--a-only]
+  Build Type: [AB|ab] or [A|a]
   OS Type: Rom OS type to build
   Firmware Path: Rom Firmware Path
 
@@ -22,11 +22,11 @@ EOT
 }
 
 case $1 in 
-  "--AB"|"--ab")
-    build_type="--ab"
+  "AB"|"ab")
+    build_type="AB"
     ;;
-  "-A"|"-a"|"--a-only")
-    build_type="-a"
+  "A"|"a")
+    build_type="A"
     echo $NOTSUPPAONLY
     exit 1
     ;;
@@ -45,20 +45,21 @@ if [ $# -lt 3 ];then
   exit 1
 fi
 os_type="$2"
-firmware="$3"
+name=$3
+firmware="$4"
 build_type="$build_type"
 other_args=""
 shift 3
 
-if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$os_type");then
+if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
   echo $UNSUPPORTED_ROM
   echo $SUPPORTED_ROM_LIST
-  cat $LOCALDIR/make/rom_support_list.txt
+  cat $MAKEDIR/rom_support_list.txt
   exit 1
 fi
 
 if [ ! -e $firmware ];then
-  if [ ! -e $LOCALDIR/tmp/$firmware ];then
+  if [ ! -e $TMPDIR/$firmware ];then
     echo $NOTFOUNDFW
     exit 1
   fi  
@@ -68,22 +69,22 @@ function firmware_extract() {
   partition_list="system vendor system_ext odm product reserve boot vendor_boot"
   
   if [ -e $firmware ];then
-    7z x -y "$firmware" -o"./tmp/" > /dev/null 2>&1
+    7z x -y "$firmware" -o"$TMPDIR/" > /dev/null 2>&1
   fi
-  if [ -e $LOCALDIR/tmp/$firmware ];then
-    7z x -y "$LOCALDIR/tmp/$firmware" -o"$LOCALDIR/tmp/" > /dev/null 2>&1
+  if [ -e $TMPDIR/$firmware ];then
+    7z x -y "$TMPDIR/$firmware" -o"$TMPDIR/" > /dev/null 2>&1
   fi
 
-  for i in $(ls $LOCALDIR/tmp);do
-    [ ! -d $LOCALDIR/tmp/$i ] && continue
-    cd $LOCALDIR/tmp/$i
+  for i in $(ls $TMPDIR);do
+    [ ! -d $TMPDIR/$i ] && continue
+    cd $TMPDIR/$i
     if [ $(ls | wc -l) != "0" ];then
       mv -f ./* ../
     fi
     cd $LOCALDIR
   done
 
-  cd $LOCALDIR/tmp
+  cd $TMPDIR
   echo "-> Extracting Firmware..."
   for partition in $partition_list ;do
     # Detect payload.bin
@@ -100,7 +101,7 @@ function firmware_extract() {
       done
       rm -rf ./payload.bin
       rm -rf ./out/*
-      cd $LOCALDIR/tmp
+      cd $TMPDIR
     fi
 
     # Detect dat.br
@@ -152,7 +153,7 @@ firmware_extract
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "-> SGSI Time :)"
-  ./SGSI.sh $build_type $os_type $other_args
+  ./SGSI.sh $build_type $os_type $name $other_args
   ./workspace_cleanup.sh > /dev/null 2>&1
   exit 0
 else

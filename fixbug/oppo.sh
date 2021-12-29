@@ -2,10 +2,12 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../bin.sh
+source $TOOLDIR/language_helper.sh
 
 romdir="$LOCALDIR/oppo"
-systemdir="$LOCALDIR/../out/system/system"
-configdir="$LOCALDIR/../out/config"
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 my_product_dir="$systemdir/../my_product"
 
 # 自动亮度关闭

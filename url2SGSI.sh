@@ -4,19 +4,23 @@
 # Copyright to Rahul at https://github.com/rahulkhatri137
 
 LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-source ./bin.sh
-source ./language_helper.sh
+cd $LOCALDIR
+source $LOCALDIR/bin.sh
+source $LOCALDIR/language_helper.sh
 DL="${SCRIPTDIR}/dl.sh"
-fixbug=true
+fixbug="--fix-bug"
 dummy=false
+build="AB"
 
 usage() {
 cat <<EOT
 Usage:
-$0 <Firmware link> <Firmware type>
+$0 <Firmware link> <Firmware type> [Other args]
    Firmware link: Firmware download link or local path
    Firmware type: Firmware source type
    Example: <Firmware link> <Firmware type>:<SGSI Name>
+   Other args:
+    [-fb]: Don't Fix bugs in Rom
 EOT
 }
 
@@ -30,11 +34,19 @@ case $key in
     usage
     exit 1
     ;;
-    --fb|-fb)
-    fixbug=false
+    --ab|-ab)
+    build="AB"
     shift
     ;;
-    --ab|-ab)
+    --a|-a)
+    build="A"
+    shift
+    ;;
+    --fb|-fb)
+    fixbug=""
+    shift
+    ;;
+    --t|-t)
     dummy=true
     shift
     ;;
@@ -55,19 +67,19 @@ fi
 
 URL=$1
 shift
-GTYPE=$1
+TYPE=$1
 shift
 
 ORIGINAL_URL=$URL
 if [[ $GTYPE == *":"* ]]; then
-    N=`echo "$GTYPE" | cut -d ":" -f 2`
+    NAME=`echo "$TYPE" | cut -d ":" -f 2`
 else
-    N=$GTYPE
+    NAME=$TYPE
 fi
 if [[ $GTYPE == *":"* ]]; then
-    TYPE=`echo "$GTYPE" | cut -d ":" -f 1`
+    TYPE=`echo "$TYPE" | cut -d ":" -f 1`
 else
-    TYPE=$GTYPE
+    TYPE=$TYPE
 fi
 
 if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
@@ -77,25 +89,24 @@ if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
   exit 1
 fi
 
-echo "export NAME=$N" >> bin.sh
 rm -rf tmp output workspace SGSI
 DOWNLOAD()
 {
     URL="$1"
     ZIP_NAME="update.zip"
-    mkdir -p "$LOCALDIR/tmp"
+    mkdir -p "$TMPDIR"
     echo "-> Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
-        ("${DL}" "${URL}" "$LOCALDIR/tmp" "$ZIP_NAME") || exit 1
+        ("${DL}" "${URL}" "$TMPDIR" "$ZIP_NAME") || exit 1
     else
         if echo "${URL}" | grep -q "1drv.ms"; then URL=${URL/ms/ws}; fi
-        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
-        aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
-            wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
+        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$TMPDIR" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$TMPDIR/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
+        aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$TMPDIR" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
+            wget -U "Mozilla/5.0" ${URL} -O "$TMPDIR/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
         }
     fi
 }
-ZIP_NAME="$LOCALDIR/tmp/dummy"
+ZIP_NAME="$TMPDIR/dummy"
     if [[ "$URL" == "http"* ]]; then
         # URL detected
         ACTUAL_ZIP_NAME=update.zip
@@ -106,21 +117,18 @@ ZIP_NAME="$LOCALDIR/tmp/dummy"
 
 LEAVE() {
     echo "-> SGSI failed! Exiting..."
-    rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$LOCALDIR/tmp" "$LOCALDIR/SGSI"
+    rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
     exit 1
 }
-if [ $fixbug == true ]; then
-    "$LOCALDIR"/make.sh --AB $TYPE update.zip --fix-bug || LEAVE
-elif [ $fixbug == false ] ; then
-    "$LOCALDIR"/make.sh --AB $TYPE update.zip || LEAVE
-fi
+  
+ "$LOCALDIR"/make.sh $build $TYPE $NAME $URL $fixbug || LEAVE
 
 sudo rm -rf "$LOCALDIR/tmp"
 sudo rm -rf "$LOCALDIR/workspace"
 sudo rm -rf "$LOCALDIR/SGSI"
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
-   cp -fr B*txt README.txt > /dev/null 2>&1 || LEAVE
+   cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE
    echo "-> Porting SGSI done!"
 else
    LEAVE

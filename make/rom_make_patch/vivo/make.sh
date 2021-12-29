@@ -2,10 +2,12 @@
 
 LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../../../bin.sh
+source $TOOLDIR/language_helper.sh
 
-systemdir="../../../out/system/system"
-configdir="../../../out/config"
-vendordir="../../../out/vendor"
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
+vendordir="$TARGETDIR/vendor"
 
 # 删除多余文件
 rm -rf $systemdir/data

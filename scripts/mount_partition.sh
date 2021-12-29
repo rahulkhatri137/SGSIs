@@ -2,14 +2,14 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
-source ./language_helper.sh
+source $LOCALDIR/../bin.sh
+source $LOCALDIR/../language_helper.sh
 
 rm -rf ./out
 rm -rf ./SGSI
 mkdir ./out
 
-systemdir="$LOCALDIR/out/system/system"
+systemdir="$TARGETDIR/system/system"
 partition_list="system_ext product"
 
 for partition in system ;do

@@ -5,14 +5,14 @@ set -e
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
-source ./language_helper.sh
+source $LOCALDIR/bin.sh
+source $TOOLDIR/language_helper.sh
 
 Usage() {
 cat <<EOT
 Usage:
 $0 <Build Type> <OS Type> [Other args]
-  Build Type: [--AB|--ab] or [-A|-a|--a-only]
+  Build Type: [AB|ab] or [A|a]
   OS Type: Rom OS type to build
 
   Other args:
@@ -21,11 +21,11 @@ EOT
 }
 
 case $1 in
-  "--AB"|"--ab")
-    build_type="--ab"
+  "AB"|"ab")
+    build_type="AB"
     ;;
-  "-A"|"-a"|"--a-only")
-    build_type="--a-only"
+  "A"|"a")
+    build_type="A"
     echo "$NOTSUPPAONLY"
     exit 1
     ;;
@@ -45,18 +45,18 @@ if [ $# -lt 2 ];then
 fi
 
 os_type="$2"
+name=$3
 build_type="$build_type"
-bug_fix="false"
 use_config="_config"
 other_args=""
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 shift 2
 
-if ! (cat ./make/rom_support_list.txt | grep -qo "$os_type");then
+if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
   echo $UNSUPPORTED_ROM
   echo $SUPPORTED_ROM_LIST
-  cat ./make/rom_support_list.txt
+  cat $MAKEDIR/rom_support_list.txt
   exit 1
 fi
 
@@ -101,22 +101,19 @@ function normal() {
   echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
  
  # Common apex_vndk process
-  cd ./make/apex_vndk_start
+  cd $MAKEDIR/apex_vndk_start
   ./make.sh > /dev/null 2>&1
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
 
   # Reset manifest_custom
-  true > ./make/add_etc_vintf_patch/manifest_custom
-  echo "" >> ./make/add_etc_vintf_patch/manifest_custom
-  echo "<!-- oem hal -->" >> ./make/add_etc_vintf_patch/manifest_custom
+  true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
+  echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
+  echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
 
-  true > ./make/add_build/oem_prop
-  echo "" >> ./make/add_build/oem_prop
-  echo "# oem common prop" >> ./make/add_build/oem_prop
-
-  # Modify USB State
-  cp -frp ./make/aosp_usb/* $systemdir/etc/init/hw/
+  true > $MAKEDIR/add_build/oem_prop
+  echo "" >> $MAKEDIR/add_build/oem_prop
+  echo "# oem common prop" >> $MAKEDIR/add_build/oem_prop
 
   # Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
@@ -190,9 +187,9 @@ function normal() {
     sed -i '/ro.control_privapp_permissions/d' $systemdir/build.prop
     sed -i '/ro.control_privapp_permissions/d' $systemdir/product/etc/build.prop
     sed -i '/ro.control_privapp_permissions/d' $systemdir/system_ext/etc/build.prop  
-    cat ./make/add_build/system_prop >> $systemdir/build.prop
-    cat ./make/add_build/product_prop >> $systemdir/product/etc/build.prop
-    cat ./make/add_build/system_ext_prop >> $systemdir/system_ext/etc/build.prop
+    cat $MAKEDIR/add_build/system_prop >> $systemdir/build.prop
+    cat $MAKEDIR/add_build/product_prop >> $systemdir/product/etc/build.prop
+    cat $MAKEDIR/add_build/system_ext_prop >> $systemdir/system_ext/etc/build.prop
 
     # Disable bpfloader
     rm -rf $systemdir/etc/init/bpfloader.rc
@@ -232,14 +229,14 @@ function normal() {
   # Revert fstab.postinstall to gsi state
   find $systemdir/../ -type f -name "fstab.postinstall" | xargs rm -rf
   rm -rf $systemdir/etc/init/cppreopts.rc    
-  cp -frp ./make/fstab/system/* $systemdir
+  cp -frp $MAKEDIR/fstab/system/* $systemdir
   sed -i '/fstab\\.postinstall/d' $configdir/system_file_contexts
   sed -i '/fstab.postinstall/d' $configdir/system_fs_config
-  cat ./make/fstab/fstab_contexts >> $configdir/system_file_contexts
-  cat ./make/fstab/fstab_fs >> $configdir/system_fs_config
+  cat $MAKEDIR/fstab/fstab_contexts >> $configdir/system_file_contexts
+  cat $MAKEDIR/fstab/fstab_fs >> $configdir/system_fs_config
   
   # Add missing libs
-  cp -frpn ./make/add_libs/system/* $systemdir
+  cp -frpn $MAKEDIR/add_libs/system/* $systemdir
  
   # Enable debug feature
   sed -i 's/persist.sys.usb.config=none/persist.sys.usb.config=adb/g' $systemdir/build.prop
@@ -256,7 +253,6 @@ function normal() {
   echo "" >> $systemdir/product/etc/build.prop
   echo "# force debug" >> $systemdir/product/etc/build.prop
   echo "ro.force.debuggable=1" >> $systemdir/product/etc/build.prop
-
 
   # Remove qti_permissions
   find $systemdir -type f -name "qti_permissions.xml" | xargs rm -rf
@@ -276,31 +272,54 @@ function normal() {
   rm -rf $systemdir/recovery-from-boot.*
 
   # Patch System
-  cp -frp ./make/system_patch/system/* $systemdir/
+  cp -frp $MAKEDIR/system_patch/system/* $systemdir/
 
   # Patch system to phh system
-  cp -frp ./make/add_phh/system/* $systemdir/
+  cp -frp $MAKEDIR/add_phh/system/* $systemdir/
 
   # Register selinux contexts related by phh system
-  cat ./make/add_phh_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
+  cat $MAKEDIR/add_phh_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
   # Register selinux contexts related by added files
-  cat ./make/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
+  cat $MAKEDIR/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
   # Replace to AOSP Camera
-  #cd ./make/camera
+  #cd $MAKEDIR/camera
   #./camera.sh > /dev/null 2>&1
   #cd $LOCALDIR
 
   # Rom specific patch
-  cd ./make/rom_make_patch
+  cd $MAKEDIR/rom_make_patch
   ./make.sh
   cd ..
   ./romtype.sh "$os_type" > /dev/null 2>&1
   cd $LOCALDIR
 
   # Add oem_build
-  cat ./make/add_build/oem_prop >> $systemdir/build.prop
+  cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
+
+# Don't write binary XML files
+echo "# Don't write binary XML files" >> $systemdir/build.prop
+echo "persist.sys.binary_xml=false" >> $systemdir/build.prop
+echo "" >> $systemdir/build.prop
+
+# Support multi-sim
+sed -i "/persist.sys.fflag.override.settings_provider_model/d" $systemdir/build.prop
+echo "# Support multi-sim" >> $systemdir/build.prop
+echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/build.prop
+echo "" >> $systemdir/build.prop
+
+ # Change Build Number
+if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
+    displayid="ro.build.display.id"
+elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
+    displayid="ro.system.build.id"
+elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
+    displayid="ro.build.id"
+fi
+displayid2=$(echo "$displayid" | sed 's/\./\\./g')
+bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
+sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
 
   # Add OEM HAL Manifest Interfaces
   manifest_tmp="$TARGETDIR/vintf/manifest.xml"
@@ -308,23 +327,28 @@ function normal() {
   mkdir -p $(dirname $manifest_tmp)
   cp -frp $systemdir/etc/vintf/manifest.xml $(dirname $manifest_tmp)
   sed -i '/<\/manifest>/d' $manifest_tmp
-  cat ./make/add_etc_vintf_patch/manifest_common >> $manifest_tmp
-  cat ./make/add_etc_vintf_patch/manifest_custom >> $manifest_tmp
+  cat $MAKEDIR/add_etc_vintf_patch/manifest_common >> $manifest_tmp
+  cat $MAKEDIR/add_etc_vintf_patch/manifest_custom >> $manifest_tmp
   echo "" >> $manifest_tmp
   echo "</manifest>" >> $manifest_tmp
   cp -frp $manifest_tmp $systemdir/etc/vintf/
   rm -rf $(dirname $manifest_tmp)
-  cp -frp ./make/add_etc_vintf_patch/manifest_custom $TARGETDIR/manifest_custom
-  true > ./make/add_etc_vintf_patch/manifest_custom
-  echo "" >> ./make/add_etc_vintf_patch/manifest_custom
-  echo "<!-- oem hal -->" >> ./make/add_etc_vintf_patch/manifest_custom
+  cp -frp $MAKEDIR/add_etc_vintf_patch/manifest_custom $TARGETDIR/manifest_custom
+  true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
+  echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
+  echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
 }
 
 function fix_bug() {
     echo "-> $START_BUG_FIX"
-    cd ./fixbug
+    cd $FBDIR
     ./fixbug.sh "$os_type" > /dev/null 2>&1
     cd $LOCALDIR
+}
+
+function resign(){
+echo "-> Resigning with AOSP keys..."
+      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log
 }
 
 if (echo $@ | grep -qo -- "--fix-bug") ;then
@@ -357,44 +381,17 @@ elif [[ ! -d $systemdir/system_ext ]];then
   exit 1
 fi
 
-# Don't write binary XML files
-echo "# Don't write binary XML files" >> $systemdir/build.prop
-echo "persist.sys.binary_xml=false" >> $systemdir/build.prop
-echo "" >> $systemdir/build.prop
-
-# Support multi-sim
-sed -i "/persist.sys.fflag.override.settings_provider_model/d" $systemdir/build.prop
-echo "# Support multi-sim" >> $systemdir/build.prop
-echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/build.prop
-echo "" >> $systemdir/build.prop
-
- # Change Build Number
-if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
-    displayid="ro.build.display.id"
-elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
-    displayid="ro.system.build.id"
-elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
-    displayid="ro.build.id"
-fi
-displayid2=$(echo "$displayid" | sed 's/\./\\./g')
-bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
-sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
-
-model="$(cat $systemdir/build.prop | grep 'model')"
-echo "$CURR_DEVICE_PROPS:" > /dev/null 2>&1
-echo "$model" > /dev/null 2>&1
-
 if [ -L $systemdir/vendor ];then
   echo "-> $IS_NORMAL_PT" > /dev/null 2>&1
   echo "-> $START_NOR_PROCESS_PLAN" > /dev/null 2>&1
   case $build_type in
-      "--AB"|"--ab")
+      "AB"|"ab")
       normal
       # Merge FS DATA
-      cd ./make/apex_flat
+      cd $MAKEDIR/apex_flat
       ./add_apex_fs.sh > /dev/null 2>&1
       cd $LOCALDIR
-      cd ./make
+      cd $MAKEDIR
       ./add_repack_fs.sh > /dev/null 2>&1
       cd $LOCALDIR
       # Format output
@@ -405,14 +402,16 @@ if [ -L $systemdir/vendor ];then
           sed -i '/^\s*$/d' $configdir/$i
         fi
       done
-      echo "-> $SGSI_IFY_SUCCESS"
       if (echo $other_args | grep -qo -- "--fix-bug") ;then
         fix_bug
       fi
-      echo "-> $SIGNING_WITH_AOSPKEY"
-      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log
-      ./makeimg.sh "--ab${use_config}"
+      resign
+      ./makeimg.sh "--ab${use_config}" $name
       exit 0
       ;;
+    *)
+    echo "-> Build Type is not supported!"
+    exit 1
+    ;;
     esac 
 fi

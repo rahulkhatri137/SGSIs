@@ -4,8 +4,8 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
-source ./language_helper.sh
+source $LOCALDIR/bin.sh
+source $TOOLDIR/language_helper.sh
 
 Usage() {
 cat <<EOT
@@ -19,7 +19,8 @@ EOT
 }
 
 os_repackage_type="$1"
-
+name=$2
+mkdir -p $OUTDIR
 case $os_repackage_type in
   "-A"|"-a"|"--a-only"|"--A-ONLY_CONFIG"|"--a-only_config")
     systemdir="$TARGETDIR/system/system"
@@ -155,8 +156,8 @@ codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$TARGETDIR/vendor/b
 
 #Out Variable
 date=`date +%Y%m%d`
-outputname="$NAME-12-$date-$codename-RK137SGSI"
-ioutputname="$NAME-AB-12-$date-$codename-RK137SGSI"
+outputname="$name-12-$date-$codename-RK137SGSI"
+ioutputname="$name-AB-12-$date-$codename-RK137SGSI"
 outputimagename="$ioutputname".img
 outputtextname="Build-info-$outputname".txt
 output="$OUTDIR/$outputimagename"
@@ -198,25 +199,25 @@ bytesToHuman() {
 
 echo "-> Packing Image..."
 #mke2fs+e2fsdroid 打包
-#$bin/mke2fs -L / -t ext4 -b 4096 $TARGETDIR/system.img $size
-#$bin/e2fsdroid -e -T 0 -S $configdir/system_file_contexts -C $configdir/system_fs_config  -a /system -f ./out/system $TARGETDIR/system.img
+#$bin/mke2fs -L / -t ext4 -b 4096 $output $size
+#$bin/e2fsdroid -e -T 0 -S $configdir/system_file_contexts -C $configdir/system_fs_config  -a /system -f ./out/system $output
 
 case $os_repackage_type in
   "-A"|"-a"|"--a-only")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -L "system" -I "256" -M "/system" -m "0" $configdir/$target_contexts > /dev/null 2>&1
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -L "system" -I "256" -M "/system" -m "0" $configdir/$target_contexts > /dev/null 2>&1
     ;;
   "--AB"|"--ab")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/" $size -j "0" -T "1230768000" -L "/" -I "256" -M "/" -m "0" $configdir/$target_contexts > /dev/null 2>&1
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/" $size -j "0" -T "1230768000" -L "/" -I "256" -M "/" -m "0" $configdir/$target_contexts > /dev/null 2>&1
     ;;
   "--A-ONLY_CONFIG"|"--a-only_config")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts" > /dev/null 2>&1
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts" > /dev/null 2>&1
     ;;
   "--AB_CONFIG"|"--ab_config")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$TARGETDIR/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts" > /dev/null 2>&1
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts" > /dev/null 2>&1
     ;;
 esac
 
-if [ -s $TARGETDIR/system.img ];then
+if [ -s $output ];then
   echo "-> Created $outputname | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
@@ -231,9 +232,8 @@ if [ ! -f "$outputtree" ]; then
     tree $systemdir >> "$outputtree" 2> "$outputtree"
 fi
 
-if [ -s $TARGETDIR/system.img ];then
-  rm -rf $LOCALDIR/tmp
-  mv -f $TARGETDIR/system.img $output
+if [ -s $output ];then
+  rm -rf $TMPDIR
   cp -frp $system/build.prop $TARGETDIR/
   $SCRIPTDIR/get_build_info.sh "$TARGETDIR" "$output"  > $OUTDIR/$outputtextname
   rm -rf $TARGETDIR/build.prop

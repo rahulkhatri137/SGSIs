@@ -184,7 +184,7 @@ e2fsdroid="$LOCALDIR/e2fsdroid"
 
 MAKE_EXT4FS_CMD="$mke2fs $MKE2FS_OPTS -t $EXT_VARIANT -b $BLOCKSIZE $OUTPUT_FILE $SIZE"
 echo $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD > /dev/null 2>&1
-env $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD
+env $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
   exit 4

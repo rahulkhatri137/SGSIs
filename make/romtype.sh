@@ -3,14 +3,13 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 source $LOCALDIR/../bin.sh
-source $LOCALDIR/../language_helper.sh
+source $TOOLDIR/language_helper.sh
 
 os_type="$1"
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 rom_folder="$LOCALDIR/rom_make_patch"
 vintf_folder="$LOCALDIR/add_etc_vintf_patch"
-debloat_folder="$LOCALDIR/../apps_clean"
 
 # pixel
 if [ $os_type = "Pixel" ];then
@@ -20,7 +19,7 @@ if [ $os_type = "Pixel" ];then
   # Fixing ROM Features
   $rom_folder/pixel/make.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
-  $debloat_folder/pixel.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1
 fi
 
 # oxygen
@@ -30,7 +29,7 @@ if [ $os_type = "OxygenOS" ];then
   # Fixing ROM Features
   $rom_folder/h2os/make.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
-  $debloat_folder/h2os.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/h2os.sh "$systemdir" > /dev/null 2>&1
 fi
  
  # flyme
@@ -38,7 +37,7 @@ if [ $os_type = "Flyme" ];then
   ./add_build.sh > /dev/null 2>&1
   $vintf_folder/flyme/add_vintf.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
-  $debloat_folder/flyme.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/flyme.sh "$systemdir" > /dev/null 2>&1
 fi
  
 # miui
@@ -48,7 +47,7 @@ if [ $os_type = "MIUI" ];then
   # Fixing ROM Features
   $rom_folder/miui/make.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
-  $debloat_folder/miui.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/miui.sh "$systemdir" > /dev/null 2>&1
 fi
  
 # joy
@@ -62,12 +61,12 @@ if [ $os_type = "JoyUI" ];then
   echo "system/system/etc/init/init.blackshark.rc 0 0 0644" >> ../out/config/system_fs_config
   sed -i '/^\s*$/d' ../out/config/system_fs_config
   echo "$DEBLOATING_STR"
-  $debloat_folder/miui.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/miui.sh "$systemdir" > /dev/null 2>&1
 fi
 
 # nubia
 if [ $os_type = "Nubia" ];then
-  $debloat_folder/nubia.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/nubia.sh "$systemdir" > /dev/null 2>&1
 fi
 
 # vivo
@@ -77,7 +76,7 @@ if [ $os_type = "FuntouchOS" ];then
   # Fixing ROM Features
   $rom_folder/vivo/make.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
-  $debloat_folder/vivo.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/vivo.sh "$systemdir" > /dev/null 2>&1
 fi
 
 # oppo
@@ -87,5 +86,5 @@ if [ $os_type = "ColorOS" ];then
   # Fixing ROM Features
   $rom_folder/oppo/make.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
-  $debloat_folder/oppo.sh "$systemdir" > /dev/null 2>&1
+  $DEBLOATDIR/oppo.sh "$systemdir" > /dev/null 2>&1
 fi

@@ -2,9 +2,10 @@
 
 # Copyright (C) 2020 Xiaoxindada <2245062854@qq.com>
 
-source ./bin.sh
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../bin.sh
+source $LOCALDIR/../language_helper.sh
 
 rm -rf ./images
 echo ""

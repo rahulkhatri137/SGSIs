@@ -3,10 +3,11 @@
 LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 
-bin="$LOCALDIR/../../../tool_bin"
-systemdir="$LOCALDIR/../../../out/system/system"
-configdir="$LOCALDIR/../../../out/config"
-toolsdir="$LOCALDIR/../../.."
+source $LOCALDIR/../../../bin.sh
+source $TOOLDIR/language_helper.sh
+
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 tmpdir="$LOCALDIR/tmp"
 outdir="$tmpdir/out"
 odmdir="$outdir/odm"
@@ -25,7 +26,7 @@ sed -i '/setupwizard.feature.baseline_setupwizard_enabled/d' $systemdir/product/
 
 # 合并odm分区
 echo "合并odm分区中"
-cp $toolsdir/odm.img $tmpdir/
+cp $IMAGESDIR/odm.img $tmpdir/
 python3 $bin/imgextractor.py $tmpdir/odm.img $outdir > /dev/null 2>&1
 rm -rf $odmdir/lost+found
 rm -rf $odmdir/etc/selinux

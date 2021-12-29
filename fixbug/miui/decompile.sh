@@ -2,6 +2,8 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../../bin.sh
+source $TOOLDIR/language_helper.sh
 
 rm -rf ./services.jar.out
 echo "正在反编译services.jar"
@@ -15,5 +17,5 @@ sed -i '/invoke-virtual {v0}, Lcom\/android\/server\/am\/BaseErrorDialog;->show(
 echo "正在回编译services.jar"
 java -jar ../apktool.jar b ./services.jar.out > /dev/null 2>&1
 
-cp -frp ./services.jar.out/dist/services.jar ../../out/system/system/framework/
+cp -frp ./services.jar.out/dist/services.jar $TARGETDIR/system/system/framework/
 rm -rf ./services.jar

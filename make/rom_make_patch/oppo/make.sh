@@ -3,11 +3,12 @@
 LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 
-bin="$LOCALDIR/../../../tool_bin"
-toolsdir="$bin/.."
+source $LOCALDIR/../../../bin.sh
+source $TOOLDIR/language_helper.sh
+
 tmpdir="$LOCALDIR/tmp"
-systemdir="$LOCALDIR/../../../out/system/system"
-configdir="$LOCALDIR/../../../out/config"
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 oppo_brsdir="$LOCALDIR/tmp/oppo_brs"
 oppo_imagesdir="$LOCALDIR/tmp/oppo_images"
 oppo_images_outdir="$LOCALDIR/tmp/oppo_images_out"
@@ -18,7 +19,7 @@ mkdir -p $oppo_brsdir
 mkdir -p $oppo_imagesdir
 mkdir -p $oppo_images_outdir
 
-my_brs=$(find $systemdir/../../../tmp -type f -name "*" | grep "my_*")
+my_brs=$(find $TMPDIR -type f -name "*" | grep "my_*")
 for oppo_brs in $my_brs ;do
   mv $oppo_brs $oppo_brsdir
 done
@@ -91,8 +92,8 @@ oppo_partition_extract() {
   if [[ -e $systemdir/euclid && -d $systemdir/euclid ]];then
     system_euclid_dir+="$systemdir/euclid" 
   fi  
-  if [[ -e $toolsdir/out/vendor/euclid  && -d $toolsdir/out/vendor/euclid ]];then
-    vendor_euclid_dir+="$toolsdir/out/vendor/euclid" 
+  if [[ -e $TARGETDIR/vendor/euclid  && -d $TARGETDIR/vendor/euclid ]];then
+    vendor_euclid_dir+="$TARGETDIR/vendor/euclid" 
   fi 
   br_file_number=`(cd $oppo_brsdir && ls) | (wc -l && cd $LOCALDIR)`
   if [ $br_file_number = "0" ];then
@@ -211,7 +212,7 @@ oppo_odm_patch() {
   if [ -e $oppo_imagesdir/odm.img ];then
     mv $oppo_imagesdir/odm.img $tmpdir
   else
-    mv $toolsdir/odm.img $tmpdir
+    mv $IMAGESDIR/odm.img $tmpdir
   fi
   echo "正在提取odm分区"
   python3 $bin/imgextractor.py $tmpdir/odm.img $odm_out_dir > /dev/null 2>&1
@@ -271,7 +272,7 @@ oppo_odm_patch() {
   cat $tmpdir/system_ext_fs >> $configdir/system_fs_config
   cp -frp $tmpdir/system_ext/* $systemdir/system_ext/
 }
-if [ -e $toolsdir/odm.img ] || [ -e $oppo_imagesdir/odm.img ];then
+if [ -e $$IMAGESDIR/odm.img ] || [ -e $oppo_imagesdir/odm.img ];then
   oppo_odm_patch
 fi
 

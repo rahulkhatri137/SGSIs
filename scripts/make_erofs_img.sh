@@ -2,7 +2,8 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
+source $LOCALDIR/../bin.sh
+source $LOCALDIR/../language_helper.sh
 
 rm -rf $LOCALDIR/${species}.img
 read -p "请输入要打包的分区(别带.img): " species

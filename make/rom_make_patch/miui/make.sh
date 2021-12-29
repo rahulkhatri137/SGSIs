@@ -3,9 +3,12 @@
 LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 
-systemdir="../../../out/system/system"
-configdir="../../../out/config"
-vendordir="../../../out/vendor"
+source $LOCALDIR/../../../bin.sh
+source $TOOLDIR/language_helper.sh
+
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
+vendordir="$TARGETDIR/vendor"
 
 # 清除该死的miui推广上下文导致的几乎所有机型bootloop或者直接启动到rec
 sed -i '/miui.reverse.charge/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
@@ -69,14 +72,6 @@ if missi ;then
   model=$(cat $vendordir/build.prop | grep 'ro.product.vendor.model')
   mame=$(cat $vendordir/build.prop | grep 'ro.product.vendor.name')
   marketname=$(cat $vendordir/build.prop | grep 'ro.product.vendor.marketname')
-  
-  echo "当前原包机型参数为:"
-  echo "$brand"
-  echo "$device"
-  echo "$manufacturer"
-  echo "$model"
-  echo "$mame"
-  echo "$marketname"
 
   echo "正在修复"
   sed -i '/ro.product.system./d' $systemdir/build.prop

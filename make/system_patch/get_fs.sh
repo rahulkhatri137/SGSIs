@@ -2,6 +2,8 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../../bin.sh
+source $TOOLDIR/language_helper.sh
 
 target_fs="$LOCALDIR/add_repack_fs"
 target_contexts="$LOCALDIR/add_repack_contexts"

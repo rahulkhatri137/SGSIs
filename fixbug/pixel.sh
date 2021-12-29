@@ -2,11 +2,9 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source $LOCALDIR/../language_helper.sh
 
-WORKSPACE=$LOCALDIR/../workspace
-IMAGESDIR=$WORKSPACE/images
-TARGETDIR=$WORKSPACE/out
+source $LOCALDIR/../bin.sh
+source $TOOLDIR/language_helper.sh
 
 systemdir="$TARGETDIR/system/system"
 scirpt_name=$(echo ${0##*/})

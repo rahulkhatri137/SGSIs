@@ -3,7 +3,7 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 source $LOCALDIR/../bin.sh
-source $LOCALDIR/../language_helper.sh
+source $TOOLDIR/language_helper.sh
 
 ./rm.sh > /dev/null 2>&1
 

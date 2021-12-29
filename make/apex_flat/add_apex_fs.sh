@@ -5,7 +5,7 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 source $LOCALDIR/../../bin.sh
-source $LOCALDIR/../../language_helper.sh
+source $TOOLDIR/language_helper.sh
 
 configdir="$TARGETDIR/config"
 echo "add_apex_fs"

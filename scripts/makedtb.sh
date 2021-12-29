@@ -4,7 +4,8 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
+source $LOCALDIR/../bin.sh
+source $LOCALDIR/../language_helper.sh
 
 dtc="$bin/dtb_tools/dtc"
 dtbdir="$LOCALDIR/dtbs"

@@ -2,14 +2,17 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source $LOCALDIR/../language_helper.sh
+
+source $LOCALDIR/../bin.sh
+source $TOOLDIR/language_helper.sh
+vendor="$TARGETDIR/vendor"
 
 # Add OEM Properties
-sed -i '/#end/d' ../out/vendor/build.prop
-echo "#end" >> ../out/vendor/build.prop
-start=$((`grep -n '# ADDITIONAL VENDOR BUILD PROPERTIES' ../out/vendor/build.prop | cut -d ":" -f 1`+2))
-end=$((`grep -n '#end' ../out/vendor/build.prop | sed 's/:#end//g' `-1))
-sed -n ${start},${end}p ../out/vendor/build.prop > ./oem.txt
+sed -i '/#end/d' $vendor/build.prop
+echo "#end" >> $vendor/build.prop
+start=$((`grep -n '# ADDITIONAL VENDOR BUILD PROPERTIES' $TARGETDIR/vendor/build.prop | cut -d ":" -f 1`+2))
+end=$((`grep -n '#end' $vendor/build.prop | sed 's/:#end//g' `-1))
+sed -n ${start},${end}p $vendor/build.prop > ./oem.txt
 sed -i '/ro.control_privapp_permissions/d' ./oem.txt
 sed -i '/debug.sf/d' ./oem.txt
 sed -i '/vendor.display/d' ./oem.txt

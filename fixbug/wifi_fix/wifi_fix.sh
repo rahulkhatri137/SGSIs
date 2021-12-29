@@ -2,9 +2,10 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-
-systemdir="../../out/system/system"
-configdir="../../out/config"
+source $LOCALDIR/../../bin.sh
+source $TOOLDIR/language_helper.sh
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 
 rm -rf ./wifi-service.jar.out
 rm -rf ./tmp
