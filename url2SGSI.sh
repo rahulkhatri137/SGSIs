@@ -123,9 +123,10 @@ LEAVE() {
   
  "$LOCALDIR"/make.sh $build $TYPE $NAME $URL $fixbug || LEAVE
 
-sudo rm -rf "$LOCALDIR/tmp"
-sudo rm -rf "$LOCALDIR/workspace"
-sudo rm -rf "$LOCALDIR/SGSI"
+rm -rf "$LOCALDIR/tmp"
+rm -rf "$LOCALDIR/workspace"
+rm -rf "$LOCALDIR/SGSI"
+rm -rf "$MAKEDIR/system_patch/system/product"
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
    cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE
