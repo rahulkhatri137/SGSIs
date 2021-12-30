@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Copyright (C) 2021 Xiaoxindada <2245062854@qq.com>
-set -e
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
@@ -53,10 +52,10 @@ systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 shift 2
 
-if ! (cat $MAKEDIRDIR/rom_support_list.txt | grep -qo "$os_type");then
+if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
   echo "> Rom type is not supported!"
   echo "Following are the supported types -"
-  cat $MAKEDIRDIR/rom_support_list.txt
+  cat $MAKEDIR/rom_support_list.txt
   exit 1
 fi
 
@@ -107,28 +106,21 @@ sed -i '/ro.apex.updatable/d' $systemdir/build.prop
 sed -i '/ro.apex.updatable/d' $systemdir/product/etc/build.prop
 sed -i '/ro.apex.updatable/d' $systemdir/system_ext/etc/build.prop
 
-  # Force using flatten apex
-  echo "ro.apex.updatable=false" >> $systemdir/product/etc/build.prop
+# Force using flatten apex
+echo "ro.apex.updatable=false" >> $systemdir/product/etc/build.prop
 
-  # Cleanup apex
-  apex_files=$(ls $systemdir/apex | grep ".apex$")
-  for apex in $apex_files ;do
-    if [ -f $systemdir/apex/$apex ];then
-     # rm -rf $systemdir/apex/$apex
-    fi
-  done
-
-  # Removing cts's apex when flatten apex is enabled
+# Removing cts's apex when flatten apex is enabled
   for cts_files in $(find $systemdir/apex -type d -name "*" | grep -E "apex.cts.*");do
     [ -z $cts_files ] && continue
     rm -rf $cts_files
   done
 cd $bin/apex_tools
-./apex_extractor.sh "$TARGETDIR" "$systemdir/apex"
+./apex_extractor.sh "$TARGETDIR" "$systemdir/apex" > /dev/null 2>&1
 cd $LOCALDIR
+
 }
   cd $MAKEDIR/apex_vndk
-  ./make12.sh $systemdir > /dev/null 2>&1|| { echo "> Failed to add vndk apex" ; exit 1 }
+  ./make12.sh $systemdir > /dev/null 2>&1 || { echo "> Failed to add vndk apex" ; exit 1; }
  apex_flatten
 
   cd $LOCALDIR 
@@ -299,19 +291,6 @@ cd $LOCALDIR
   rm -rf $systemdir/../init.recovery*
   rm -rf $systemdir/recovery-from-boot.*
 
-#Overlays
-vodir="$TARGETDIR/vendor/overlay"
-podir="$MAKEDIR/system_patch/system/product"
-
-if [ -d "$vodir" ]; then
-        mkdir -p "$podir"
-        mkdir -p "$podir/overlay"
-        cp -frp "$vodir/*" "$podir/overlay/" >> /dev/null 2>&1
- if [ -d "$podir/overlay" ]; then
-        chmod -R 777 $podir/overlay
- fi
-fi
-
   # Patch System
   cp -frp $MAKEDIR/system_patch/system/* $systemdir/
 
@@ -333,7 +312,7 @@ fi
   cd $MAKEDIR/rom_make_patch
   ./make.sh
   cd ..
-  ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1 }
+  ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
   cd $LOCALDIR
 
   # Add oem_build
@@ -383,13 +362,13 @@ sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
 function fix_bug() {
     echo "-> $START_BUG_FIX"
     cd $FBDIR
-    ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1 }
+    ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
     cd $LOCALDIR
 }
 
-function resign(){
+function resign() {
 echo "-> Resigning with AOSP keys..."
-      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1 }
+      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
 }
 
 if (echo $@ | grep -qo -- "--fix-bug") ;then
@@ -399,19 +378,19 @@ fi
 rm -rf ./SGSI
 
 # Sparse Image To Raw Image
-./scripts/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1 }
+./scripts/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
 
 # Mount Partitions
-#./scripts/mount_partition.sh > /dev/null 2>&1 || { echo "> Failed to mount!" ; exit 1 }
+#./scripts/mount_partition.sh > /dev/null 2>&1 || { echo "> Failed to mount!" ; exit 1; }
 cd $LOCALDIR
 
 # Extract Image
-./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1 }
+./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
 
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
   echo "-> Merging dynamic partitions..."
-  ./scripts/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1 }
+  ./scripts/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
 fi
 
 if [[ ! -d $systemdir/product ]];then
@@ -425,10 +404,10 @@ fi
 normal
 # Merge FS DATA
 cd $MAKEDIR/apex_flat
-./add_apex_fs.sh > /dev/null 2>&1 || { echo "> Failed to add apex contexts!" ; exit 1 }
+./add_apex_fs.sh > /dev/null 2>&1 || { echo "> Failed to add apex contexts!" ; exit 1; }
 
 cd $MAKEDIR
-./add_repack_fs.sh > /dev/null 2>&1 || { echo "> Failed to add repack contexts!" ; exit 1 }
+./add_repack_fs.sh > /dev/null 2>&1 || { echo "> Failed to add repack contexts!" ; exit 1; }
 
 cd $LOCALDIR
 # Format output
@@ -444,18 +423,17 @@ if (echo $other_args | grep -qo -- "--fix-bug") ;then
     fix_bug
 fi
 
-if [ "$os_type" == "Generic" ] && [ "$os_type" == "Pixel" ]; then
+if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
 
 case $build_type in
-      "AB"|"ab")
-      ./makeimg.sh "--ab${use_config}" $name || { echo "> Failed to build image!" ; exit 1 }
-      exit 0
-      ;;
+    "AB"|"ab")
+    ./makeimg.sh "--ab${use_config}" $name || { echo "> Failed to build image!" ; exit 1; }
+    exit
+    ;;
     *)
     echo "> Build Type is not supported!"
     exit 1
     ;;
-    esac 
-fi
+esac

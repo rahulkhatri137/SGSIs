@@ -82,10 +82,10 @@ else
     TYPE=$TYPE
 fi
 
-if ! (cat $MAKEDIRDIR/rom_support_list.txt | grep -qo "$os_type");then
+if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
   echo "> Rom type is not supported!"
   echo "Following are the supported types -"
-  cat $MAKEDIRDIR/rom_support_list.txt
+  cat $MAKEDIR/rom_support_list.txt
   exit 1
 fi
 
@@ -100,13 +100,13 @@ DOWNLOAD()
         ("${DL}" "${URL}" "$TMPDIR" "$ZIP_NAME") || exit 1
     else
         if echo "${URL}" | grep -q "1drv.ms"; then URL=${URL/ms/ws}; fi
-        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$TMPDIR" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$TMPDIR/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
+        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$TMPDIR" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$TMPDIR/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1;}
         aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$TMPDIR" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
             wget -U "Mozilla/5.0" ${URL} -O "$TMPDIR/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
         }
     fi
 }
-ZIP_NAME="$TMPDIR/dummy"
+
     if [[ "$URL" == "http"* ]]; then
         # URL detected
         ACTUAL_ZIP_NAME=update.zip
@@ -126,7 +126,6 @@ LEAVE() {
 rm -rf "$LOCALDIR/tmp"
 rm -rf "$LOCALDIR/workspace"
 rm -rf "$LOCALDIR/SGSI"
-rm -rf "$MAKEDIR/system_patch/system/product"
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
    cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE
