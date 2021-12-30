@@ -71,21 +71,21 @@ TYPE=$1
 shift
 
 ORIGINAL_URL=$URL
-if [[ $GTYPE == *":"* ]]; then
+if [[ $TYPE == *":"* ]]; then
     NAME=`echo "$TYPE" | cut -d ":" -f 2`
 else
     NAME=$TYPE
 fi
-if [[ $GTYPE == *":"* ]]; then
+if [[ $TYPE == *":"* ]]; then
     TYPE=`echo "$TYPE" | cut -d ":" -f 1`
 else
     TYPE=$TYPE
 fi
 
-if ! (cat $LOCALDIR/make/rom_support_list.txt | grep -qo "$TYPE");then
-  echo $UNSUPPORTED_ROM
-  echo $SUPPORTED_ROM_LIST
-  cat $LOCALDIR/make/rom_support_list.txt
+if ! (cat $MAKEDIRDIR/rom_support_list.txt | grep -qo "$os_type");then
+  echo "> Rom type is not supported!"
+  echo "Following are the supported types -"
+  cat $MAKEDIRDIR/rom_support_list.txt
   exit 1
 fi
 
@@ -116,7 +116,7 @@ ZIP_NAME="$TMPDIR/dummy"
     fi
 
 LEAVE() {
-    echo "-> SGSI failed! Exiting..."
+    echo "> SGSI failed! Exiting..."
     rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
     exit 1
 }

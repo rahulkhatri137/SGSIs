@@ -51,10 +51,10 @@ build_type="$build_type"
 other_args=""
 shift 3
 
-if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
-  echo $UNSUPPORTED_ROM
-  echo $SUPPORTED_ROM_LIST
-  cat $MAKEDIR/rom_support_list.txt
+if ! (cat $MAKEDIRDIR/rom_support_list.txt | grep -qo "$os_type");then
+  echo "> Rom type is not supported!"
+  echo "Following are the supported types -"
+  cat $MAKEDIRDIR/rom_support_list.txt
   exit 1
 fi
 
@@ -69,10 +69,10 @@ function firmware_extract() {
   partition_list="system vendor system_ext odm product reserve boot vendor_boot"
   
   if [ -e $firmware ];then
-    7z x -y "$firmware" -o"$TMPDIR/" > /dev/null 2>&1
+    7z x -y "$firmware" -o"$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware!" ; exit 1 }
   fi
   if [ -e $TMPDIR/$firmware ];then
-    7z x -y "$TMPDIR/$firmware" -o"$TMPDIR/" > /dev/null 2>&1
+    7z x -y "$TMPDIR/$firmware" -o"$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware" ; exit 1 }
   fi
 
   for i in $(ls $TMPDIR);do
@@ -92,7 +92,7 @@ function firmware_extract() {
       mv ./payload.bin ../payload/
       cd ../payload
       echo " -> $UNZIPINGPLB" > /dev/null 2>&1
-      python ./payload.py ./payload.bin ./out > /dev/null 2>&1
+      python ./payload.py ./payload.bin ./out > /dev/null 2>&1 || { echo "> Failed to extract payload!" ; exit 1 }
       echo "-> Moving Files to workspace..."
       for i in $partition_list ;do
         if [ -e ./out/$i.img ];then
@@ -107,8 +107,8 @@ function firmware_extract() {
     # Detect dat.br
     if [ -e ./${partition}.new.dat.br ];then
       echo "$UNPACKING_STR ${partition}.new.dat.br" > /dev/null 2>&1
-      $bin/brotli -d ${partition}.new.dat.br > /dev/null 2>&1
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1
+      $bin/brotli -d ${partition}.new.dat.br > /dev/null 2>&1 || { echo "> Failed to convert brotli" ; exit 1 }
+      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1 || { echo "> Failed to convert sdat" ; exit 1 }
       mv ./${partition}.img $IMAGESDIR/
       rm -rf ./${partition}.new.dat
     fi
@@ -118,7 +118,7 @@ function firmware_extract() {
       echo "$SPLIT_DETECTED ${partition}.new.dat, $MERGING_STR" > /dev/null 2>&1
       cat ./${partition}.new.dat.{1..999} 2>/dev/null >> ./${partition}.new.dat
       rm -rf ./${partition}.new.dat.{1..999}
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1
+      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1 || { echo "> Failed to convert sdat" ; exit 1 }
       mv ./${partition}.img $IMAGESDIR/
       rm -rf ./${partition}.new.dat
     fi
@@ -126,7 +126,7 @@ function firmware_extract() {
     # Detect general new.dat
     if [ -e ./${partition}.new.dat ];then
       echo "$UNPACKING_STR ${partition}.new.dat" > /dev/null 2>&1
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1
+      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1 || { echo "> Failed to convert sdat" ; exit 1 }
       mv ./${partition}.img $IMAGESDIR/
     fi
 
@@ -153,7 +153,7 @@ firmware_extract
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "-> SGSI Time :)"
-  ./SGSI.sh $build_type $os_type $name $other_args
+  ./SGSI.sh $build_type $os_type $name $other_args || { echo "> Failed to complete SGSI patching!" ; exit 1 }
   ./workspace_cleanup.sh > /dev/null 2>&1
   exit 0
 else

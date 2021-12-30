@@ -54,12 +54,12 @@ INSTALLING_JAVAPKG="Installing Java Package..."
 INSTALLING_PYTHONMOD="Installing Python Modules..."
 
 # make.sh
-NOTFOUNDFW="Firmware not found"
+NOTFOUNDFW="> Firmware not found!"
 UNZIPINGPLB="Unpacking payload.bin..."
 MOVINGTOOUT="Moving to the output dir"
 INITINGENV="Initing Environment..."
 ENVINITFINISH="Successfully Inited Environment"
-NOTFOUNDSYSTEMIMG="system.img not found, which caused failure to build sGSI"
+NOTFOUNDSYSTEMIMG="> System.img not found!"
 MOVINGIMG="Moving image file to the tool's dir"
 UNPACKING_STR="Unpacking..."
 SPLIT_DETECTED="Split detected"
@@ -67,7 +67,7 @@ MERGING_STR="Merging..."
 
 # image_extract.sh
 EXTRACTING_STR="Extracting..."
-FAILEXTRACT_STR="Failed to extract"
+FAILEXTRACT_STR="> Failed to extract!"
 MERGE_SUCCESS="Merged Success"
 
 # simg2img.sh
@@ -75,11 +75,11 @@ CONVERTINGTOSIMG="Converting to Sparse Image..."
 CONVERT_SUCCESS="Successfully Converted"
 CONVERTING_RAW_IMAGE="Converting RAW Image..."
 SIMG2IMG_SKIP="Skipping converting RAW Image"
-CONVERTFAIL="Fail to convert"
+CONVERTFAIL="> Failed to convert!"
 CONVERTFAIL="Successfully converted"
 
 # SGSI.sh
-SYSTEMDIR_NF="system dir not found"
+SYSTEMDIR_NF="> system dir not found!"
 PROCESSING_RAMDISK_SYSTEM="Processing ramdisk system..."
 PROCESS_SUCCESS="Process success"
 OTHER_PROCESSINGS="Running other processes..."

@@ -144,7 +144,7 @@ case $os_repackage_type in
 esac
 
 if [ ! -d $systemdir ];then
-  echo "$SYSTEMDIR_NF" > /dev/null 2>&1
+  echo $SYSTEMDIR_NF
   exit
 fi
 
