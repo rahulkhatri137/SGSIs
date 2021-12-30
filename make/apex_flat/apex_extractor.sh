@@ -7,7 +7,6 @@ source $LOCALDIR/../../language_helper.sh
 
 echo "ext4extract"
 EXT4EXTRACT="$LOCALDIR/ext4extract.py"
-TARGETDIR="$LOCALDIR/../../workspace/out"
 APEXDIR="$1"
 
 rm -rf $TARGETDIR/apex_extract.log

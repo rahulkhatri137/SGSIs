@@ -101,8 +101,36 @@ function normal() {
   echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
  
  # Common apex_vndk process
-  cd $MAKEDIR/apex_vndk_start
-  ./make.sh > /dev/null 2>&1|| { echo "> Failed to add vndk apex" ; exit 1 }
+apex_flatten() {
+ # Clean up default apex state
+sed -i '/ro.apex.updatable/d' $systemdir/build.prop
+sed -i '/ro.apex.updatable/d' $systemdir/product/etc/build.prop
+sed -i '/ro.apex.updatable/d' $systemdir/system_ext/etc/build.prop
+
+  # Force using flatten apex
+  echo "ro.apex.updatable=false" >> $systemdir/product/etc/build.prop
+
+  # Cleanup apex
+  apex_files=$(ls $systemdir/apex | grep ".apex$")
+  for apex in $apex_files ;do
+    if [ -f $systemdir/apex/$apex ];then
+     # rm -rf $systemdir/apex/$apex
+    fi
+  done
+
+  # Removing cts's apex when flatten apex is enabled
+  for cts_files in $(find $systemdir/apex -type d -name "*" | grep -E "apex.cts.*");do
+    [ -z $cts_files ] && continue
+    rm -rf $cts_files
+  done
+cd $bin/apex_tools
+./apex_extractor.sh "$TARGETDIR" "$systemdir/apex"
+cd $LOCALDIR
+}
+  cd $MAKEDIR/apex_vndk
+  ./make12.sh $systemdir > /dev/null 2>&1|| { echo "> Failed to add vndk apex" ; exit 1 }
+ apex_flatten
+
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
 
