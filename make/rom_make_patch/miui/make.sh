@@ -61,8 +61,6 @@ missi() {
   cat $systemdir/build.prop | grep -qo "missi"
 }
 if missi ;then
-  # add libs
-  cp -frpn $LOCALDIR/add_libs/system/* $systemdir
   
   # missi机型修复
   echo "检测到原包为missi 启用机型参数修复" 

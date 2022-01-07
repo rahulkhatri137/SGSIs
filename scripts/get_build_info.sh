@@ -33,7 +33,6 @@ Brand: $device_manufacturer
 Model: $device_model
 Codename: $device_product
 Security Patch: $andriod_spl
-Fingerprint: $android_fingerprint
 Description: $description_info
-Raw Image Size: $(bytesToHuman $android_image_size)
+Image Size: $(bytesToHuman $android_image_size)
 "

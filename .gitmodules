@@ -1,3 +1,0 @@
-[submodule "make/apex_vndk"]
-	path = make/apex_vndk
-	url = https://github.com/rahulkhatri137/apex_vndk.git

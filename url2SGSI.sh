@@ -113,6 +113,7 @@ DOWNLOAD()
         ZIP_NAME="$LOCALDIR"/tmp/update.zip
         DOWNLOAD "$URL" "$ZIP_NAME"
         URL="$ZIP_NAME"
+        echo "- Downloaded."
     fi
 
 LEAVE() {

@@ -119,6 +119,7 @@ cd $bin/apex_tools
 cd $LOCALDIR
 
 }
+echo "-> Patching extra vndk..."
   cd $MAKEDIR/apex_vndk
   ./make12.sh $systemdir > /dev/null 2>&1 || { echo "> Failed to add vndk apex" ; exit 1; }
  apex_flatten
@@ -255,6 +256,7 @@ cd $LOCALDIR
   cat $MAKEDIR/fstab/fstab_contexts >> $configdir/system_file_contexts
   cat $MAKEDIR/fstab/fstab_fs >> $configdir/system_fs_config
   
+echo "Patching..."
   # Add missing libs
   cp -frpn $MAKEDIR/add_libs/system/* $systemdir
  
@@ -339,7 +341,7 @@ elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
 fi
 displayid2=$(echo "$displayid" | sed 's/\./\\./g')
 bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
-sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
+sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 
   # Add OEM HAL Manifest Interfaces
   manifest_tmp="$TARGETDIR/vintf/manifest.xml"
@@ -357,6 +359,7 @@ sed -i "s/$bdisplay/$displayid2=Built\.by\.RK137/" $systemdir/build.prop
   true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
+echo "- Done."
 }
 
 function fix_bug() {
@@ -377,6 +380,7 @@ fi
 
 rm -rf ./SGSI
 
+echo "-> Extracting images..."
 # Sparse Image To Raw Image
 ./scripts/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
 
@@ -386,7 +390,6 @@ cd $LOCALDIR
 
 # Extract Image
 ./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
-
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
   echo "-> Merging dynamic partitions..."

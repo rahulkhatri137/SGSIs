@@ -150,6 +150,7 @@ if (echo $@ | grep -qo -- "--fix-bug") ;then
 fi
 
 firmware_extract
+echo "- Extracted."
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "-> SGSI Time :)"
