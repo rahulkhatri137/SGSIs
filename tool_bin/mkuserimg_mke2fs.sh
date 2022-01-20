@@ -196,7 +196,7 @@ fi
 
 E2FSDROID_CMD="$e2fsdroid $E2FSDROID_OPTS -f $SRC_DIR -a $MOUNT_POINT $OUTPUT_FILE"
 echo $E2FSDROID_ENV $E2FSDROID_CMD > /dev/null 2>&1
-env $E2FSDROID_ENV $E2FSDROID_CMD
+env $E2FSDROID_ENV $E2FSDROID_CMD > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   rm -f $OUTPUT_FILE
   exit 4

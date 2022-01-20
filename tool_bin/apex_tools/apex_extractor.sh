@@ -5,7 +5,6 @@ cd $LOCALDIR
 source $LOCALDIR/../../bin.sh
 source $LOCALDIR/../../language_helper.sh
 
-echo "apex extract"
 APEXEXTRACT="$LOCALDIR/deapexer.py"
 TARGETDIR="$1"
 APEXDIR="$2"

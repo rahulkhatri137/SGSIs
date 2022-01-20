@@ -9,8 +9,6 @@ configdir="$TARGETDIR/config"
 target_fs="$configdir/system_fs_config"
 target_contexts="$configdir/system_file_contexts"
 
-echo "$ADDING_PATCHFILE_FS"
-
 for get_fs in $(find $LOCALDIR -type f | grep "get_fs.sh$");do
   $get_fs
 done

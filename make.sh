@@ -85,14 +85,13 @@ function firmware_extract() {
   done
 
   cd $TMPDIR
-  echo "-> Extracting Firmware..."
   for partition in $partition_list ;do
     # Detect payload.bin
     if [ -e ./payload.bin ];then
       mv ./payload.bin ../payload/
       cd ../payload
-      echo " -> $UNZIPINGPLB" > /dev/null 2>&1
-      python ./payload.py ./payload.bin ./out > /dev/null 2>&1 || { echo "> Failed to extract payload!" ; exit 1; }
+      echo " -> $UNZIPINGPLB"
+      python ./payload.py ./payload.bin ./out || { echo "> Failed to extract payload!" ; exit 1; }
       echo "-> Moving Files to workspace..."
       for i in $partition_list ;do
         if [ -e ./out/$i.img ];then
@@ -149,6 +148,7 @@ if (echo $@ | grep -qo -- "--fix-bug") ;then
   other_args+=" --fix-bug"
 fi
 
+echo "-> Extracting Firmware..."
 firmware_extract
 echo "- Extracted."
 cd $LOCALDIR

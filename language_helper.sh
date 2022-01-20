@@ -46,7 +46,7 @@ case $TARGET_LANG in
 esac
 
 if [ ! -f $LANGDIR/.lang_flag ]; then
-	echo "Can't find $LANGDIR/.lang_flag use zh_CN language by default"
+	echo "Can't find $LANGDIR/.lang_flag use en_US language by default"
 	echo "en_US" > $LANGDIR/.lang_flag
 fi
 

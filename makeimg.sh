@@ -218,7 +218,7 @@ case $os_repackage_type in
 esac
 
 if [ -s $output ];then
-  echo "-> Created $outputname | Size: $(bytesToHuman $size)" 
+  echo "✓ Created $outputname | Size: $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   rm -rf $OUTDIR 

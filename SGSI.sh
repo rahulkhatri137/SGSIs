@@ -99,30 +99,18 @@ function normal() {
   ramdisk_modify
   echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
  
- # Common apex_vndk process
-apex_flatten() {
+ # Common apex process
  # Clean up default apex state
 sed -i '/ro.apex.updatable/d' $systemdir/build.prop
 sed -i '/ro.apex.updatable/d' $systemdir/product/etc/build.prop
 sed -i '/ro.apex.updatable/d' $systemdir/system_ext/etc/build.prop
 
 # Force using flatten apex
-echo "ro.apex.updatable=false" >> $systemdir/product/etc/build.prop
+echo "ro.apex.updatable=false" >> $systemdir/build.prop
 
-# Removing cts's apex when flatten apex is enabled
-  for cts_files in $(find $systemdir/apex -type d -name "*" | grep -E "apex.cts.*");do
-    [ -z $cts_files ] && continue
-    rm -rf $cts_files
-  done
-cd $bin/apex_tools
-./apex_extractor.sh "$TARGETDIR" "$systemdir/apex" > /dev/null 2>&1
-cd $LOCALDIR
-
-}
-echo "-> Patching extra vndk..."
-  cd $MAKEDIR/apex_vndk
-  ./make12.sh $systemdir > /dev/null 2>&1 || { echo "> Failed to add vndk apex" ; exit 1; }
- apex_flatten
+echo "-> Patching extra apex..."
+cd $MAKEDIR/apex
+./make.sh $systemdir > /dev/null 2>&1 || { echo "> Failed to add vndk apex" ; exit 1; }
 
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
@@ -256,7 +244,7 @@ echo "-> Patching extra vndk..."
   cat $MAKEDIR/fstab/fstab_contexts >> $configdir/system_file_contexts
   cat $MAKEDIR/fstab/fstab_fs >> $configdir/system_fs_config
   
-echo "Patching..."
+echo "-> Patching..."
   # Add missing libs
   cp -frpn $MAKEDIR/add_libs/system/* $systemdir
  
@@ -406,10 +394,8 @@ fi
 
 normal
 # Merge FS DATA
-cd $MAKEDIR/apex_flat
-./add_apex_fs.sh > /dev/null 2>&1 || { echo "> Failed to add apex contexts!" ; exit 1; }
-
 cd $MAKEDIR
+./add_apex_fs.sh > /dev/null 2>&1 || { echo "> Failed to add apex contexts!" ; exit 1; }
 ./add_repack_fs.sh > /dev/null 2>&1 || { echo "> Failed to add repack contexts!" ; exit 1; }
 
 cd $LOCALDIR
@@ -430,6 +416,7 @@ if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
 
+echo "- SGSI Processed."
 case $build_type in
     "AB"|"ab")
     ./makeimg.sh "--ab${use_config}" $name || { echo "> Failed to build image!" ; exit 1; }
