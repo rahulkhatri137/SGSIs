@@ -4,7 +4,7 @@
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source $LOCALDIR/../../bin.sh
+source $LOCALDIR/../bin.sh
 source $TOOLDIR/language_helper.sh
 
 configdir="$TARGETDIR/config"

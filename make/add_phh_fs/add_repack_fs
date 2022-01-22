@@ -6,6 +6,8 @@ system/system/bin/gsid 0 2000 0755
 system/system/bin/idmap 0 2000 0755
 system/system/bin/objdump 0 2000 0755
 system/system/bin/phh-on-boot.sh 0 2000 0755
+system/system/bin/phh-remotectl.sh 0 2000 0755
+system/system/bin/phh-on-data.sh 0 2000 0755
 system/system/bin/phh-prop-handler.sh 0 2000 0755
 system/system/bin/rw-system.sh 0 2000 0755
 system/system/bin/lpdumpd 0 2000 0755
@@ -20,10 +22,12 @@ system/system/system_ext/etc/init 0 0 0755
 system/system/system_ext/etc/init/config 0 0 0755
 system/system/system_ext/etc/init/config/skip_mount.cfg 0 0 0644
 system/system/etc/init/gsid.rc 0 0 0644
+system/system/etc/init/phh-remotectl.rc 0 0 0644
 system/system/etc/init/vndk.rc 0 0 0644
 system/system/etc/init/wificonf.rc 0 0 0644
 system/system/etc/init/lpdumpd.rc 0 0 0644
 system/system/etc/permissions/securelock.xml 0 0 0644
+system/system/etc/permissions/privapp-permissions-me.phh.treble.app.xml 0 0 0644
 system/system/etc/permissions/interfaces.xml 0 0 0644
 system/system/etc/usb_audio_policy_configuration.xml 0 0 0644
 system/system/framework/android.hardware.wifi.hostapd-V1.0-java.jar 0 0 0644

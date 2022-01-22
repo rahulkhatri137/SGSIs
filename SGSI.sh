@@ -100,17 +100,9 @@ function normal() {
   echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
  
  # Common apex process
- # Clean up default apex state
-sed -i '/ro.apex.updatable/d' $systemdir/build.prop
-sed -i '/ro.apex.updatable/d' $systemdir/product/etc/build.prop
-sed -i '/ro.apex.updatable/d' $systemdir/system_ext/etc/build.prop
-
-# Force using flatten apex
-echo "ro.apex.updatable=false" >> $systemdir/build.prop
-
 echo "-> Patching extra apex..."
-cd $MAKEDIR/apex
-./make.sh $systemdir > /dev/null 2>&1 || { echo "> Failed to add vndk apex" ; exit 1; }
+cd $MAKEDIR/apex_vndk
+./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
