@@ -44,7 +44,6 @@ if [ $# -lt 2 ];then
 fi
 
 os_type="$2"
-name=$3
 build_type="$build_type"
 use_config="_config"
 other_args=""
@@ -385,10 +384,15 @@ elif [[ ! -d $systemdir/system_ext ]];then
 fi
 
 normal
-# Merge FS DATA
-cd $MAKEDIR
-./add_apex_fs.sh > /dev/null 2>&1 || { echo "> Failed to add apex contexts!" ; exit 1; }
-./add_repack_fs.sh > /dev/null 2>&1 || { echo "> Failed to add repack contexts!" ; exit 1; }
+
+if (echo $other_args | grep -qo -- "--fix-bug") ;then
+    fix_bug
+fi
+
+if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
+    resign
+fi
+echo "- SGSI Processed."
 
 cd $LOCALDIR
 # Format output
@@ -399,23 +403,4 @@ mv -f $configdir/${i}-tmp $configdir/$i
 sed -i '/^\s*$/d' $configdir/$i
 fi
 done
-
-if (echo $other_args | grep -qo -- "--fix-bug") ;then
-    fix_bug
-fi
-
-if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
-    resign
-fi
-
-echo "- SGSI Processed."
-case $build_type in
-    "AB"|"ab")
-    ./makeimg.sh "--ab${use_config}" $name || { echo "> Failed to build image!" ; exit 1; }
-    exit
-    ;;
-    *)
-    echo "> Build Type is not supported!"
-    exit 1
-    ;;
-esac
+exit 0

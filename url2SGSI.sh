@@ -39,7 +39,8 @@ case $key in
     shift
     ;;
     --a|-a)
-    build="A"
+    echo "- A-only SGSI not supported"
+    exit 1
     shift
     ;;
     --fb|-fb)
@@ -121,8 +122,22 @@ LEAVE() {
     rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
     exit 1
 }
-  
- "$LOCALDIR"/make.sh $build $TYPE $NAME $URL $fixbug || LEAVE
+
+#Extract firmware
+ "$LOCALDIR"/make.sh $build $TYPE $URL || LEAVE
+
+#SGSI Time
+cd $LOCALDIR
+if [ -e $IMAGESDIR/system.img ];then
+  echo "-> SGSI Time :)"
+  "$LOCALDIR"/SGSI.sh $build $TYPE $fixbug || { echo "> Failed to complete SGSI patching!" ; LEAVE; }
+else
+  echo $NOTFOUNDSYSTEMIMG
+  LEAVE
+fi
+
+#Build image
+    "$LOCALDIR"/makeimg.sh "--ab_config" $NAME || { echo "> Failed to build image!" ; LEAVE; }
 
 rm -rf "$LOCALDIR/tmp"
 rm -rf "$LOCALDIR/workspace"

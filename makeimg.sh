@@ -148,6 +148,12 @@ if [ ! -d $systemdir ];then
   exit
 fi
 
+# Merge FS DATA
+cd $MAKEDIR
+./add_apex_fs.sh > /dev/null 2>&1 || { echo "> Failed to add apex contexts!" ; exit 1; }
+./add_repack_fs.sh > /dev/null 2>&1 || { echo "> Failed to add repack contexts!" ; exit 1; }
+
+cd $LOCALDIR
 # Codename
 codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$TARGETDIR/vendor/build.prop" | head -1)
 [[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.system.device=).*" -hs $system/build.prop | head -1)
@@ -169,23 +175,15 @@ if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
         mkdir -p "$OUTDIR/vendorOverlays"
         cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
  if [ -d "$OUTDIR/vendorOverlays" ]; then
+        cd $OUTDIR/vendorOverlays
         echo "-> Extracting Vendor Overlays..."
-        tar -zcvf "$outputvendoroverlays" "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
+        tar -zcvf "$outputvendoroverlays" * >> /dev/null 2>&1
+        cd $LOCALDIR
         rm -rf "output/vendorOverlays"
  fi
 fi
 
-echo "
-$CURR_IMG_SIZE:
-_________________
-
-`du -sh $systemdir | awk '{print $1}' | bc -q | sed 's/$/&G/'`
-
-`du -sm $systemdir | awk '{print $1}' | bc -q | sed 's/$/&M/'`
-
-`du -sk $systemdir | awk '{print $1}' | bc -q | sed 's/$/&B/'`
-_________________
-" > /dev/null 2>&1
+cd $LOCALDIR
 size=`du -sk $systemdir | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
 bytesToHuman() {
     b=${1:-0}; d=''; s=0; S=(Bytes {K,M,G,T,P,E,Z,Y}iB)

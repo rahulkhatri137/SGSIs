@@ -45,10 +45,8 @@ if [ $# -lt 3 ];then
   exit 1
 fi
 os_type="$2"
-name=$3
-firmware="$4"
+firmware="$3"
 build_type="$build_type"
-other_args=""
 shift 3
 
 if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
@@ -144,20 +142,8 @@ rm -rf $WORKSPACE
 mkdir -p $IMAGESDIR
 mkdir -p $TARGETDIR
 mkdir -p $OUTDIR
-if (echo $@ | grep -qo -- "--fix-bug") ;then
-  other_args+=" --fix-bug"
-fi
 
 echo "-> Extracting Firmware..."
 firmware_extract
 echo "- Extracted."
-cd $LOCALDIR
-if [ -e $IMAGESDIR/system.img ];then
-  echo "-> SGSI Time :)"
-  ./SGSI.sh $build_type $os_type $name $other_args || { echo "> Failed to complete SGSI patching!" ; exit 1; }
-  ./workspace_cleanup.sh > /dev/null 2>&1
-  exit 0
-else
-  echo $NOTFOUNDSYSTEMIMG
-  exit 1
-fi
+exit 0
