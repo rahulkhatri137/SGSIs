@@ -61,8 +61,6 @@ rm -rf $1/product/app/GoogleTTS
 rm -rf $1/product/app/MarkupGoogle
 rm -rf $1/product/priv-app/TurboPrebuilt
 rm -rf $1/product/priv-app/TipsPrebuilt
-rm -rf $1/product/priv-app/Velvet
-rm -rf $1/product/app/Velvet
 rm -rf $1/product/app/Duo
 rm -rf $1/product/app/Gmail2
 rm -rf $1/product/app/GoogleAssistant

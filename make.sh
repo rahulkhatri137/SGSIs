@@ -132,8 +132,6 @@ function firmware_extract() {
       mv ./${partition}.img $IMAGESDIR/
     fi
   done
-
-  cd $IMAGESDIR
 }
 
 chmod -R 777 ./
@@ -146,4 +144,29 @@ mkdir -p $OUTDIR
 echo "-> Extracting Firmware..."
 firmware_extract
 echo "- Extracted."
+
+cd $LOCALDIR
+echo "-> Extracting images..."
+# Sparse Image To Raw Image
+$SCRIPTDIR/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
+
+# Mount Partitions
+#./scripts/mount_partition.sh > /dev/null 2>&1 || { echo "> Failed to mount!" ; exit 1; }
+cd $LOCALDIR
+
+# Extract Image
+./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
+if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
+|| [[ -d $systemdir/../product && -L $systemdir/product ]];then
+  echo "-> Merging dynamic partitions..."
+  $SCRIPTDIR/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
+fi
+
+if [[ ! -d $systemdir/product ]];then
+  echo "$systemdir/product $DIR_NOT_FOUND_STR!"
+  exit 1
+elif [[ ! -d $systemdir/system_ext ]];then
+  echo "$systemdir/system_ext $DIR_NOT_FOUND_STR!"
+  exit 1
+fi
 exit 0

@@ -350,6 +350,8 @@ function fix_bug() {
 
 function resign() {
 echo "-> Resigning with AOSP keys..."
+      cp -frp $MAKEDIR/resign/system/* $systemdir/
+      $MAKEDIR/resign/generate_fs.sh
       python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
 }
 
@@ -358,30 +360,7 @@ if (echo $@ | grep -qo -- "--fix-bug") ;then
 fi
 
 rm -rf ./SGSI
-
-echo "-> Extracting images..."
-# Sparse Image To Raw Image
-./scripts/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
-
-# Mount Partitions
-#./scripts/mount_partition.sh > /dev/null 2>&1 || { echo "> Failed to mount!" ; exit 1; }
-cd $LOCALDIR
-
-# Extract Image
-./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
-if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
-|| [[ -d $systemdir/../product && -L $systemdir/product ]];then
-  echo "-> Merging dynamic partitions..."
-  ./scripts/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
-fi
-
-if [[ ! -d $systemdir/product ]];then
-  echo "$systemdir/product $DIR_NOT_FOUND_STR!"
-  exit 1
-elif [[ ! -d $systemdir/system_ext ]];then
-  echo "$systemdir/system_ext $DIR_NOT_FOUND_STR!"
-  exit 1
-fi
+cd LOCALDIR
 
 normal
 
