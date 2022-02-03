@@ -266,6 +266,17 @@ echo "-> Patching..."
   rm -rf $systemdir/../init.recovery*
   rm -rf $systemdir/recovery-from-boot.*
 
+#Overlays
+vodir="$TARGETDIR/vendor/overlay"
+podir="$MAKEDIR/system_patch/system/product"
+if [ -d "$vodir" ]; then
+        mkdir -p "$podir/overlay"
+        cp -frp "$vodir/*" "$podir/overlay/" >> /dev/null 2>&1
+ if [ -d "$podir/overlay" ]; then
+        chmod -R 777 $podir/overlay
+ fi
+fi
+
   # Patch System
   cp -frp $MAKEDIR/system_patch/system/* $systemdir/
 
