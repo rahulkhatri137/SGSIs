@@ -20,6 +20,8 @@ if [ $os_type = "Pixel" ];then
   $rom_folder/pixel/make.sh > /dev/null 2>&1
   echo "$DEBLOATING_STR"
   $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1
+  # Not flatten apex
+  echo "true" > $TARGETDIR/apex_state
 fi
 
 # oxygen

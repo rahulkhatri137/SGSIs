@@ -48,6 +48,8 @@ os_type="$2"
 firmware="$3"
 build_type="$build_type"
 shift 3
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 
 if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
   echo "> Rom type is not supported!"
@@ -89,7 +91,7 @@ function firmware_extract() {
       mv ./payload.bin ../payload/
       cd ../payload
       echo " -> $UNZIPINGPLB"
-      python ./payload.py ./payload.bin ./out || { echo "> Failed to extract payload!" ; exit 1; }
+      python ./payload.py ./payload.bin ./out > /dev/null 2>&1 || { echo "> Failed to extract payload!" ; exit 1; }
       echo "-> Moving Files to workspace..."
       for i in $partition_list ;do
         if [ -e ./out/$i.img ];then

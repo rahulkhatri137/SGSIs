@@ -45,7 +45,6 @@ fi
 
 os_type="$2"
 build_type="$build_type"
-use_config="_config"
 other_args=""
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
@@ -97,11 +96,6 @@ function normal() {
   }
   ramdisk_modify
   echo "-> $PROCESS_SUCCESS" > /dev/null 2>&1
- 
- # Common apex process
-echo "-> Patching extra apex..."
-cd $MAKEDIR/apex_vndk
-./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
@@ -289,12 +283,20 @@ echo "-> Patching..."
   #./camera.sh > /dev/null 2>&1
   #cd $LOCALDIR
 
+  # Default flatten apex
+  echo "false" > $TARGETDIR/apex_state
+
   # Rom specific patch
   cd $MAKEDIR/rom_make_patch
   ./make.sh
   cd ..
   ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
   cd $LOCALDIR
+
+# Common apex process
+echo "-> Patching extra apex..."
+cd $MAKEDIR/apex_vndk
+./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 
   # Add oem_build
   cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
@@ -304,11 +306,13 @@ echo "# Don't write binary XML files" >> $systemdir/build.prop
 echo "persist.sys.binary_xml=false" >> $systemdir/build.prop
 echo "" >> $systemdir/build.prop
 
-# Support multi-sim
-sed -i "/persist.sys.fflag.override.settings_provider_model/d" $systemdir/build.prop
-echo "# Support multi-sim" >> $systemdir/build.prop
-echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/build.prop
-echo "" >> $systemdir/build.prop
+# Partial Devices Sim fix
+    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop
+    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/system_ext/etc/build.prop
+    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/product/etc/build.prop
+    echo "" >> $systemdir/product/etc/build.prop
+    echo "# Partial ROM sim fix" >> $systemdir/product/etc/build.prop
+    echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/etc/build.prop
 
  # Change Build Number
 if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
@@ -360,7 +364,7 @@ if (echo $@ | grep -qo -- "--fix-bug") ;then
 fi
 
 rm -rf ./SGSI
-cd LOCALDIR
+cd $LOCALDIR
 
 normal
 
