@@ -88,7 +88,7 @@ if nubia ;then
 fi  
 
 # vivo
-if [ -d $systemdir/build-in-app ];then
+if [ -d $systemdir/data ];then
   echo "检测到当前为vivo系统"
   echo "正在完善特性"
   ./add_build.sh
