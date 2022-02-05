@@ -24,7 +24,6 @@ VivoShare
 BBKAppStore
 UpnpServer
 EasyShare
-GmsCore
 GooglePlayServicesUpdater
 "
 for delete_dir in $apps_dir ;do
