@@ -1,72 +1,51 @@
 #!/bin/bash
  
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../bin.sh
 
+os_type="$1"
 systemdir=" ../out/system/system"
+rom_folder="$LOCALDIR/rom_make_patch"
+vintf_folder="$LOCALDIR/add_etc_vintf_patch"
 
 # pixel
-pixel() {
-  cat $systemdir/build.prop | grep -qo "Pixel"  \
-  || cat $systemdir/product/build.prop | grep -qo "Pixel" \
-  || cat $systemdir/system_ext/build.prop | grep -qo "Pixel"
- }
-if pixel ;then
-  echo "检测当前为pixel原生系统"
-  #echo "正在完善特性"
-  #./add_build.sh
-  #./add_etc_vintf_patch/pixel/add_vintf.sh
-  # rom修补处理
-  ./rom_make_patch/pixel/make.sh
-  echo "正在精简推广"
-  ../apps_clean/pixel.sh "$systemdir"
+if [ $os_type = "Pixel" ];then
+  # Add oem properites
+  #./add_build.sh > /dev/null 2>&1
+  $vintf_folder/pixel/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $rom_folder/pixel/make.sh > /dev/null 2>&1
+  $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1
+fi
+
+# oxygen
+if [ $os_type = "OxygenOS" ];then
+  ./add_build.sh > /dev/null 2>&1
+  $vintf_folder/h2os/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $rom_folder/h2os/make.sh > /dev/null 2>&1
+  $DEBLOATDIR/h2os.sh "$systemdir" > /dev/null 2>&1
 fi
  
-# 一加
-oneplus=$(find ../out/system/ -type d -name 'reserve')
-if [ ! $oneplus = "" ] ;then
-  echo "检测当前为一加系统"
-  echo "正在完善特性"
-  #./add_build.sh
-  ./add_etc_vintf_patch/h2os/add_vintf.sh
-  echo "正在精简推广"
-  ../apps_clean/h2os.sh "$systemdir"    
-  # rom修补处理
-  ./rom_make_patch/h2os/make.sh
-fi 
- 
  # flyme
-flyme() {
-  cat $systemdir/build.prop | grep -qo 'flyme'
- }
-if flyme ;then
-  echo "检测当前为Flyme系统"
-  echo "正在完善特性"
-  ./add_build.sh
-  ./add_etc_vintf_patch/flyme/add_vintf.sh
-   echo "正在精简推广"
-   ../apps_clean/flyme.sh "$systemdir"  
+if [ $os_type = "Flyme" ];then
+  ./add_build.sh > /dev/null 2>&1
+  $vintf_folder/flyme/add_vintf.sh > /dev/null 2>&1
+  $DEBLOATDIR/flyme.sh "$systemdir" > /dev/null 2>&1
 fi
  
 # miui
-miui=$(find ../out/system/ -type d -name 'miui_feature' )   
-if [ $miui ];then
-  echo "检测当前为miui系统"
-  echo "正在完善特性"
-  ./add_build.sh
-  ./add_etc_vintf_patch/miui/add_vintf.sh
-  echo "正在精简推广"
-  ../apps_clean/miui.sh "$systemdir"
-  # rom修补处理
-  ./rom_make_patch/miui/make.sh
+if [ $os_type = "MIUI" ];then
+  ./add_build.sh > /dev/null 2>&1
+  .$vintf_folder/miui/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $rom_folder/miui/make.sh > /dev/null 2>&1
+  $DEBLOATDIR/miui.sh "$systemdir" > /dev/null 2>&1
 fi
  
 # joy
-joy() {
-  cat ../out/vendor/build.prop | grep -qo 'JoyUI'
-} 
-if joy ;then
-  echo "检测到当前为Joy系统"
+if [ $os_type = "JoyUI" ];then
   cp -frp $(find ../out/vendor -type f -name 'init.blackshark.rc') $systemdir/etc/init/
   cp -frp $(find ../out/vendor -type f -name 'init.blackshark.common.rc') $systemdir/etc/init/
   echo "/system/system/etc/init/init\.blackshark\.common\.rc u:object_r:system_file:s0" >> ../out/config/system_file_contexts
@@ -75,39 +54,28 @@ if joy ;then
   echo "system/system/etc/init/init.blackshark.common.rc 0 0 0644" >> ../out/config/system_fs_config
   echo "system/system/etc/init/init.blackshark.rc 0 0 0644" >> ../out/config/system_fs_config
   sed -i '/^\s*$/d' ../out/config/system_fs_config
+  $DEBLOATDIR/miui.sh "$systemdir" > /dev/null 2>&1
 fi
 
 # nubia
-nubia() {
-  cat $systemdir/build.prop | grep -qo 'nubia'
-}
-if nubia ;then
-  echo "检测到当前为nubia系统"
-  echo "正在精简推广"
-  ../apps_clean/nubia.sh "$systemdir"
-fi  
+if [ $os_type = "Nubia" ];then
+  $DEBLOATDIR/nubia.sh "$systemdir" > /dev/null 2>&1
+fi
 
 # vivo
-if [ -d $systemdir/data ];then
-  echo "检测到当前为vivo系统"
-  echo "正在完善特性"
-  ./add_build.sh
-  ./add_etc_vintf_patch/vivo/add_vintf.sh
-   echo "正在精简推广"
-  ../apps_clean/vivo.sh "$systemdir"    
-  # rom修补处理
-  ./rom_make_patch/vivo/make.sh  
+if [ $os_type = "FuntouchOS" ];then
+  ./add_build.sh > /dev/null 2>&1
+  $vintf_folder/vivo/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $rom_folder/vivo/make.sh > /dev/null 2>&1
+  $DEBLOATDIR/vivo.sh "$systemdir" > /dev/null 2>&1
 fi
 
 # oppo
-oppo=$(find $systemdir/../ -type d -name "my_product") 
-
-if [ $oppo ];then
-  echo "检测到当前为oppo系统"
-  echo "正在完善特性"
-  ./add_build.sh
-  ./add_etc_vintf_patch/color/add_vintf.sh   
-  # rom修补处理
-  echo "正在进行专有处理"
-  ./rom_make_patch/color/make.sh
+if [ $os_type = "ColorOS" ];then
+  ./add_build.sh > /dev/null 2>&1
+  $vintf_folder/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $rom_folder/oppo/make.sh > /dev/null 2>&1
+  $DEBLOATDIR/oppo.sh "$systemdir" > /dev/null 2>&1
 fi

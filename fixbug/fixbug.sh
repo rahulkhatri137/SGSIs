@@ -1,55 +1,47 @@
 #!/bin/bash
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
+source $LOCALDIR/../bin.sh
 
 ./rm.sh > /dev/null 2>&1
+
+os_type="$1"
 
 echo "
 --------------------
 
-支持的ROM:
+$SUPPORTED_ROM_STR:
 
+Pixel
 MIUI
-
 Flyme
-
-H2OS
-
-Color
+ColorOS
 --------------------
 "
-read -p "请选择系统种类(用小写输出): " fix
-
-if [ $fix = "miui" ];then
- ./miui.sh
- echo "修复完成"
- cd ../
-else
- echo "" > /dev/null 2>&1
-fi
-
-if [ $fix = "flyme" ];then
- ./flyme.sh
- echo "修复完成"
- cd ../
-else
- echo "" > /dev/null 2>&1
-fi
- 
-if [ $fix = "h2os" ];then
- ./h2os.sh
- echo "修复完成"
- cd ../
-else
- echo "" > /dev/null 2>&1
-fi
- 
-if [ $fix = "color" ];then
- ./color.sh
- echo "修复完成"
- cd ../
-else
- echo "" > /dev/null 2>&1
-fi
-
+case "$os_type" in
+  "Pixel")
+    ./pixel.sh
+    exit
+    ;;
+  "MIUI")
+    ./miui.sh
+    exit
+    ;;
+  "Flyme")
+    ./flyme.sh
+    exit
+    ;;
+  "ColorOS")
+    ./oppo.sh
+    exit
+    ;;
+  "OxygenOS")
+    ./h2os.sh
+    exit
+    ;;
+  *)
+    echo "$os_type not supported!"
+    exit  
+    ;;
+esac

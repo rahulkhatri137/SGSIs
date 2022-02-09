@@ -7,7 +7,7 @@ LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 
 # Whether uses mirror for pip
-USE_MIRROR_FOR_PIP=true
+USE_MIRROR_FOR_PIP=false
 # Python pip mirror link
 PIP_MIRROR=https://pypi.tuna.tsinghua.edu.cn/simple/
 

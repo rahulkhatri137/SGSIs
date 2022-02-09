@@ -5,8 +5,6 @@
 LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 
-echo "add_apex_fs"
-
 # add_fs
 rm -rf ../apex_fs
 mkdir ../apex_fs

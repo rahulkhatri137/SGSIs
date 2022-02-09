@@ -26,36 +26,33 @@ case $1 in
     ;;
 esac
 
+os_type=$2
 rm -rf ./out
 rm -rf ./SGSI
 mkdir ./out
 
+echo "-> Extracting images..."
 if [ -e ./vendor.img ];then
-  echo "解压vendor.img中..."
   python3 $bin/imgextractor.py ./vendor.img ./out
   if [ $? = "1" ];then
     echo "vendor.img解压失败！"
     exit
   fi
 fi
-echo "解压system.img中..."
 python3 $bin/imgextractor.py ./system.img ./out
 if [ $? = "1" ];then
   echo "system.img解压失败！"
   exit
 fi
 
+echo "-> SGSI time :)"
 model="$(cat $systemdir/build.prop | grep 'model')"
-echo "当前原包机型为:"
-echo "$model"
 
 function normal() {
   # 为所有rom修改ramdisk层面的system
-  echo "正在修改system外层"
   cd ./make/ab_boot
   ./ab_boot.sh
   cd $LOCALDIR
-  echo "修改完成"
 
   # 为所有rom启用apex扁平化处理
   rm -rf ./make/apex
@@ -64,17 +61,16 @@ function normal() {
     ls
     cd $LOCALDIR
   }
+echo "-> Patching apex..."
   apex_file() {
     apex_ls | grep -q '.apex'
   }
   if apex_file ;then
-    echo "检测到apex，开始apex扁平化处理"
     ./make/apex_flat/apex.sh "official"
  fi
 
   # 如果原包不支持apex封装，则添加 *.apex 
   if ! apex_file ;then
-    echo "正在添加AOSP_APEXs"
     7z x ./make/add_apexs/apex_common.7z -o$systemdir/apex/ > /dev/null 2>&1
     android_art_debug_check() {
       apex_ls | grep -q "art.debug" 
@@ -101,8 +97,7 @@ function normal() {
   ./add_apex_fs.sh
   cd $LOCALDIR
 
-  echo "正在进行其他处理"
-
+  echo "-> Patching..."
   # 重置make目录
   true > ./make/add_etc_vintf_patch/manifest_custom
   echo "" >> ./make/add_etc_vintf_patch/manifest_custom
@@ -112,14 +107,6 @@ function normal() {
   echo "" >> ./make/add_build/add_oem_build
   echo "# oem厂商自定义属性" >> ./make/add_build/add_oem_build
  
-  # 为所有rom添加抓logcat的文件
-  cp -frp ./make/add_logcat/system/* $systemdir/
-  cat ./make/add_logcat_fs/contexts >> $configdir/system_file_contexts
-  cat ./make/add_logcat_fs/fs >> $configdir/system_fs_config
-
-  # 为所有rom做usb通用化
-  cp -frp ./make/aosp_usb/* $systemdir/etc/init/hw/
-
   # 为所有rom做selinux通用化处理
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
   sed -i '/u:object_r:vendor_default_prop:s0/d' $systemdir/etc/selinux/plat_property_contexts
@@ -151,21 +138,13 @@ function normal() {
       cat $systemdir/build.prop | grep -qo 'qssi'
     }
     if qssi ;then
-      echo "检测到原包为qssi 启用机型参数修复" 
+      echo "-> Fixing device props..." 
       brand=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.brand')
       device=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.device')
       manufacturer=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.manufacturer')
       model=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.model')
       mame=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.name')
   
-      echo "当前原包机型参数为:"
-      echo "$brand"
-      echo "$device"
-      echo "$manufacturer"
-      echo "$model"
-      echo "$mame"
-
-      echo "正在修复"
       sed -i '/ro.product.system./d' $systemdir/build.prop
       echo "" >> $systemdir/build.prop
       echo "# 设备参数" >> $systemdir/build.prop
@@ -202,6 +181,14 @@ function normal() {
     echo "# System prop to turn on CdmaLTEPhone always" >> $systemdir/system_ext/build.prop
     echo "telephony.lteOnCdmaDevice=1" >> $systemdir/system_ext/build.prop       
   
+  # Partial Devices Sim fix
+    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop
+    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/system_ext/build.prop
+    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/product/build.prop
+    echo "" >> $systemdir/product/build.prop
+    echo "# Partial ROM sim fix" >> $systemdir/product/build.prop
+    echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/build.prop
+
     # 为所有rom清理一些无用属性
     sed -i '/vendor.display/d' $systemdir/build.prop
     sed -i '/vendor.perf/d' $systemdir/build.prop
@@ -251,12 +238,9 @@ function normal() {
 
   # 为所有rom还原fstab.postinstall
   find  ./out/system/ -type f -name "fstab.postinstall" | xargs rm -rf
-  cp -frp ./make/fstab/system/* $systemdir
   sed -i '/fstab\\.postinstall/d' $configdir/system_file_contexts
   sed -i '/fstab.postinstall/d' $configdir/system_fs_config
-  cat ./make/add_fs/fstab_contexts >> $configdir/system_file_contexts
-  cat ./make/add_fs/fstab_fs >> $configdir/system_fs_config 
-
+  
   # 添加缺少的libs
   cp -frpn ./make/add_libs/system/* $systemdir
  
@@ -311,29 +295,36 @@ function normal() {
   # 为所有rom做phh化处理
   cp -frp ./make/add_phh/system/* $systemdir/
 
-  # 为phh化注册必要selinux上下文
-  cat ./make/add_phh_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
-
   # 为添加的文件注册必要的selinux上下文
   cat ./make/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
+  cat ./make/add_plat_file_contexts/phh_plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
   # 为所有rom的相机修改为aosp相机
-  cd ./make/camera
-  ./camera.sh
+  #cd ./make/camera
+  #./camera.sh
   cd $LOCALDIR
 
-  # 系统种类检测
+  # Rom specific patch
+echo "-> Fixing ROM..."
+./apps_clean/pixel.sh "$systemdir" > /dev/null 2>&1 
   cd ./make
-  ./romtype.sh
+  ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
   cd $LOCALDIR 
-
-  # rom修补处理
-  cd ./make/rom_make_patch
-  ./make.sh 
-  cd $LOCALDIR
 
   # oem_build合并
   cat ./make/add_build/add_oem_build >> $systemdir/build.prop
+
+ # Change Build Number
+if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
+    displayid="ro.build.display.id"
+elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
+    displayid="ro.system.build.id"
+elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
+    displayid="ro.build.id"
+fi
+displayid2=$(echo "$displayid" | sed 's/\./\\./g')
+bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
+sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 
   # 为rom添加oem服务所依赖的hal接口
   rm -rf ./vintf
@@ -355,8 +346,8 @@ function normal() {
   cat ./make/add_fs/bin_fs >> $configdir/system_fs_config 
   cat ./make/add_fs/etc_contexts >> $configdir/system_file_contexts 
   cat ./make/add_fs/etc_fs >> $configdir/system_fs_config 
-  cat ./make/add_phh_fs/contexts >> $configdir/system_file_contexts
-  cat ./make/add_phh_fs/fs >> $configdir/system_fs_config
+  cat ./make/add_phh/contexts >> $configdir/system_file_contexts
+  cat ./make/add_phh/fs >> $configdir/system_fs_config
   rm -rf ./make/lib_fs
   mkdir ./make/lib_fs
 
@@ -536,8 +527,6 @@ function dynamic() {
 }
 
 function make_Aonly() {
-
-  echo "正在制造A-onlay"
   
   # 为所有rom去除ab特性
   ## build
@@ -611,59 +600,10 @@ function make_Aonly() {
   cat ./make/add_fs/init-A_contexts >> $configdir/system_file_contexts
 }
 
-function fix_bug() {
-  # 亮度修复
-  read -p "是否启用亮度修复(y/n): " light
- 
-  case $light in
-    "y") 
-      echo "启用亮度修复"
-      cp -frp $(find ./out/system/ -type f -name 'services.jar') ./fixbug/light_fix/
-      cd ./fixbug/light_fix
-      ./brightness_fix.sh
-      dist="$(find ./services.jar.out/ -type d -name 'dist')"
-      if [ ! $dist = "" ];then
-        cp -frp $dist/services.jar $systemdir/framework/
-      fi
-      cd $LOCALDIR
-      ;;
-    "n")
-      echo "跳过亮度修复"
-      ;;
-    *)
-      echo "error！"
-      exit
-      ;;  
-  esac
-
-  # bug修复
-  read -p "是否修复启用bug修复(y/n): " fixbug
-  
-  case $fixbug in
-    "y")
-      echo "启用bug修复"
-      cd ./fixbug
-      ./fixbug.sh
-      cd $LOCALDIR
-      ;;
-    "n")
-      echo "跳过bug修复"
-      ;;
-    *)
-      echo "error！"
-      exit
-      ;;        
-  esac
-}
-
-make_type=$1
-
 if [[ -L $systemdir/system_ext && -d $systemdir/../system_ext ]] \
 || [[ -L $systemdir/product && -d $systemdir/../product ]];then
-  echo "检测到当前为动态原包，启用动态原包处理"
   if [ -e ./system_ext.img ];then
-    echo "解压system_ext.img中..."
-    python3 $bin/imgextractor.py ./system_ext.img ./out
+    python3 $bin/imgextractor.py ./system_ext.img ./out > /dev/null 2>&1
     if [ $? = "1" ];then
       echo "system_ext.img解压失败！"
       exit
@@ -672,8 +612,7 @@ if [[ -L $systemdir/system_ext && -d $systemdir/../system_ext ]] \
     fi
   fi 
   if [ -e ./product.img ];then
-    echo "解压product.img中..."
-    python3 $bin/imgextractor.py ./product.img ./out
+    python3 $bin/imgextractor.py ./product.img ./out > /dev/null 2>&1
     if [ $? = "1" ];then
       echo "product.img解压失败！"
       exit
@@ -681,31 +620,29 @@ if [[ -L $systemdir/system_ext && -d $systemdir/../system_ext ]] \
       echo "解压完成"
     fi
   fi
+  echo "-> Merging partitions..."
   dynamic
+  echo "- Merged."
 fi
 
-if [ -L $systemdir/vendor ];then
-  echo "当前为正常pt 启用正常处理方案"
-  echo "SGSI化处理开始"
-  case $make_type in
-    "A"|"a")  
-      normal
-      make_Aonly
-      echo "SGSI化处理完成"
-      fix_bug
-      ./makeimg.sh "A"
-      exit
-      ;;
-    "AB"|"ab")
-      normal
-      echo "SGSI化处理完成"
-      fix_bug  
-      ./makeimg.sh "AB"
-      exit
-      ;;
-    *)
-      echo "error!"
-      exit
-      ;;      
-  esac  
+ function fix_bug() {
+    echo "-> Fixing Bugs..."
+    cd fixbug
+    ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
+    cd $LOCALDIR
+}
+
+function resign() {
+echo "-> Resigning with AOSP keys..."
+      cp -frp make/resign/system/* $systemdir/
+      ./make/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch overlays" && exit 1; }
+      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
+}
+
+normal
+fix_bug
+if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
+    resign
 fi
+echo "- SGSI Processed."
+exit 0

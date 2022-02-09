@@ -82,5 +82,5 @@ sed -i '/system\/product /d' $fs
 sed -i '/system\/system_ext /d' $fs
 sed -i '/system\/vendor /d' $fs
 
-cat ../ab_boot_fs/contexts >> $contexts
-cat ../ab_boot_fs/fs >> $fs
+cat contexts >> $contexts
+cat fs >> $fs

@@ -27,6 +27,7 @@ system_type=$1
 case $system_type in
   "AB"|"ab")
     systemdir="$LOCALDIR/out/system"
+    system="$LOCALDIR/out/system/system"
     ;;
   "A"|"a")
     systemdir="$LOCALDIR/out/system/system"
@@ -36,7 +37,8 @@ case $system_type in
     exit
     ;;    
 esac
-
+name=$2
+mkdir -p output
 case $system_type in
   "A"|"a")
     echo "/ u:object_r:system_file:s0" > ./out/config/system_A_contexts
@@ -68,48 +70,76 @@ if [ ! -d $systemdir ];then
   exit
 fi
 
-echo "
-当前img大小为: 
-_________________
 
-`du -sh $systemdir | awk '{print $1}' | bc -q | sed 's/$/&G/'`
+cd $LOCALDIR
+# Codename
+codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$TARGETDIR/vendor/build.prop" | head -1)
+[[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.system.device=).*" -hs $system/build.prop | head -1)
+[[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.device=).*" -hs $system/build.prop | head -1)
+[[ -z "${codename}" ]] && codename=Generic
 
-`du -sm $systemdir | awk '{print $1}' | bc -q | sed 's/$/&M/'`
+#Out Variable
+date=`date +%Y%m%d`
+outputname="$name-11-$date-$codename-SGSI137"
+ioutputname="$name-AB-11-$date-$codename-SGSI137"
+outputimagename="$ioutputname".img
+outputtextname="Build-info-$outputname".txt
+output="$OUTDIR/$outputimagename"
 
-`du -sb $systemdir | awk '{print $1}' | bc -q | sed 's/$/&B/'`
-_________________
-"
+#Overlays
+outputvendoroverlaysname="VendorOverlays-$outputname".tar.gz
+outputvendoroverlays="$OUTDIR/$outputvendoroverlaysname"
+if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
+        mkdir -p "$OUTDIR/vendorOverlays"
+        cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
+ if [ -d "$OUTDIR/vendorOverlays" ]; then
+        cd $OUTDIR/vendorOverlays
+        echo "-> Extracting Vendor Overlays..."
+        tar -zcvf "$outputvendoroverlays" * >> /dev/null 2>&1
+        cd $LOCALDIR
+        rm -rf "output/vendorOverlays"
+ fi
+fi
+
 size=`du -sk $systemdir | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
-echo "当前打包大小：${size} B"
-echo ""
-read -p "按任意键开始打包" var
-#mke2fs+e2fsdroid打包
-#$bin/mke2fs -L / -t ext4 -b 4096 ./out/system.img $size
-#$bin/e2fsdroid -e -T 0 -S ./out/config/system_file_contexts -C ./out/config/system_fs_config  -a /system -f ./out/system ./out/system.img
+bytesToHuman() {
+    b=${1:-0}; d=''; s=0; S=(Bytes {K,M,G,T,P,E,Z,Y}iB)
+    while ((b > 1024)); do
+        d="$(printf ".%02d" $((b % 1024 * 100 / 1024)))"
+        b=$((b / 1024))
+        let s++
+    done
+    echo "$b$d ${S[$s]}"
+}
 
+echo "-> Packing Image..."
 case $system_type in
   "A"|"a")
     $bin/mkuserimg_mke2fs.sh "$systemdir" "./out/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "./out/config/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "./out/config/system_A_contexts"
     ;;
   "AB"|"ab")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "./out/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "./out/config/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "./out/config/system_file_contexts"
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "./out/config/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "./out/config/system_file_contexts"
     ;;
 esac
 
-if [ -s ./out/system.img ];then
-  echo "打包完成"
-  echo "输出至SGSI文件夹"
+if [ -s $output ];then
+  echo "✓ Created $name($codename) SGSI137 | Size: $(bytesToHuman $size)" 
 else
-  echo "打包失败，错误日志如上"
+  rm -rf output 
+  exit 1
 fi
 
-if [ -s ./out/system.img ];then
-  rm -rf ./SGSI
-  mkdir ./SGSI
-  mv ./out/system.img ./SGSI/
-  cp -frp ./out/system/system/build.prop ./out/
-  ./get_build_info.sh "./out" "$LOCALDIR/SGSI/system.img" > ./SGSI/build_info.txt
-  rm -rf ./out/build.prop
-  ./copy.sh
-  chmod -R 777 ./SGSI
+#System Tree
+outputtreename="System-Tree-$outputname".txt
+outputtree="$OUTDIR/$outputtreename"
+if [ ! -f "$outputtree" ]; then
+    tree $systemdir >> "$outputtree" 2> "$outputtree"
+fi
+
+if [ -s $output ];then
+  rm -rf $TMPDIR
+  cp -frp $system/build.prop $TARGETDIR/
+  $SCRIPTDIR/get_build_info.sh "$TARGETDIR" "$output" > $OUTDIR/$outputtextname
+  rm -rf $TARGETDIR/build.prop
+  chmod -R 777 $LOCALDIR/output
 fi
