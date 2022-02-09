@@ -122,8 +122,7 @@ LEAVE() {
 
 #SGSI Time
 cd $LOCALDIR
-if [ -e $IMAGESDIR/system.img ];then
-  echo "-> SGSI Time :)"
+if [ -e ./system.img ];then
   "$LOCALDIR"/SGSI.sh $build $TYPE || { echo "> Failed to complete SGSI patching!" ; LEAVE; }
 else
   echo "> System image not found"

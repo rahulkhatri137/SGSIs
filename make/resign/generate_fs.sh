@@ -1,9 +1,8 @@
 #!/bin/bash
 
-LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
+LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 source $LOCALDIR/../../bin.sh
-source $TOOLDIR/language_helper.sh
 
 configdir="$TARGETDIR/config"
 fs="$configdir/system_fs_config"

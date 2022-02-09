@@ -183,8 +183,8 @@ mke2fs="$LOCALDIR/mke2fs"
 e2fsdroid="$LOCALDIR/e2fsdroid"
 
 MAKE_EXT4FS_CMD="$mke2fs $MKE2FS_OPTS -t $EXT_VARIANT -b $BLOCKSIZE $OUTPUT_FILE $SIZE"
-echo $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD
-env $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD
+echo $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD > /dev/null 2>&1 
+env $MAKE_EXT4FS_ENV $MAKE_EXT4FS_CMD > /dev/null 2>&1 
 
 if [ $? -ne 0 ]; then
   exit 4
@@ -195,8 +195,8 @@ if [[ $E2FSPROGS_FAKE_TIME ]]; then
 fi
 
 E2FSDROID_CMD="$e2fsdroid $E2FSDROID_OPTS -f $SRC_DIR -a $MOUNT_POINT $OUTPUT_FILE"
-echo $E2FSDROID_ENV $E2FSDROID_CMD
-env $E2FSDROID_ENV $E2FSDROID_CMD
+echo $E2FSDROID_ENV $E2FSDROID_CMD > /dev/null 2>&1 
+env $E2FSDROID_ENV $E2FSDROID_CMD > /dev/null 2>&1 
 if [ $? -ne 0 ]; then
   rm -f $OUTPUT_FILE
   exit 4

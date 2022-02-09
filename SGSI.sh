@@ -33,13 +33,13 @@ mkdir ./out
 
 echo "-> Extracting images..."
 if [ -e ./vendor.img ];then
-  python3 $bin/imgextractor.py ./vendor.img ./out
+  python3 $bin/imgextractor.py ./vendor.img ./out > /dev/null 2>&1 
   if [ $? = "1" ];then
     echo "vendor.img解压失败！"
     exit
   fi
 fi
-python3 $bin/imgextractor.py ./system.img ./out
+python3 $bin/imgextractor.py ./system.img ./out > /dev/null 2>&1 
 if [ $? = "1" ];then
   echo "system.img解压失败！"
   exit
@@ -51,7 +51,7 @@ model="$(cat $systemdir/build.prop | grep 'model')"
 function normal() {
   # 为所有rom修改ramdisk层面的system
   cd ./make/ab_boot
-  ./ab_boot.sh
+  ./ab_boot.sh > /dev/null 2>&1 
   cd $LOCALDIR
 
   # 为所有rom启用apex扁平化处理
@@ -66,7 +66,7 @@ echo "-> Patching apex..."
     apex_ls | grep -q '.apex'
   }
   if apex_file ;then
-    ./make/apex_flat/apex.sh "official"
+    ./make/apex_flat/apex.sh "official" > /dev/null 2>&1 
  fi
 
   # 如果原包不支持apex封装，则添加 *.apex 
@@ -89,12 +89,12 @@ echo "-> Patching apex..."
 
   # apex_vndk调用处理
   cd ./make/apex_vndk_start
-  ./make.sh
+  ./make.sh > /dev/null 2>&1 
   cd $LOCALDIR 
  
   # apex_fs数据整合
   cd ./make/apex_flat
-  ./add_apex_fs.sh
+  ./add_apex_fs.sh > /dev/null 2>&1 
   cd $LOCALDIR
 
   echo "-> Patching..."
@@ -154,7 +154,6 @@ echo "-> Patching apex..."
       echo "$model" >> $systemdir/build.prop
       echo "$mame" >> $systemdir/build.prop
       sed -i 's/ro.product.vendor./ro.product.system./g' $systemdir/build.prop
-      echo "修复完成"
     fi
 
     # 为所有rom改用自适应apex更新支持状态
@@ -640,6 +639,7 @@ echo "-> Resigning with AOSP keys..."
 }
 
 normal
+echo "- Done"
 fix_bug
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign

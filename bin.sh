@@ -1,16 +1,14 @@
 #!/bin/bash
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
-cd $LOCALDIR
-
+TOOLDIR=`cd $( dirname ${BASH_SOURCE[0]} ) && pwd`
 HOST=$(uname)
 platform=$(uname -m)
-export bin=$LOCALDIR/tool_bin
+export bin=$TOOLDIR/tool_bin
 export LD_LIBRARY_PATH=$bin/$HOST/$platform/lib64
-export OUTDIR=$LOCALDIR/output
-export TARGETDIR=$LOCALDIR/out
-export SCRIPTDIR=$LOCALDIR/scripts
-export MAKEDIR=$LOCALDIR/make
-export FBDIR=$LOCALDIR/fixbug
-export DEBLOATDIR=$LOCALDIR/apps_clean
-export TMPDIR=$LOCALDIR/tmp
+export OUTDIR=$TOOLDIR/output
+export TARGETDIR=$TOOLDIR/out
+export SCRIPTDIR=$TOOLDIR/scripts
+export MAKEDIR=$TOOLDIR/make
+export FBDIR=$TOOLDIR/fixbug
+export DEBLOATDIR=$TOOLDIR/apps_clean
+export TMPDIR=$TOOLDIR/tmp
