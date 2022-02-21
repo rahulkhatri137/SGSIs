@@ -28,6 +28,7 @@ rm -rf $1/product/app/TrichromeLibrary
 rm -rf $1/product/media/audio/alarms/*
 rm -rf $1/product/media/audio/notifications/*
 rm -rf $1/product/media/audio/ringtones/*
+rm -rf $1/*app/*eibo*
 # Nuke MIUI useless system apks
 rm -rf $1/app/cit
 rm -rf $1/app/MiuiCompass
@@ -60,7 +61,6 @@ rm -rf $1/app/TranslationService
 rm -rf $1/app/Videos
 rm -rf $1/app/YouDaoEngine
 rm -rf $1/app/YouTube
-rm -rf $1/app/XiaomiServiceFramework
 rm -rf $1/app/facebook-appmanager
 rm -rf $1/app/talkback
 rm -rf $1/app/Lens
