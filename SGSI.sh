@@ -307,7 +307,11 @@ fi
 # Common apex process
 echo "-> Patching extra apex..."
 cd $MAKEDIR/apex_vndk
+if [ $(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2) = "32" ];then
+./make2.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
+else
 ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
+fi
 
   # Add oem_build
   cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop

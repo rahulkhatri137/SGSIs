@@ -162,13 +162,14 @@ if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
   echo "-> Merging dynamic partitions..."
   $SCRIPTDIR/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
+  echo "- Merged."
 fi
 
 if [[ ! -d $systemdir/product ]];then
-  echo "$systemdir/product $DIR_NOT_FOUND_STR!"
+  echo "> product $DIR_NOT_FOUND_STR!"
   exit 1
 elif [[ ! -d $systemdir/system_ext ]];then
-  echo "$systemdir/system_ext $DIR_NOT_FOUND_STR!"
+  echo "> system_ext $DIR_NOT_FOUND_STR!"
   exit 1
 fi
 exit 0
