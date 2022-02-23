@@ -3,6 +3,8 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 
+systemdir=$1
+
 # small debloat
 rm -rf $1/*/*app/*Recorder*
 rm -rf $1/*app/*Recorder*
@@ -16,6 +18,8 @@ rm -rf $1/*/*app/*YouTube*
 rm -rf $1/*app/*YouTube*
 rm -rf $1/*/*app/*Velvet*
 rm -rf $1/*/*app/*PixelWall*
+rm -rf $1/*/*app/Micropaper*
+rm -rf $1/*/*app/Ornament
 rm -rf $1/*/*app/*DevicePersonalization*
 rm -rf $1/*/*app/*Duo*
 rm -rf $1/*app/*Pay*
@@ -23,7 +27,6 @@ rm -rf $1/*app/*Market*
 rm -rf $1/*/*app/*Market*
 rm -rf $1/*/*app/*Pay*
 rm -rf $1/*/*app/*Gmail*
-rm -rf $1/*app/*Velvet*
 rm -rf $1/*/preset_apps/*
 rm -rf $1/*/data-app/*
 rm -rf $1/reserve/*
