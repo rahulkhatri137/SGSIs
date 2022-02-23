@@ -10,3 +10,12 @@ system/system/etc/init/qti_permissions_remove.rc 0 0 0644
 system/system/etc/permissions/qti_permissions.xml 0 0 0644
 system/system/etc/init/permissiver.rc 0 0 0644
 system/system/etc/init/logcat.rc 0 0 0755
+system/system/etc 0 0 0755
+system/system/etc/init 0 0 0755
+system/system/etc/init/hw 0 0 0755
+system/system/etc/init/hw/init.usb.rc 0 0 0644
+system/system/etc/init/hw/init.usb.configfs.rc 0 0 0644
+system/system/system_ext 0 0 0755
+system/system/system_ext/build.prop 0 0 0644
+system/system/product 0 0 0755
+system/system/product/build.prop 0 0 0644

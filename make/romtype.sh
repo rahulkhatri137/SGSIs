@@ -76,6 +76,14 @@ if [ $os_type = "ColorOS" ];then
   ./add_build.sh > /dev/null 2>&1
   $vintf_folder/add_vintf.sh > /dev/null 2>&1
   # Fixing ROM Features
-  $rom_folder/oppo/make.sh > /dev/null 2>&1
+  $rom_folder/color/make.sh > /dev/null 2>&1
   $DEBLOATDIR/oppo.sh "$systemdir" > /dev/null 2>&1
+fi
+
+# Asus
+if [ $os_type = "RogUI" ];then
+  ./add_build.sh > /dev/null 2>&1
+  $vintf_folder/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $DEBLOATDIR/rog.sh "$systemdir" > /dev/null 2>&1
 fi

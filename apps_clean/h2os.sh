@@ -3,6 +3,8 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 systemdir=$1
+rm -rf $1/system_ext/apex/*v28*
+rm -rf $1/apex/*v28*
 rm -rf $1/reserve/*
 rm -rf $1/product/data-app/*
 rm -rf $1/product/app/TrichromeLibrary

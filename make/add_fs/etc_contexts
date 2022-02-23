@@ -10,3 +10,12 @@
 /system/system/etc/permissions/qti_permissions.xml u:object_r:system_file:s0
 /system/system/etc/init/permissiver.rc u:object_r:system_file:s0
 /system/system/etc/init/logcat.rc u:object_r:system_file:s0
+/system/system/etc u:object_r:system_file:s0
+/system/system/etc/init u:object_r:system_file:s0
+/system/system/etc/init/hw u:object_r:system_file:s0
+/system/system/etc/init/hw/init\.usb\.rc u:object_r:system_file:s0
+/system/system/etc/init/hw/init\.usb\.configfs\.rc u:object_r:system_file:s0
+/system/system/system_ext u:object_r:system_file:s0
+/system/system/system_ext/build\.prop u:object_r:system_file:s0
+/system/system/product u:object_r:system_file:s0
+/system/system/product/build\.prop u:object_r:system_file:s0

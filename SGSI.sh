@@ -92,6 +92,14 @@ echo "-> Patching apex..."
   ./make.sh > /dev/null 2>&1 
   cd $LOCALDIR 
  
+#Drop vndks
+if ! [ "$os_type" == "Generic" ] && ! [ "$os_type" == "Pixel" ]; then
+rm -rf $systemdir/apex/*28*
+rm -rf $systemdir/apex/*29*
+rm -rf $systemdir/system_ext/apex/*28*
+rm -rf $systemdir/system_ext/apex/*29*
+fi
+
   # apex_fs数据整合
   cd ./make/apex_flat
   ./add_apex_fs.sh > /dev/null 2>&1 
@@ -406,6 +414,7 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 }
 
 function dynamic() {
+echo "-> Merging partitions..."
   rm -rf ./make/add_dynamic_fs
   mkdir ./make/add_dynamic_fs
 
@@ -523,6 +532,7 @@ function dynamic() {
   mv ./make/add_dynamic_fs/fs ./make/add_dynamic_fs/system_fs_config
   cp -frp ./make/add_dynamic_fs/system_file_contexts $configdir/system_file_contexts
   cp -frp ./make/add_dynamic_fs/system_fs_config $configdir/system_fs_config  
+  echo "- Merged."
 }
 
 function make_Aonly() {
@@ -603,25 +613,11 @@ if [[ -L $systemdir/system_ext && -d $systemdir/../system_ext ]] \
 || [[ -L $systemdir/product && -d $systemdir/../product ]];then
   if [ -e ./system_ext.img ];then
     python3 $bin/imgextractor.py ./system_ext.img ./out > /dev/null 2>&1
-    if [ $? = "1" ];then
-      echo "system_ext.img解压失败！"
-      exit
-    else
-      echo "解压完成"
-    fi
   fi 
   if [ -e ./product.img ];then
     python3 $bin/imgextractor.py ./product.img ./out > /dev/null 2>&1
-    if [ $? = "1" ];then
-      echo "product.img解压失败！"
-      exit
-    else
-      echo "解压完成"
-    fi
   fi
-  echo "-> Merging partitions..."
   dynamic
-  echo "- Merged."
 fi
 
  function fix_bug() {

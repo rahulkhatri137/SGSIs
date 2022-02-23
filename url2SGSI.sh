@@ -77,7 +77,7 @@ else
     TYPE=$TYPE
 fi
 
-if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
+if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$TYPE");then
   echo "> Rom type is not supported!"
   echo "Following are the supported types -"
   cat $MAKEDIR/rom_support_list.txt
@@ -113,7 +113,7 @@ DOWNLOAD()
 
 LEAVE() {
     echo "> SGSI failed! Exiting..."
-    rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
+    rm -rf "$LOCALDIR/output" "$LOCALDIR/out" "$TMPDIR" "$LOCALDIR/SGSI" "$LOCALDIR/*.img"
     exit 1
 }
 
@@ -125,7 +125,7 @@ cd $LOCALDIR
 if [ -e ./system.img ];then
   "$LOCALDIR"/SGSI.sh $build $TYPE || { echo "> Failed to complete SGSI patching!" ; LEAVE; }
 else
-  echo "> System image not found"
+  echo "> System image not found!"
   LEAVE
 fi
 
@@ -133,8 +133,9 @@ fi
     "$LOCALDIR"/makeimg.sh $build $NAME || { echo "> Failed to build image!" ; LEAVE; }
 
 rm -rf "$LOCALDIR/tmp"
-rm -rf "$LOCALDIR/workspace"
+rm -rf "$LOCALDIR/out"
 rm -rf "$LOCALDIR/SGSI"
+rm -rf "$LOCALDIR/*.img"
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
    cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE

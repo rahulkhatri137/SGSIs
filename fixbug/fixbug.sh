@@ -7,18 +7,6 @@ source $LOCALDIR/../bin.sh
 ./rm.sh > /dev/null 2>&1
 
 os_type="$1"
-
-echo "
---------------------
-
-$SUPPORTED_ROM_STR:
-
-Pixel
-MIUI
-Flyme
-ColorOS
---------------------
-"
 case "$os_type" in
   "Pixel")
     ./pixel.sh
@@ -33,7 +21,7 @@ case "$os_type" in
     exit
     ;;
   "ColorOS")
-    ./oppo.sh
+    ./color.sh
     exit
     ;;
   "OxygenOS")
