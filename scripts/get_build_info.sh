@@ -19,7 +19,7 @@ device_manufacturer=$(cat $prop_dir/build.prop | grep "ro.product.system.manufac
 android_version=$(cat $prop_dir/build.prop | grep "ro.build.version.release" | head -n 1 | cut -d "=" -f 2)
 device_product=$(cat $prop_dir/build.prop | grep "ro.build.product=" | head -n 1 | cut -d "=" -f 2)
 model=$(grep -oP "(?<=^ro.product.product.model=).*" -hs "$prod_dir/build.prop" | head -1)
-[[ -z "${model}" ]] && codename=$(grep -oP "(?<=^ro.product.system.model=).*" -hs $prop_dir/build.prop | head -1)
+[[ -z "${model}" ]] && model=$(grep -oP "(?<=^ro.product.system.model=).*" -hs $prop_dir/build.prop | head -1)
 [[ -z "${model}" ]] && model=Generic
 codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$prop_dir/vendor/build.prop" | head -1)
 [[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.system.device=).*" -hs $prop_dir/build.prop | head -1)
