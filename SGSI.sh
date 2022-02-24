@@ -266,17 +266,6 @@ echo "-> Patching..."
   rm -rf $systemdir/../init.recovery*
   rm -rf $systemdir/recovery-from-boot.*
 
-#Overlays
-vodir="$TARGETDIR/vendor/overlay"
-podir="$MAKEDIR/system_patch/system/product"
-if [ -d "$vodir" ]; then
-        mkdir -p "$podir/overlay"
-        cp -frp "$vodir/*" "$podir/overlay/" >> /dev/null 2>&1
- if [ -d "$podir/overlay" ]; then
-        chmod -R 777 $podir/overlay
- fi
-fi
-
   # Patch System
   cp -frp $MAKEDIR/system_patch/system/* $systemdir/
 
@@ -357,7 +346,7 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
   true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
-echo "- Done."
+echo "- Patched."
 }
 
 function fix_bug() {

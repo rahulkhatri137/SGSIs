@@ -188,8 +188,6 @@ if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
  fi
 fi
 
-rm -rf $MAKEDIR/system_patch/system/product
-
 cd $LOCALDIR
 size=`du -sk $systemdir | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
 bytesToHuman() {
