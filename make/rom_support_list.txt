@@ -9,3 +9,4 @@ VOS
 Nubia
 Moto
 FuntouchOS
+MyOS
