@@ -273,7 +273,7 @@ echo "-> Patching..."
   cp -frp $MAKEDIR/add_phh/system/* $systemdir/
 
   # Register selinux contexts related by phh system
-  cat $MAKEDIR/add_phh_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
+  cat $MAKEDIR/add_plat_file_contexts/phh_plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
   # Register selinux contexts related by added files
   cat $MAKEDIR/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
@@ -284,7 +284,11 @@ echo "-> Patching..."
   #cd $LOCALDIR
 
   # Default flatten apex
+if [ "$os_type" == "Generic" ]; then
   echo "false" > $TARGETDIR/apex_state
+else
+  echo "true" > $TARGETDIR/apex_state
+fi
 
   # Rom specific patch
   cd $MAKEDIR/rom_make_patch
@@ -301,9 +305,6 @@ if [ $(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut
 else
 ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 fi
-
-  # Add oem_build
-  cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
 
 # Don't write binary XML files
 echo "# Don't write binary XML files" >> $systemdir/build.prop
@@ -329,6 +330,9 @@ fi
 displayid2=$(echo "$displayid" | sed 's/\./\\./g')
 bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
 sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
+
+  # Add oem_build
+  cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
 
   # Add OEM HAL Manifest Interfaces
   manifest_tmp="$TARGETDIR/vintf/manifest.xml"
