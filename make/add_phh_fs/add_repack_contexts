@@ -34,3 +34,4 @@
 /system/system/priv-app u:object_r:system_file:s0
 /system/system/priv-app/TrebleApp u:object_r:system_file:s0
 /system/system/priv-app/TrebleApp/TrebleApp\.apk u:object_r:system_file:s0
+/system/system/bin/resetprop_phh u:object_r:u:object_r:system_file:s0
