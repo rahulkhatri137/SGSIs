@@ -31,3 +31,7 @@
 /system/system/bin/phh-remotectl\.sh u:object_r:update_engine_exec:s0
 /system/system/bin/rw-system\.sh u:object_r:update_engine_exec:s0
 /system/system/bin/netd u:object_r:netd_exec:s0
+/system/system/priv-app u:object_r:system_file:s0
+/system/system/priv-app/TrebleApp u:object_r:system_file:s0
+/system/system/priv-app/TrebleApp/TrebleApp\.apk u:object_r:system_file:s0
+

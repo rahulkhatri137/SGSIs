@@ -33,3 +33,6 @@ system/system/etc/usb_audio_policy_configuration.xml 0 0 0644
 system/system/framework/android.hardware.wifi.hostapd-V1.0-java.jar 0 0 0644
 system/system/framework/vendor.qti.hardware.radio.am-V1.0-java.jar 0 0 0644
 system/system/bin/netd 0 2000 0755
+system/system/priv-app 0 0 0755
+system/system/priv-app/TrebleApp 0 0 0755
+system/system/priv-app/TrebleApp/TrebleApp.apk 0 0 0644
