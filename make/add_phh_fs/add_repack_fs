@@ -37,3 +37,4 @@ system/system/priv-app 0 0 0755
 system/system/priv-app/TrebleApp 0 0 0755
 system/system/priv-app/TrebleApp/TrebleApp.apk 0 0 0644
 system/system/bin/resetprop_phh 0 2000 0755
+system/system/bin/phh-securize.sh 0 2000 0755
