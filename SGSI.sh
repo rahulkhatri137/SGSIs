@@ -31,7 +31,7 @@ rm -rf ./out
 rm -rf ./SGSI
 mkdir ./out
 
-echo "-> Extracting images..."
+echo "├─ Extracting images..."
 if [ -e ./vendor.img ];then
   python3 $bin/imgextractor.py ./vendor.img ./out > /dev/null 2>&1 
   if [ $? = "1" ];then
@@ -44,11 +44,12 @@ if [ $? = "1" ];then
   echo "system.img解压失败！"
   exit
 fi
-
-echo "-> SGSI time :)"
+echo "├─ Extracted."
+echo "┠⌬─ Ported SGSI137!"
 model="$(cat $systemdir/build.prop | grep 'model')"
 
 function normal() {
+ echo "┠ Patching..."
   # 为所有rom修改ramdisk层面的system
   cd ./make/ab_boot
   ./ab_boot.sh > /dev/null 2>&1 
@@ -61,7 +62,7 @@ function normal() {
     ls
     cd $LOCALDIR
   }
-echo "-> Patching apex..."
+echo "├─ Adding vndk apex..."
   apex_file() {
     apex_ls | grep -q '.apex'
   }
@@ -105,7 +106,6 @@ fi
   ./add_apex_fs.sh > /dev/null 2>&1 
   cd $LOCALDIR
 
-  echo "-> Patching..."
   # 重置make目录
   true > ./make/add_etc_vintf_patch/manifest_custom
   echo "" >> ./make/add_etc_vintf_patch/manifest_custom
@@ -146,7 +146,7 @@ fi
       cat $systemdir/build.prop | grep -qo 'qssi'
     }
     if qssi ;then
-      echo "-> Fixing device props..." 
+      echo "├─ Fixing device props..."
       brand=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.brand')
       device=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.device')
       manufacturer=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.manufacturer')
@@ -312,7 +312,7 @@ fi
   cd $LOCALDIR
 
   # Rom specific patch
-echo "-> Fixing ROM..."
+echo "├─ Fixing ROM..."
 ./apps_clean/pixel.sh "$systemdir" > /dev/null 2>&1 
   cd ./make
   ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
@@ -414,7 +414,7 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 }
 
 function dynamic() {
-echo "-> Merging partitions..."
+echo "┠ Merging dynamic partitions..."
   rm -rf ./make/add_dynamic_fs
   mkdir ./make/add_dynamic_fs
 
@@ -532,7 +532,7 @@ echo "-> Merging partitions..."
   mv ./make/add_dynamic_fs/fs ./make/add_dynamic_fs/system_fs_config
   cp -frp ./make/add_dynamic_fs/system_file_contexts $configdir/system_file_contexts
   cp -frp ./make/add_dynamic_fs/system_fs_config $configdir/system_fs_config  
-  echo "- Merged."
+  echo "├─ Merged."
 }
 
 function make_Aonly() {
@@ -621,24 +621,25 @@ if [[ -L $systemdir/system_ext && -d $systemdir/../system_ext ]] \
 fi
 
  function fix_bug() {
-    echo "-> Fixing Bugs..."
+    echo "┠ Fixing Bugs..."
     cd fixbug
     ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
     cd $LOCALDIR
 }
 
 function resign() {
-echo "-> Resigning with AOSP keys..."
+echo "┠ Resigning with AOSP keys..."
       cp -frp make/resign/system/* $systemdir/
       ./make/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch overlays" && exit 1; }
       python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
+echo "├─ Resigned."
 }
 
 normal
-echo "- Done"
+echo "├─ Patched."
 fix_bug
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
-echo "- SGSI Processed."
+echo "┠⌬─ SGSI Processed."
 exit 0

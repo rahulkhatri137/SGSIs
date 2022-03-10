@@ -1,0 +1,13 @@
+Generic
+Pixel
+MIUI
+Flyme
+ColorOS
+RogUI
+JoyUI
+VOS
+Nubia
+Moto
+MyOS
+OxygenOS
+RedMagicOS

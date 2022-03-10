@@ -20,7 +20,7 @@ rm -rf ./*.img
 ./workspace_cleanup.sh > /dev/null 2>&1
 zip=$1
 
-echo "-> Extracting firmware..."
+echo "┠ Extracting Firmware..."
 if [ -e $zip ] || [ -e ./tmp/$zip ];then
   if [ -e ./tmp/$zip ];then
     7z x "./tmp/$zip" -o"./tmp/" > /dev/null 2>&1
@@ -36,7 +36,7 @@ cd ./tmp
 # payload.bin检测
 if [ -e './payload.bin' ];then
   mv ./payload.bin ../payload
-  echo "-> Unpacking payload..."
+  echo "├─ Unpacking payload..."
   cd ../payload
   python2 ./payload.py ./payload.bin ./out > /dev/null 2>&1
   mv ./payload.bin ../tmp
@@ -194,7 +194,6 @@ else
   fi
 fi
 
-echo "- Extracted."
 if [ -e ./system.img ];then
   mv ./*.img ../
 fi

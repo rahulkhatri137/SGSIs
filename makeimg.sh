@@ -94,7 +94,7 @@ if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
         cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
  if [ -d "$OUTDIR/vendorOverlays" ]; then
         cd $OUTDIR/vendorOverlays
-        echo "-> Extracting Vendor Overlays..."
+        echo "├─ Extracting VOverlays..."
         tar -zcvf "$outputvendoroverlays" * >> /dev/null 2>&1
         cd $LOCALDIR
         rm -rf "output/vendorOverlays"
@@ -112,7 +112,7 @@ bytesToHuman() {
     echo "$b$d ${S[$s]}"
 }
 
-echo "-> Packing Image..."
+echo "┠⌬ Packing Image..."
 case $system_type in
   "A"|"a")
     $bin/mkuserimg_mke2fs.sh "$systemdir" "./out/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "./out/config/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "./out/config/system_A_contexts"
@@ -123,12 +123,13 @@ case $system_type in
 esac
 
 if [ -s $output ];then
-  echo "✓ Created $name($codename) SGSI137 | Size: $(bytesToHuman $size)" 
+  echo "├⌬ $name($codename) ━ $(bytesToHuman $size)" 
 else
   rm -rf output 
   exit 1
 fi
 
+echo "├─ Generating SGSI info..."
 #System Tree
 outputtreename="System-Tree-$outputname".txt
 outputtree="$OUTDIR/$outputtreename"
