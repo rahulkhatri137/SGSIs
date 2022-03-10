@@ -83,9 +83,21 @@ else
     TYPE=$TYPE
 fi
 
-if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
+if [[ $NAME == *"-"* ]]; then
+    GNAME=`echo "$NAME" | cut -d ":" -f 1`
+else
+    GNAME=$NAME
+fi
+
+if ! (cat $MAKEDIR/type_support_list.txt | grep -qo "$os_type");then
+  echo "> Firmware type is not supported!"
+  echo "─ Following are the supported types -"
+  cat $MAKEDIR/type_support_list.txt
+  exit 1
+fi
+if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
   echo "> Rom type is not supported!"
-  echo "Following are the supported types -"
+  echo "─ Following are the supported types -"
   cat $MAKEDIR/rom_support_list.txt
   exit 1
 fi
@@ -96,7 +108,7 @@ DOWNLOAD()
     URL="$1"
     ZIP_NAME="update.zip"
     mkdir -p "$TMPDIR"
-    echo "-> Downloading firmware..."
+    echo "┠ Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
         ("${DL}" "${URL}" "$TMPDIR" "$ZIP_NAME") || exit 1
     else
@@ -114,7 +126,7 @@ DOWNLOAD()
         ZIP_NAME="$LOCALDIR"/tmp/update.zip
         DOWNLOAD "$URL" "$ZIP_NAME"
         URL="$ZIP_NAME"
-        echo "- Downloaded."
+        echo "├─ Downloaded."
     fi
 
 LEAVE() {
@@ -124,15 +136,15 @@ LEAVE() {
 }
 
 #Extract firmware
- "$LOCALDIR"/make.sh $build $TYPE $URL || LEAVE
+ "$LOCALDIR"/extract.sh $build $URL || LEAVE
 
 #SGSI Time
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
-  echo "-> SGSI Time :)"
+  echo "┠⌬ Porting SGSI..."
   "$LOCALDIR"/SGSI.sh $build $TYPE $fixbug || { echo "> Failed to complete SGSI patching!" ; LEAVE; }
 else
-  echo $NOTFOUNDSYSTEMIMG
+  echo "> $NOTFOUNDSYSTEMIMG"
   LEAVE
 fi
 
@@ -145,7 +157,7 @@ rm -rf "$LOCALDIR/SGSI"
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
    cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE
-   echo "-> Porting SGSI done!"
+   echo "┠⌬─ Ported SGSI137!"
 else
    LEAVE
 fi

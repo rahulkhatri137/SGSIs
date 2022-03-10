@@ -50,13 +50,6 @@ systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 shift 2
 
-if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
-  echo "> Rom type is not supported!"
-  echo "Following are the supported types -"
-  cat $MAKEDIR/rom_support_list.txt
-  exit 1
-fi
-
 function normal() {
   # Process ramdisk's system for all rom
   echo "-> $PROCESSING_RAMDISK_SYSTEM" > /dev/null 2>&1
@@ -140,7 +133,7 @@ function normal() {
       cat $systemdir/build.prop | grep -qo 'qssi'
     }
     if qssi ;then
-      echo "-> Fixing device props..."
+      echo "├─ Fixing device props..."
       brand=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.brand')
       device=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.device')
       manufacturer=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.manufacturer')
@@ -229,7 +222,7 @@ function normal() {
   cat $MAKEDIR/fstab/fstab_contexts >> $configdir/system_file_contexts
   cat $MAKEDIR/fstab/fstab_fs >> $configdir/system_fs_config
   
-echo "-> Patching..."
+echo "┠ Patching..."
   # Add missing libs
   cp -frpn $MAKEDIR/add_libs/system/* $systemdir
  
@@ -290,15 +283,15 @@ else
   echo "true" > $TARGETDIR/apex_state
 fi
 
+echo "├─ $FIXING_ROM"
   # Rom specific patch
-  cd $MAKEDIR/rom_make_patch
-  ./make.sh
-  cd ..
+  cd $MAKEDIR
+  $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1 
   ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
   cd $LOCALDIR
 
 # Common apex process
-echo "-> Patching extra apex..."
+echo "├─ Adding vndk apex..."
 cd $MAKEDIR/apex_vndk
 if [ $(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2) = "32" ];then
 ./make2.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
@@ -350,18 +343,17 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
   true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
-echo "- Patched."
 }
 
 function fix_bug() {
-    echo "-> $START_BUG_FIX"
+    echo "┠ $START_BUG_FIX"
     cd $FBDIR
     ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
     cd $LOCALDIR
 }
 
 function resign() {
-echo "-> Resigning with AOSP keys..."
+echo "┠ Resigning with AOSP keys..."
       cp -frp $MAKEDIR/resign/system/* $systemdir/
       python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
 }
@@ -374,7 +366,7 @@ rm -rf ./SGSI
 cd $LOCALDIR
 
 normal
-
+echo "├─ Patched."
 if (echo $other_args | grep -qo -- "--fix-bug") ;then
     fix_bug
 fi
@@ -382,7 +374,7 @@ fi
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
-echo "- SGSI Processed."
+echo "├─ Resigned."
 
 cd $LOCALDIR
 # Format output
@@ -393,4 +385,5 @@ mv -f $configdir/${i}-tmp $configdir/$i
 sed -i '/^\s*$/d' $configdir/$i
 fi
 done
+echo "┠⌬─ SGSI Processed."
 exit 0

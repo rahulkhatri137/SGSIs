@@ -181,7 +181,7 @@ if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
         cp -frp $TARGETDIR/vendor/overlay/* "$OUTDIR/vendorOverlays" >> /dev/null 2>&1
  if [ -d "$OUTDIR/vendorOverlays" ]; then
         cd $OUTDIR/vendorOverlays
-        echo "-> Extracting Vendor Overlays..."
+        echo "├─ Extracting VOverlays..."
         tar -zcvf "$outputvendoroverlays" * >> /dev/null 2>&1
         cd $LOCALDIR
         rm -rf "output/vendorOverlays"
@@ -200,7 +200,7 @@ bytesToHuman() {
     echo "$b$d ${S[$s]}"
 }
 
-echo "-> Packing Image..."
+echo "┠⌬ Packing Image..."
 #mke2fs+e2fsdroid 打包
 #$bin/mke2fs -L / -t ext4 -b 4096 $output $size
 #$bin/e2fsdroid -e -T 0 -S $configdir/system_file_contexts -C $configdir/system_fs_config  -a /system -f ./out/system $output
@@ -221,13 +221,14 @@ case $os_repackage_type in
 esac
 
 if [ -s $output ];then
-  echo "✓ Created $name($codename) SGSI137 | Size: $(bytesToHuman $size)" 
+  echo "├⌬ $name($codename) ━ $(bytesToHuman $size)" 
   echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   rm -rf $OUTDIR 
   exit 1
 fi
 
+echo "├─ Generating SGSI info..."
 #System Tree
 outputtreename="System-Tree-$outputname".txt
 outputtree="$OUTDIR/$outputtreename"

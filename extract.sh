@@ -44,19 +44,11 @@ if [ $# -lt 3 ];then
   Usage
   exit 1
 fi
-os_type="$2"
-firmware="$3"
+firmware="$2"
 build_type="$build_type"
 shift 3
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
-
-if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$os_type");then
-  echo "> Rom type is not supported!"
-  echo "Following are the supported types -"
-  cat $MAKEDIR/rom_support_list.txt
-  exit 1
-fi
 
 if [ ! -e $firmware ];then
   if [ ! -e $TMPDIR/$firmware ];then
@@ -90,9 +82,9 @@ function firmware_extract() {
     if [ -e ./payload.bin ];then
       mv ./payload.bin ../payload/
       cd ../payload
-      echo " -> $UNZIPINGPLB"
+      echo "├─ $UNZIPINGPLB"
       python ./payload.py ./payload.bin ./out > /dev/null 2>&1 || { echo "> Failed to extract payload!" ; exit 1; }
-      echo "-> Moving Files to workspace..."
+      echo "├── Moving to workspace..."
       for i in $partition_list ;do
         if [ -e ./out/$i.img ];then
           mv ./out/$i.img $IMAGESDIR/
@@ -143,12 +135,11 @@ mkdir -p $IMAGESDIR
 mkdir -p $TARGETDIR
 mkdir -p $OUTDIR
 
-echo "-> Extracting Firmware..."
+echo "┠ Extracting Firmware..."
 firmware_extract
-echo "- Extracted."
 
 cd $LOCALDIR
-echo "-> Extracting images..."
+echo "├─ Extracting images..."
 # Sparse Image To Raw Image
 $SCRIPTDIR/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
 
@@ -158,11 +149,12 @@ cd $LOCALDIR
 
 # Extract Image
 ./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
+echo "├─ Extracted."
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
-  echo "-> Merging dynamic partitions..."
+  echo "┠ Merging dynamic partitions..."
   $SCRIPTDIR/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
-  echo "- Merged."
+  echo "├─ Merged."
 fi
 
 if [[ ! -d $systemdir/product ]];then
