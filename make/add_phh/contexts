@@ -36,3 +36,4 @@ system/system/etc/permissions/android.hardware.fingerprint.xml u:object_r:system
 /system/system/bin/phh-prop-handler\.sh u:object_r:update_engine_exec:s0
 /system/system/bin/phh-remotectl\.sh u:object_r:update_engine_exec:s0
 /system/system/bin/rw-system.sh u:object_r:update_engine_exec:s0
+/system/system/bin/phh-securize\.sh u:object_r:update_engine_exec:s0
