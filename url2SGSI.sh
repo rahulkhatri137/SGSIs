@@ -102,7 +102,7 @@ DOWNLOAD()
     URL="$1"
     ZIP_NAME="update.zip"
     mkdir -p "$TMPDIR"
-    echo "┠⌬ Porting SGSI..."
+    echo "┠ Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
         ("${DL}" "${URL}" "$TMPDIR" "$ZIP_NAME") || exit 1
     else

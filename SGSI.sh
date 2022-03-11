@@ -45,8 +45,14 @@ if [ $? = "1" ];then
   exit
 fi
 echo "├─ Extracted."
-echo "┠⌬─ Ported SGSI137!"
-model="$(cat $systemdir/build.prop | grep 'model')"
+echo "┠⌬ Porting SGSI..."
+ver=$(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2)
+if [ "$ver" == "30" ]; then
+    echo "Detected Android11"  > /dev/null 2>&1
+else
+    echo "> This branch is only to build Android 11!"
+    exit 1
+fi
 
 function normal() {
  echo "┠ Patching..."
