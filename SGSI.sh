@@ -308,6 +308,9 @@ fi
   # 为所有rom做phh化处理
   cp -frp ./make/add_phh/system/* $systemdir/
 
+  cp -frp ./make/resign/system/* $systemdir/
+   $MAKEDIR/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch overlays" && exit 1; }
+
   # 为添加的文件注册必要的selinux上下文
   cat ./make/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
   cat ./make/add_plat_file_contexts/phh_plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
@@ -635,8 +638,6 @@ fi
 
 function resign() {
 echo "┠ Resigning with AOSP keys..."
-      cp -frp make/resign/system/* $systemdir/
-      ./make/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch overlays" && exit 1; }
       python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
 echo "├─ Resigned."
 }
