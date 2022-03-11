@@ -84,7 +84,7 @@ else
 fi
 
 if [[ $NAME == *"-"* ]]; then
-    GNAME=`echo "$NAME" | cut -d ":" -f 1`
+    GNAME=`echo "$NAME" | cut -d "-" -f 1`
 else
     GNAME=$NAME
 fi

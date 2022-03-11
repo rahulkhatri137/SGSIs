@@ -50,6 +50,13 @@ systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 shift 2
 
+ver=$(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2)
+if [ "$ver" == "31" ] || [ "$ver" == "32" ]; then
+    echo "Detected Android12" > /dev/null 2>&1
+else
+    echo "> This branch is only to build Android 12!"
+    exit 1
+fi
 function normal() {
   # Process ramdisk's system for all rom
   echo "-> $PROCESSING_RAMDISK_SYSTEM" > /dev/null 2>&1

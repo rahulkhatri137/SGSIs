@@ -11,13 +11,9 @@ source $TOOLDIR/language_helper.sh
 Usage() {
 cat <<EOT
 Usage:
-$0 <Build Type> <OS Type> <Firmware Path> [Other args]
+$0 <Build Type> <Firmware Path>
   Build Type: [AB|ab] or [A|a]
-  OS Type: Rom OS type to build
   Firmware Path: Rom Firmware Path
-
-  Other args:
-    [--fix-bug]: Fix bugs in Rom
 EOT
 }
 
@@ -40,7 +36,7 @@ case $1 in
     ;;
 esac
 
-if [ $# -lt 3 ];then
+if [ $# -lt 2 ];then
   Usage
   exit 1
 fi
