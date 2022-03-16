@@ -362,7 +362,7 @@ function fix_bug() {
 function resign() {
 echo "┠ Resigning with AOSP keys..."
       cp -frp $MAKEDIR/resign/system/* $systemdir/
-      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
+      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
 }
 
 if (echo $@ | grep -qo -- "--fix-bug") ;then
@@ -378,11 +378,12 @@ if (echo $other_args | grep -qo -- "--fix-bug") ;then
     fix_bug
 fi
 
+rm -rf $TOOLDIR/other/resign.log $TOOLDIR/other/img.log
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
 echo "├─ Resigned."
-
+rm -rf $TOOLDIR/other/resign.log
 cd $LOCALDIR
 # Format output
 for i in $(ls $configdir);do
