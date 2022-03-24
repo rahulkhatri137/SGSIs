@@ -2,6 +2,7 @@
 #
 # To call this script, make sure mke2fs is somewhere in PATH
 
+source bin.sh
 function usage() {
 cat<<EOT
 Usage:
@@ -196,8 +197,9 @@ fi
 
 E2FSDROID_CMD="$e2fsdroid $E2FSDROID_OPTS -f $SRC_DIR -a $MOUNT_POINT $OUTPUT_FILE"
 echo $E2FSDROID_ENV $E2FSDROID_CMD > /dev/null 2>&1 
-env $E2FSDROID_ENV $E2FSDROID_CMD > /dev/null 2>&1 
+env $E2FSDROID_ENV $E2FSDROID_CMD > $TARGETDIR/img.log 2> $TOOLDIR/other/img.log
 if [ $? -ne 0 ]; then
   rm -f $OUTPUT_FILE
   exit 4
 fi
+rm -rf $TOOLDIR/other/img.log

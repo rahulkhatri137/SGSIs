@@ -638,9 +638,11 @@ fi
 
 function resign() {
 echo "┠ Resigning with AOSP keys..."
-      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64"> $TARGETDIR/resign.log || { echo "> Failed to resign!" ; exit 1; }
+      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
 echo "├─ Resigned."
 }
+
+rm -rf $TOOLDIR/other/resign.log $TOOLDIR/other/img.log
 
 normal
 echo "├─ Patched."
@@ -648,5 +650,6 @@ fix_bug
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
+rm -rf $TOOLDIR/other/resign.log
 echo "┠⌬─ SGSI Processed."
 exit 0

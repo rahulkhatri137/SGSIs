@@ -6,6 +6,8 @@ cd $LOCALDIR
 systemdir=$1
 
 # small debloat
+rm -rf $1/*app/AEXPapers
+rm -rf $1/*app/Superiorwalls
 rm -rf $1/*/*app/*Recorder*
 rm -rf $1/*app/*Recorder*
 rm -rf $1/*app/Compass

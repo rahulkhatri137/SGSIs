@@ -83,17 +83,20 @@ else
     GNAME=$NAME
 fi
 
-if ! (cat $MAKEDIR/type_support_list.txt | grep -qo "$os_type");then
+if ! (cat $MAKEDIR/type_support_list.txt | grep -qo "$TYPE");then
   echo "> Firmware type is not supported!"
   echo "─ Following are the supported types -"
   cat $MAKEDIR/type_support_list.txt
   exit 1
 fi
+
+if [[ $TYPE == "Generic" ]]; then
 if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
   echo "> Rom type is not supported!"
   echo "─ Following are the supported types -"
   cat $MAKEDIR/rom_support_list.txt
   exit 1
+fi
 fi
 
 rm -rf tmp output workspace SGSI
