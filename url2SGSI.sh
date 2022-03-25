@@ -128,7 +128,7 @@ DOWNLOAD()
 
 LEAVE() {
     echo "> SGSI failed! Exiting..."
-    rm -rf "$LOCALDIR/output" "$LOCALDIR/out" "$TMPDIR" "$LOCALDIR/SGSI" "$LOCALDIR/*.img"
+    rm -rf "$LOCALDIR/output" "$LOCALDIR/SGSI" "$LOCALDIR/*.img"
     exit 1
 }
 
