@@ -346,15 +346,14 @@ if grep vendor.huawei.hardware.biometrics.fingerprint /vendor/manifest.xml; then
 fi
 
 foundFingerprint=false
-for manifest in /vendor/manifest.xml /vendor/etc/vintf/manifest.xml /odm/etc/vintf/manifest.xml;do
-    if grep -q \
-            -e android.hardware.biometrics.fingerprint \
-            -e vendor.oppo.hardware.biometrics.fingerprint \
-            -e vendor.oplus.hardware.biometrics.fingerprint \
-            $manifest;
-        then
-        foundFingerprint=true
-    fi
+for manifest in /vendor/manifest.xml /vendor/etc/vintf /odm/etc/vintf;do
+	if grep -q \
+		-e android.hardware.biometrics.fingerprint \
+		-e vendor.oppo.hardware.biometrics.fingerprint \
+		-e vendor.oplus.hardware.biometrics.fingerprint \
+		-r $manifest;then
+			foundFingerprint=true
+	fi
 done
 
 if [ "$foundFingerprint" = false ];then
@@ -432,7 +431,8 @@ if getprop ro.build.overlay.deviceid |grep -q -e CPH1859 -e CPH1861 -e RMX1811 -
     setprop persist.sys.qcom-brightness "$(cat /sys/class/leds/lcd-backlight/max_brightness)"
 fi
 
-if getprop ro.build.overlay.deviceid |grep -iq -e RMX2020 -e RMX2027 -e RMX2040 -e RMX2193 -e RMX2191;then
+if getprop ro.build.overlay.deviceid |grep -iq -e RMX2020 -e RMX2027 -e RMX2040 -e RMX2193 \
+    -e RMX2193 -e RMX2191 -e RMX2195;then
     setprop persist.sys.qcom-brightness 2047
     setprop persist.sys.overlay.devinputjack true
     setprop persist.sys.phh.fingerprint.nocleanup true
@@ -1068,3 +1068,8 @@ if getprop ro.vendor.build.fingerprint | grep -iq -e motorola/liber; then
 fi
 
 mount /system/phh/empty /vendor/etc/permissions/samsung.hardware.uwb.xml
+mount /system/phh/empty /vendor/bin/install-recovery.sh
+
+if getprop ro.vendor.radio.default_network |grep -qE '[0-9]';then
+  setprop ro.telephony.default_network $(getprop ro.vendor.radio.default_network)
+fi
