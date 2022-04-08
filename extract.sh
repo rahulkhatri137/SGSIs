@@ -56,72 +56,13 @@ fi
 function firmware_extract() {
   partition_list="system vendor system_ext odm product reserve boot vendor_boot"
   
+cd $LOCALDIR
   if [ -e $firmware ];then
-    7z x -y "$firmware" -o"$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware!" ; exit 1; }
+    ./Firmware_extractor/extractor.sh $firmware $TMPDIR  > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
   fi
   if [ -e $TMPDIR/$firmware ];then
-    7z x -y "$TMPDIR/$firmware" -o"$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
+       ./Firmware_extractor/extractor.sh "$TMPDIR/$firmware" "$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
   fi
-
-  for i in $(ls $TMPDIR);do
-    [ ! -d $TMPDIR/$i ] && continue
-    cd $TMPDIR/$i
-    if [ $(ls | wc -l) != "0" ];then
-      mv -f ./* ../
-    fi
-    cd $LOCALDIR
-  done
-
-  cd $TMPDIR
-  for partition in $partition_list ;do
-    # Detect payload.bin
-    if [ -e ./payload.bin ];then
-      mv ./payload.bin ../payload/
-      cd ../payload
-      echo "├─ $UNZIPINGPLB"
-      python ./payload.py ./payload.bin ./out > /dev/null 2>&1 || { echo "> Failed to extract payload!" ; exit 1; }
-      echo "├── Moving to workspace..."
-      for i in $partition_list ;do
-        if [ -e ./out/$i.img ];then
-          mv ./out/$i.img $IMAGESDIR/
-        fi
-      done
-      rm -rf ./payload.bin
-      rm -rf ./out/*
-      cd $TMPDIR
-    fi
-
-    # Detect dat.br
-    if [ -e ./${partition}.new.dat.br ];then
-      echo "$UNPACKING_STR ${partition}.new.dat.br" > /dev/null 2>&1
-      $bin/brotli -d ${partition}.new.dat.br > /dev/null 2>&1 || { echo "> Failed to convert brotli" ; exit 1; }
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1 || { echo "> Failed to convert sdat" ; exit 1; }
-      mv ./${partition}.img $IMAGESDIR/
-      rm -rf ./${partition}.new.dat
-    fi
-  
-    # Detect split new.dat
-    if [ -e ./${partition}.new.dat.1 ];then
-      echo "$SPLIT_DETECTED ${partition}.new.dat, $MERGING_STR" > /dev/null 2>&1
-      cat ./${partition}.new.dat.{1..999} 2>/dev/null >> ./${partition}.new.dat
-      rm -rf ./${partition}.new.dat.{1..999}
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1 || { echo "> Failed to convert sdat" ; exit 1; }
-      mv ./${partition}.img $IMAGESDIR/
-      rm -rf ./${partition}.new.dat
-    fi
-
-    # Detect general new.dat
-    if [ -e ./${partition}.new.dat ];then
-      echo "$UNPACKING_STR ${partition}.new.dat" > /dev/null 2>&1
-      python $bin/sdat2img.py ${partition}.transfer.list ${partition}.new.dat ./${partition}.img > /dev/null 2>&1 || { echo "> Failed to convert sdat" ; exit 1; }
-      mv ./${partition}.img $IMAGESDIR/
-    fi
-
-    # Detect image
-    if [ -e ./${partition}.img ];then
-      mv ./${partition}.img $IMAGESDIR/
-    fi
-  done
 }
 
 chmod -R 777 ./
@@ -131,8 +72,18 @@ mkdir -p $IMAGESDIR
 mkdir -p $TARGETDIR
 mkdir -p $OUTDIR
 
+if [[ $firmware == system.img ]]; then
+echo "- Already system image"
+mv $firmware $IMAGESDIR/
+exit 0
+else
 echo "┠ Extracting Firmware..."
 firmware_extract
+fi
+
+# Detect image
+ cd $TMPDIR
+ mv *.img $IMAGESDIR/
 
 cd $LOCALDIR
 echo "├─ Extracting images..."
