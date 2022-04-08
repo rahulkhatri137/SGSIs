@@ -86,6 +86,10 @@ if missi ;then
   echo "" >> $systemdir/build.prop
   echo "# 机型专有设备参数默认读取顺序" >> $systemdir/build.prop
   echo "ro.product.property_source_order=system,product,system_ext,vendor,odm" >> $systemdir/build.prop
+  echo "persist.sys.purgeable_assets=1" >> $systemdir/build.prop
+  echo "persist.sys.use_mi_new_strategy=true" >> $systemdir/build.prop
+  echo "persist.miui.extm.enable=1" >> $systemdir/build.prop
+  echo "DEVICE_PROVISIONED=1" >> $systemdir/build.prop
   cat $LOCALDIR/add_rw-system.sh >> $systemdir/bin/rw-system.sh 
   # echo "因为xiaomi魔改的原因 以上操作只是完善set环境和调用参数， 完全修复机型识别清在此基础上手动修改/odm/build.prop里面的参数"
   echo "修复完成" 

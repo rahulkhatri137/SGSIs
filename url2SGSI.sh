@@ -151,11 +151,12 @@ fi
 #Build image
     "$LOCALDIR"/makeimg.sh "--ab_config" $NAME || { echo "╰─ Failed to build image!" ; exit 1 ; }
 
-LEAVE
 if [ -d "$OUTDIR" ]; then
+   LEAVE
    cd $OUTDIR
    cp -fr Build*txt README.txt > /dev/null 2>&1
    echo "┠⌬─ Ported SGSI137!"
 else
-   LEAVE
+   echo "> SGSI failed!"
+   exit 1
 fi
