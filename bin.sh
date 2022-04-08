@@ -6,6 +6,7 @@ platform=$(uname -m)
 export bin=$TOOLDIR/tool_bin
 export LD_LIBRARY_PATH=$bin/$HOST/$platform/lib64
 export OUTDIR=$TOOLDIR/output
+export WORKSPACE=$TOOLDIR/out
 export TARGETDIR=$TOOLDIR/out
 export SCRIPTDIR=$TOOLDIR/scripts
 export MAKEDIR=$TOOLDIR/make

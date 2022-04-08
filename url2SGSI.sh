@@ -99,11 +99,12 @@ if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
 fi
 fi
 
-rm -rf tmp output workspace SGSI
+rm -rf output SGSI
 DOWNLOAD()
 {
     URL="$1"
     ZIP_NAME="update.zip"
+    rm -rf $TMPDIR $WORKSPACE
     mkdir -p "$TMPDIR"
     echo "┠ Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
@@ -127,34 +128,30 @@ DOWNLOAD()
     fi
 
 LEAVE() {
-    echo "> SGSI failed! Exiting..."
-    rm -rf "$LOCALDIR/output" "$LOCALDIR/SGSI" "$LOCALDIR/*.img"
-    exit 1
+    rm -rf "$LOCALDIR/out" "$LOCALDIR/SGSI" "$LOCALDIR/*img" $TMPDIR
 }
 
 #Extract firmware
- "$LOCALDIR"/make.sh $URL || LEAVE
+ "$LOCALDIR"/make.sh $URL || { echo "> Failed to extract!" ; exit  1 ; }
 
 #SGSI Time
 cd $LOCALDIR
 if [ -e ./system.img ];then
-  "$LOCALDIR"/SGSI.sh $build $TYPE || { echo "> Failed to complete SGSI patching!" ; LEAVE; }
+  "$LOCALDIR"/SGSI.sh $build $TYPE || { echo "> Failed to complete SGSI patching!" ; exit  1 ; }
 else
   echo "> System image not found!"
   LEAVE
 fi
 
 #Build image
-    "$LOCALDIR"/makeimg.sh $build $NAME || { echo "> Failed to build image!" ; LEAVE; }
+    "$LOCALDIR"/makeimg.sh $build $NAME || { echo "> Failed to build image!" ; exit 1 ; }
 
-rm -rf "$LOCALDIR/tmp"
-rm -rf "$LOCALDIR/out"
-rm -rf "$LOCALDIR/SGSI"
-rm -rf "$LOCALDIR/*.img"
+LEAVE
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
-   cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE
+   cp -fr Build*txt README.txt > /dev/null 2>&1
    echo "┠⌬─ Ported SGSI137!"
 else
-   LEAVE
+   echo "> SGSI failed!"
+   exit 1
 fi
