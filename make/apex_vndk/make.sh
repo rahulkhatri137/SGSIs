@@ -7,7 +7,7 @@ thispath=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 
 rm -rf $systempath/apex/*current*
 # Add apex to system
-7z x -y $thispath/capex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
+7z x -y $thispath/12apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 7z x -y $thispath/v28apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 7z x -y $thispath/v29apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 7z x -y $thispath/v30apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log

@@ -10,6 +10,7 @@ rm -rf $systempath/apex/*current*
 7z x -y $thispath/v28apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 7z x -y $thispath/v29apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 7z x -y $thispath/v30apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
+7z x -y $thispath/v31apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 7z x -y $thispath/12Lapex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 rm -rf $systempath/zip.log
 cd $bin/apex_tools
