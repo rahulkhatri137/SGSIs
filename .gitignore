@@ -3,3 +3,11 @@ out/
 output/
 tmp/
 *.img
+*.pyc
+SGSI/
+out/
+boot/
+images/
+dtbo/
+dtbs/
+Firmware_extractor/
