@@ -60,7 +60,7 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if [[ ! -n $2 ]]; then
-    echo "-> ERROR!"
+    echo "> ERROR!"
     echo " - Enter all needed parameters"
     usage
     exit 1
@@ -95,7 +95,6 @@ if ! (cat $MAKEDIR/type_support_list.txt | grep -qo "$TYPE");then
   cat $MAKEDIR/type_support_list.txt
   exit 1
 fi
-
 if [[ $TYPE == "Generic" ]]; then
 if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
   echo "> Rom type is not supported!"
@@ -104,12 +103,12 @@ if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
   exit 1
 fi
 fi
-
-rm -rf tmp output workspace SGSI
+rm -rf output
 DOWNLOAD()
 {
     URL="$1"
     ZIP_NAME="update.zip"
+    rm -rf $TMPDIR $WORKSPACE
     mkdir -p "$TMPDIR"
     echo "┠ Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
@@ -133,33 +132,29 @@ DOWNLOAD()
     fi
 
 LEAVE() {
-    echo "> SGSI failed! Exiting..."
-    rm -rf "$LOCALDIR/output" "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
-    exit 1
+    rm -rf "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
 }
 
 #Extract firmware
- "$LOCALDIR"/extract.sh $build $URL || LEAVE
+ "$LOCALDIR"/extract.sh $build $URL || { echo "╰─ Failed to extract!" ; exit 1; }
 
 #SGSI Time
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "┠⌬ Porting SGSI..."
-  "$LOCALDIR"/SGSI.sh $build $TYPE $fixbug || { echo "> Failed to complete SGSI patching!" ; LEAVE; }
+  "$LOCALDIR"/SGSI.sh $build $TYPE $fixbug || { echo "╰─ Failed to complete SGSI patching!" ; exit 1 ; }
 else
   echo "> $NOTFOUNDSYSTEMIMG"
-  LEAVE
+  exit 1
 fi
 
 #Build image
-    "$LOCALDIR"/makeimg.sh "--ab_config" $NAME || { echo "> Failed to build image!" ; LEAVE; }
+    "$LOCALDIR"/makeimg.sh "--ab_config" $NAME || { echo "╰─ Failed to build image!" ; exit 1 ; }
 
-rm -rf "$LOCALDIR/tmp"
-rm -rf "$LOCALDIR/workspace"
-rm -rf "$LOCALDIR/SGSI"
+LEAVE
 if [ -d "$OUTDIR" ]; then
    cd $OUTDIR
-   cp -fr Build*txt README.txt > /dev/null 2>&1 || LEAVE
+   cp -fr Build*txt README.txt > /dev/null 2>&1
    echo "┠⌬─ Ported SGSI137!"
 else
    LEAVE

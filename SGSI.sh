@@ -185,12 +185,6 @@ function normal() {
     cat $MAKEDIR/add_build/product_prop >> $systemdir/product/etc/build.prop
     cat $MAKEDIR/add_build/system_ext_prop >> $systemdir/system_ext/etc/build.prop
 
-    # Disable bpfloader
-    rm -rf $systemdir/etc/init/bpfloader.rc
-    echo ""  >> $systemdir/product/etc/build.prop
-    echo "# Disable bpfloader" >> $systemdir/product/etc/build.prop
-    echo "bpf.progs_loaded=1" >> $systemdir/product/etc/build.prop
-
     # Enable HW Mainkeys
     mainkeys() {
       grep -q 'qemu.hw.mainkeys=' $systemdir/build.prop
@@ -223,11 +217,8 @@ function normal() {
   # Revert fstab.postinstall to gsi state
   find $systemdir/../ -type f -name "fstab.postinstall" | xargs rm -rf
   rm -rf $systemdir/etc/init/cppreopts.rc    
-  cp -frp $MAKEDIR/fstab/system/* $systemdir
   sed -i '/fstab\\.postinstall/d' $configdir/system_file_contexts
   sed -i '/fstab.postinstall/d' $configdir/system_fs_config
-  cat $MAKEDIR/fstab/fstab_contexts >> $configdir/system_file_contexts
-  cat $MAKEDIR/fstab/fstab_fs >> $configdir/system_fs_config
   
 echo "┠ Patching..."
   # Add missing libs
@@ -305,11 +296,6 @@ if [ $(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut
 else
 ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 fi
-
-# Don't write binary XML files
-echo "# Don't write binary XML files" >> $systemdir/build.prop
-echo "persist.sys.binary_xml=false" >> $systemdir/build.prop
-echo "" >> $systemdir/build.prop
 
 # Partial Devices Sim fix
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop

@@ -1,3 +1,7 @@
 
 # system common prop
 ro.build.system_root_image=true
+ro.support_one_handed_mode=true
+persist.sys.overlay.nightmode=true
+# Don't write binary XML files
+persist.sys.binary_xml=false
