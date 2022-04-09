@@ -3,8 +3,6 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 systemdir=$1
-rm -rf $1/system_ext/apex/*v28*
-rm -rf $1/apex/*v28*
 rm -rf $1/data-app/*
 rm -rf $1/priv-app/MIUIAod
 rm -rf $1/priv-app/MIUIBrowser
@@ -182,3 +180,10 @@ rm -rf $1/product/priv-app/HotwordEnrollmentXGoogleHEXAGON
 rm -rf $1/product/priv-app/GoogleAssistant
 rm -rf $1/product/priv-app/GoogleFeedback
 rm -rf $1/product/priv-app/QAS_DVC_MSP
+
+
+app_list="InMIpay MIDrop MiLinkGlobal miPlayClient MIUIFileExplorer MIUICompass Cit MIUIHealthGlobal MiuiScanner MIUIMiPicks MIUINotes MIWallpaper MIUITouchAssistantGlobal XMSFKeepekAll DynamicSystemInstallationService MIService MIShare* MiuiCamera MIUIMusic* MIUIYellowPage* DeviceInfo DynamicDDSService dpmserviceapp EmergencyInfo GoogleFeedback seccamservice WfdService"
+for app in $app_list; do
+rm -rf $1/*app/$app
+rm -rf $1/*/*app/$app
+done

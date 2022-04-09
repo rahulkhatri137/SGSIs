@@ -6,6 +6,23 @@ cd $LOCALDIR
 systemdir=$1
 
 # small debloat
+rm -rf $1/*app/BasicDreams
+rm -rf $1/*app/PlayAuto*
+rm -rf $1/*/*app/PlayAuto*
+rm -rf $1/*app/DynamicSystem*
+rm -rf $1/*app/SpeechServices*
+rm -rf $1/*/*app/SpeechServices*
+rm -rf $1/*/*app/*PhotoTable*
+rm -rf $1/*/*app/*EmergenyInfo*
+rm -rf $1/*/*app/*ARCORE*
+rm -rf $1/*/*app/*Google*Lens*
+rm -rf $1/*/*app/WfdService
+rm -rf $1/*app/*Camera*
+rm -rf $1/*app/Game*
+rm -rf $1/*app/Log*
+rm -rf $1/*app/*TouchAssistant*
+rm -rf $1/*app/*Health*
+rm -rf $1/*app/MusicPlayerGO
 rm -rf $1/*app/AEXPapers
 rm -rf $1/*app/Superiorwalls
 rm -rf $1/*/*app/*Recorder*
@@ -25,8 +42,11 @@ rm -rf $1/*/*app/Ornament
 rm -rf $1/*/*app/*DevicePersonalization*
 rm -rf $1/*/*app/*Duo*
 rm -rf $1/*app/*Pay*
+rm -rf $1/*app/*pay*
 rm -rf $1/*app/*Market*
 rm -rf $1/*/*app/*Market*
+rm -rf $1/*/*app/*Dreamliner*
+rm -rf $1/*/*app/Videos
 rm -rf $1/*/*app/*Pay*
 rm -rf $1/*/*app/*Gmail*
 rm -rf $1/*/preset_apps/*
@@ -74,7 +94,7 @@ rm -rf $1/product/priv-app/MyVerizonServices
 rm -rf $1/product/priv-app/OTAConfigPrebuilt
 rm -rf $1/product/priv-app/PixelLiveWallpaperPrebuilt
 rm -rf $1/product/priv-app/RecorderPrebuilt
-rm -rf $1/product/priv-app/SecurityHubPrebuilt
+rm -rf $1/product/priv-app/SafetyHubPrebuilt
 rm -rf $1/product/priv-app/ScribePrebuilt
 rm -rf $1/system-ext/app/datastatusnotification
 rm -rf $1/app/QAS_DVC_MSP_VZW

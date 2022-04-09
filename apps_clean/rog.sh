@@ -98,3 +98,10 @@ rm -rf $1/product/app/YTMusic
 rm -rf $1/product/app/YouTube
 rm -rf $1/product/app/talkback
 rm -rf $1/product/priv-app/Turbo
+
+
+app_list="Amight AsusBoost AsusHBM AsusPAIStubR ATOKIME Game* FocusAppListener JakartaBaca mangaDeals NePlayer NetflixActivation OpenBeta SoterService SMMI_TOOL UNISONAIR AlwaysOn AsusCamera AsusCalculator AsusDataTransfer AsusGallery AsusGalleryBurst DiracAudioControlService GameBroadcaster LogUploader* MyASUS ROG5LiveWallpaper* ROGGameCenter ZenMotion Tag ASUSAR"
+for app in $app_list; do
+rm -rf $1/*app/$app
+rm -rf $1/*/*app/$app
+done
