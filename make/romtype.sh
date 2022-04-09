@@ -88,3 +88,11 @@ if [ $os_type = "ColorOS" ];then
   echo "$DEBLOATING_STR"
   $DEBLOATDIR/oppo.sh "$systemdir" > /dev/null 2>&1
 fi
+
+# Asus
+if [ $os_type = "RogUI" ];then
+  ./add_build.sh > /dev/null 2>&1
+  $vintf_folder/add_vintf.sh > /dev/null 2>&1
+  # Fixing ROM Features
+  $DEBLOATDIR/rog.sh "$systemdir" > /dev/null 2>&1
+fi

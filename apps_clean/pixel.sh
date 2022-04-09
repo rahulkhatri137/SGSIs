@@ -6,6 +6,22 @@ cd $LOCALDIR
 systemdir=$1
 
 # small debloat
+rm -rf $1/*app/BasicDreams
+rm -rf $1/*app/PlayAuto*
+rm -rf $1/*/*app/PlayAuto*
+rm -rf $1/*app/DynamicSystem*
+rm -rf $1/*app/SpeechServices*
+rm -rf $1/*/*app/SpeechServices*
+rm -rf $1/*/*app/*PhotoTable*
+rm -rf $1/*/*app/*EmergenyInfo*
+rm -rf $1/*/*app/*ARCORE*
+rm -rf $1/*/*app/*Google*Lens*
+rm -rf $1/*/*app/WfdService
+rm -rf $1/*app/*Camera*
+rm -rf $1/*app/Game*
+rm -rf $1/*app/Log*
+rm -rf $1/*app/*TouchAssistant*
+rm -rf $1/*app/*Health*
 rm -rf $1/*app/MusicPlayerGO
 rm -rf $1/*app/AEXPapers
 rm -rf $1/*app/Superiorwalls
@@ -26,6 +42,7 @@ rm -rf $1/*/*app/Ornament
 rm -rf $1/*/*app/*DevicePersonalization*
 rm -rf $1/*/*app/*Duo*
 rm -rf $1/*app/*Pay*
+rm -rf $1/*app/*pay*
 rm -rf $1/*app/*Market*
 rm -rf $1/*/*app/*Market*
 rm -rf $1/*/*app/*Dreamliner*
