@@ -305,6 +305,12 @@ fi
     echo "# Partial ROM sim fix" >> $systemdir/product/etc/build.prop
     echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/etc/build.prop
 
+# Disable bpfloader
+    rm -rf $systemdir/etc/init/bpfloader.rc
+    echo ""  >> $systemdir/product/etc/build.prop
+    echo "# Disable bpfloader" >> $systemdir/product/etc/build.prop
+    echo "bpf.progs_loaded=1" >> $systemdir/product/etc/build.prop
+
  # Change Build Number
 if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
     displayid="ro.build.display.id"
