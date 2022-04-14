@@ -104,7 +104,7 @@ DOWNLOAD()
 {
     URL="$1"
     ZIP_NAME="update.zip"
-    rm -rf $TMPDIR $WORKSPACE
+    rm -rf $TMPDIR $TARGETDIR
     mkdir -p "$TMPDIR"
     echo "┠ Downloading firmware..."
     if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
@@ -128,7 +128,7 @@ DOWNLOAD()
     fi
 
 LEAVE() {
-    rm -rf "$LOCALDIR/out" "$LOCALDIR/SGSI" "$LOCALDIR/*img" $TMPDIR
+    rm -rf "$TARGETDIR" "$LOCALDIR/SGSI" "$IMAGESDIR" $TMPDIR
 }
 
 #Extract firmware
@@ -136,7 +136,8 @@ LEAVE() {
 
 #SGSI Time
 cd $LOCALDIR
-if [ -e ./system.img ];then
+if [ -e $IMAGESDIR/system.img ];then
+  echo "┠⌬ Porting SGSI..."
   "$LOCALDIR"/SGSI.sh $build $TYPE || { echo "> Failed to complete SGSI patching!" ; exit  1 ; }
 else
   echo "> System image not found!"
