@@ -54,8 +54,7 @@ if [ ! -e $firmware ];then
 fi
 
 function firmware_extract() {
-  partition_list="system vendor system_ext odm product reserve boot vendor_boot"
-  
+rm -rf $WORKSPACE
 cd $LOCALDIR
   if [ -e $firmware ];then
     ./Firmware_extractor/extractor.sh $firmware $TMPDIR  > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
@@ -67,23 +66,25 @@ cd $LOCALDIR
 
 chmod -R 777 ./
 ./workspace_cleanup.sh > /dev/null 2>&1
-rm -rf $WORKSPACE
-mkdir -p $IMAGESDIR
-mkdir -p $TARGETDIR
-mkdir -p $OUTDIR
 
 if [[ $firmware == system.img ]]; then
-echo "- Already system image"
+rm -rf $TARGETDIR
+mkdir -p $IMAGESDIR
 mv $firmware $IMAGESDIR/
-exit 0
 else
 echo "┠ Extracting Firmware..."
 firmware_extract
 fi
 
+mkdir -p $IMAGESDIR
+mkdir -p $TARGETDIR
+mkdir -p $OUTDIR
+
 # Detect image
+ if [[ -d $TMPDIR ]];then
  cd $TMPDIR
  mv *.img $IMAGESDIR/
+fi
 
 cd $LOCALDIR
 echo "├─ Extracting images..."
