@@ -372,7 +372,7 @@ function fix_bug() {
 function resign() {
 echo "┠ Resigning with AOSP keys..."
       cp -frp $MAKEDIR/resign/system/* $systemdir/
-      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
+      $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
 }
 
 if (echo $@ | grep -qo -- "--fix-bug") ;then
