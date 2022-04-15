@@ -430,7 +430,7 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 
 function resign() {
 echo "┠ Resigning with AOSP keys..."
-      python $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
+      $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
 echo "├─ Resigned."
 }
 
