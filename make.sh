@@ -53,7 +53,7 @@ echo "├─ Extracting images..."
 $SCRIPTDIR/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
 
 # Extract Image
-./image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
+$SCRIPTDIR/image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
 echo "├─ Extracted."
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then

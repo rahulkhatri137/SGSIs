@@ -5,8 +5,6 @@ cd $LOCALDIR
 
 systemdir=$1
 # Remove stock apks
-rm -rf $1/system_ext/apex/*v28*
-rm -rf $1/apex/*v28*
 rm -rf $1/app/AIEngine
 rm -rf $1/app/APrintSpooler
 rm -rf $1/app/ARCoreStub0

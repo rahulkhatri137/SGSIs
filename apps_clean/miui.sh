@@ -77,7 +77,6 @@ rm -rf $1/app/Netflix_activation
 rm -rf $1/app/IdMipay
 rm -rf $1/app/IFAAService
 rm -rf $1/app/Notes
-rm -rf $1/app/XiaomiSimActivateService
 rm -rf $1/app/KeyChain
 rm -rf $1/app/OTrPBroker
 rm -rf $1/app/SoterService

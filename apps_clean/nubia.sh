@@ -1,8 +1,7 @@
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 systemdir=$1
-rm -rf $1/system_ext/apex/*v28*
-rm -rf $1/apex/*v28*
+
 rm -rf $1/../res/images/*
 rm -rf $1/*/*app/*Recorder*
 rm -rf $1/*app/*Recorder*
@@ -57,8 +56,8 @@ rm -rf $1/app/redtea*
 rm -rf $1/fonts/NotoSans*
 rm -rf $1/fonts/NotoSerif*
 rm -rf $1/media/*/*nubia*
-rm -rf $1/media/wallpaper/1920*
-rm -rf $1/media/wallpaper/middle*
+rm -rf $1/app/wallpaper/1920*
+rm -rf $1/app/wallpaper/middle*
 rm -rf $1/*app/*Game*
 rm -rf $1/*app/*Emergency*
 rm -rf $1/*app/*Tencent*
@@ -67,14 +66,16 @@ rm -rf $1/priv-app/ZNubia*
 rm -rf $1/priv-app/*Theme*
 rm -rf $1/*/*app/*Appstore*
 rm -rf $1/*/*app/*Usercenter*
-rm -rf $1/*/media/*theme*/*/*colorful*
-rm -rf $1/*/media/*theme*/*/*tech*
-rm -rf $1/*/media/*theme*/*/*pubg*
-rm -rf $1/*/media/*theme*/*/*machao*
-rm -rf $1/*/media/*theme*/*/*wzry*
+rm -rf $1/*/media/*theme*/*colorful*
+rm -rf $1/*/media/*theme*/*tech*
+rm -rf $1/*/media/*theme*/*pubg*
+rm -rf $1/*/media/*theme*/*machao*
+rm -rf $1/*/media/*theme*/*wzry*
 rm -rf $1/product/media/audio/alarms/*
 rm -rf $1/product/media/audio/notifications/*
 rm -rf $1/product/media/audio/ringtones/*
+
+
 
 # Drop useless apks
 rm -rf $1/app/AutoAgingTest
