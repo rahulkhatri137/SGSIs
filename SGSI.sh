@@ -111,27 +111,30 @@ function normal() {
 
   # Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
-  #sed -i '/u:object_r:vendor_default_prop:s0/d' $systemdir/etc/selinux/plat_property_contexts
   sed -i '/software.version/d'  $systemdir/etc/selinux/plat_property_contexts
-  #sed -i '/sys.usb/d' $systemdir/etc/selinux/plat_property_contexts
-  sed -i '/ro.build.fingerprint    u:object_r:fingerprint_prop:s0/d' $systemdir/etc/selinux/plat_property_contexts
+  sed -i "/ro.build.fingerprint/d" $systemdir/etc/selinux/plat_property_contexts
+  
+  $SCRIPTDIR/sepolicy_prop_remover.sh "$systemdir/etc/selinux/plat_property_contexts" "device/qcom/sepolicy" > "$systemdir/etc/selinux/plat_property_contexts.tmp"
+  mv -f "$systemdir/etc/selinux/plat_property_contexts.tmp" "$systemdir/etc/selinux/plat_property_contexts"
 
   if [ -e $systemdir/product/etc/selinux/mapping ];then
     find $systemdir/product/etc/selinux/mapping/ -type f -empty | xargs rm -rf
     sed -i '/software.version/d'  $systemdir/product/etc/selinux/product_property_contexts
-    sed -i '/vendor/d' $systemdir/product/etc/selinux/product_property_contexts
-    sed -i '/secureboot/d' $systemdir/product/etc/selinux/product_property_contexts
-    sed -i '/persist/d' $systemdir/product/etc/selinux/product_property_contexts
-    sed -i '/oem/d' $systemdir/product/etc/selinux/product_property_contexts
+    sed -i '/miui.reverse.charge/d' $systemdir/product/etc/selinux/product_property_contexts
+    sed -i '/ro.cust.test/d' $systemdir/product/etc/selinux/product_property_contexts
+
+    $SCRIPTDIR/sepolicy_prop_remover.sh "$systemdir/product/etc/selinux/product_property_contexts" "device/qcom/sepolicy" > "$systemdir/product/etc/selinux/product_property_contexts.tmp"
+    mv -f "$systemdir/product/etc/selinux/product_property_contexts.tmp" "$systemdir/product/etc/selinux/product_property_contexts"
   fi
  
   if [ -e $systemdir/system_ext/etc/selinux/mapping ];then
     find $systemdir/system_ext/etc/selinux/mapping/ -type f -empty | xargs rm -rf
     sed -i '/software.version/d'  $systemdir/system_ext/etc/selinux/system_ext_property_contexts
-    sed -i '/vendor/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
-    sed -i '/secureboot/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
-    sed -i '/persist/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
-    sed -i '/oem/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
+    sed -i '/ro.cust.test/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
+    sed -i '/miui.reverse.charge/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
+    
+    $SCRIPTDIR/sepolicy_prop_remover.sh "$systemdir/system_ext/etc/selinux/system_ext_property_contexts" "device/qcom/sepolicy" > "$systemdir/system_ext/etc/selinux/system_ext_property_contexts.tmp"
+    mv -f "$systemdir/system_ext/etc/selinux/system_ext_property_contexts.tmp" "$systemdir/system_ext/etc/selinux/system_ext_property_contexts"
   fi
 
   build_modify() {
@@ -207,6 +210,21 @@ function normal() {
       echo "# Property Read Order" >> $systemdir/build.prop
       echo "ro.product.property_source_order=system,product,system_ext,vendor,odm" >> $systemdir/build.prop
     fi
+
+    # Clean devices custom properites
+    clean_custom_prop() {
+      $SCRIPTDIR/clean_properites.sh "$systemdir/build.prop" "/system.prop" > "$systemdir/build.prop.tmp"
+      mv -f "$systemdir/build.prop.tmp" "$systemdir/build.prop"
+      $SCRIPTDIR/clean_properites.sh "$systemdir/system_ext/etc/build.prop" "/system_ext.prop" > "$systemdir/system_ext/etc/build.prop.tmp"
+      mv -f "$systemdir/system_ext/etc/build.prop.tmp" "$systemdir/system_ext/etc/build.prop"
+      $SCRIPTDIR/clean_properites.sh "$systemdir/product/etc/build.prop" "/product.prop" > "$systemdir/product/etc/build.prop.tmp"
+      mv -f "$systemdir/product/etc/build.prop.tmp" "$systemdir/product/etc/build.prop"
+    }
+
+    # Default clean custom prop
+    clean_prop=false
+    [ $os_type = "Generic" ] && clean_prop=true
+    [ $clean_prop = true ] && clean_custom_prop
   }
   build_modify
 
