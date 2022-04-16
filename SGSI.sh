@@ -102,7 +102,7 @@ fi
   echo "" >> ./make/add_build/add_oem_build
   echo "# oem厂商自定义属性" >> ./make/add_build/add_oem_build
  
-Patch SELinux to ensure maximum device compatibility
+# Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
   sed -i '/software.version/d'  $systemdir/etc/selinux/plat_property_contexts
   sed -i "/ro.build.fingerprint/d" $systemdir/etc/selinux/plat_property_contexts
@@ -238,7 +238,7 @@ Patch SELinux to ensure maximum device compatibility
       $SCRIPTDIR/clean_properites.sh "$systemdir/system_ext/build.prop" "/system_ext.prop" > "$systemdir/system_ext/build.prop.tmp"
       mv -f "$systemdir/system_ext/build.prop.tmp" "$systemdir/system_ext/build.prop"
       $SCRIPTDIR/clean_properites.sh "$systemdir/product/build.prop" "/product.prop" > "$systemdir/product/build.prop.tmp"
-      mv -f "$systemdir/product/build.prop.tmp" "$systemdir/product/etc/build.prop"
+      mv -f "$systemdir/product/build.prop.tmp" "$systemdir/product/build.prop"
     }
 
     # Default clean custom prop
