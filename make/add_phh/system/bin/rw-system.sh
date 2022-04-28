@@ -282,6 +282,9 @@ changeKeylayout() {
     fi
 
     if getprop ro.vendor.build.fingerprint | grep -iq -e motorola/liber; then
+        cp /system/phh/moto-liber-gpio-keys.kl /mnt/phh/keylayout/gpio-keys.kl
+        chmod 0644 /mnt/phh/keylayout/gpio-keys.kl
+
         cp /system/phh/empty /mnt/phh/keylayout/uinput_nav.kl
         chmod 0644 /mnt/phh/keylayout/uinput_nav.kl
         changed=true
@@ -1011,11 +1014,6 @@ if [ "$vndk" -le 30 ];then
 	# On older vendor the default behavior was to disable color management
 	# Don't override vendor value, merely add a fallback
 	setprop ro.surface_flinger.use_color_management false
-fi
-
-# Disable ODM display overlay for some OPlus devices, which is annoyingly hard to override
-if getprop ro.boot.prjname |grep -qi -e 20846 -e 20847 -e 2084A -e 21615;then
-    mount -o bind /system/phh/empty /odm/overlay/android_framework_res_overlay.display.product.*.apk
 fi
 
 if [ "$(stat -c '%U'  /dev/nxp_smartpa_dev)" == "root" ] &&
