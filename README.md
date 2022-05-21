@@ -1,4 +1,11 @@
 # SGSI-build-tool
+
+[Original Repo](https://github.com/xiaoxindada/SGSI-build-tool)
+
+* Special Thanks to [Erfan Abdi](https://github.com/erfanoabdi) for Firmware Extractor
+* Thanks to [Phhusson](https://github.com/phhusson) for all phh things
+* Terminal Logs are suppressed!
+
 **Copyright (C) 2021 Xiaoxindada (2245062854@qq.com)  
 未经过本人许可 不可进行商用**
  

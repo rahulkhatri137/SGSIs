@@ -309,11 +309,7 @@ echo "├─ $FIXING_ROM"
 # Common apex process
 echo "├─ Adding vndk apex..."
 cd $MAKEDIR/apex_vndk
-if [ $(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2) = "32" ];then
-./make2.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
-else
 ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
-fi
 
 # Partial Devices Sim fix
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop

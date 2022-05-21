@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-shopt -s expand_aliases
 
 # Supported Firmwares:
 # Aonly OTA
@@ -20,14 +19,8 @@ shopt -s expand_aliases
 # nb0
 # kdz
 # RUU
+# Amlogic upgrade package
 
-if [ $(uname) == Darwin ]; then
-    alias sed=gsed
-    alias tr=gtr
-    alias grep=ggrep
-    alias find=gfind
-fi
-    
 superimage() {
     if [ -f super.img ]; then
         echo "Creating super.img.raw ..."
@@ -45,7 +38,8 @@ superimage() {
             7z e -y "$romzip" $foundpartitions dummypartition 2>/dev/null >> $tmpdir/zip.log
         fi
     done
-    rm -rf super.img.raw
+    rm -rf super.img*
+    
 }
 
 usage() {
@@ -74,10 +68,8 @@ else
 fi
 if [[ ! -d "$toolsdir/oppo_ozip_decrypt" ]]; then
     git clone -q https://github.com/bkerler/oppo_ozip_decrypt.git "$toolsdir/oppo_ozip_decrypt"
-    git -C "$toolsdir/oppo_ozip_decrypt" reset -q --hard d02128dade8fffaf16e00f9f7d01f7be39558f69
 else
     git -C "$toolsdir/oppo_ozip_decrypt" pull
-    git -C "$toolsdir/oppo_ozip_decrypt" reset -q --hard d02128dade8fffaf16e00f9f7d01f7be39558f69
 fi
 if [[ ! -d "$toolsdir/update_payload_extractor" ]]; then
     git clone -q https://github.com/erfanoabdi/update_payload_extractor.git "$toolsdir/update_payload_extractor"
@@ -98,10 +90,11 @@ nb0_extract="$toolsdir/$HOST/bin/nb0-extract"
 kdz_extract="$toolsdir/kdztools/unkdz.py"
 dz_extract="$toolsdir/kdztools/undz.py"
 ruu="$toolsdir/$HOST/bin/RUU_Decrypt_Tool"
+aml_extract="$toolsdir/aml-upgrade-package-extract"
 
 romzip="$(realpath $1)"
 romzipext="${romzip##*.}"
-PARTITIONS="system vendor cust odm oem factory product xrom modem dtbo boot recovery tz systemex oppo_product preload_common system_ext system_other opproduct reserve india my_preload my_odm my_stock my_operator my_country my_product my_company my_engineering my_heytap"
+PARTITIONS="super system vendor cust odm oem factory product xrom modem dtbo dtb boot recovery tz systemex oppo_product preload_common system_ext system_other opproduct reserve india my_preload my_odm my_stock my_operator my_country my_product my_company my_engineering my_heytap my_custom my_manifest my_carrier my_region my_bigball my_version special_preload vendor_dlkm odm_dlkm system_dlkm init_boot vendor_kernel_boot vendor_boot"
 EXT4PARTITIONS="system vendor cust odm oem factory product xrom systemex oppo_product preload_common"
 OTHERPARTITIONS="tz.mbn:tz tz.img:tz modem.img:modem NON-HLOS:modem boot-verified.img:boot dtbo-verified.img:dtbo"
 
@@ -156,6 +149,25 @@ if [[ $(echo "$romzip" | grep -i ruu_ | grep -i exe) ]]; then
     exit 0
 fi
 
+if [[ $(7z l -ba "$romzip" | grep -i aml) ]]; then
+    echo "aml detected"
+    cp "$romzip" $tmpdir
+    romzip="$tmpdir/$(basename $romzip)"
+    7z e -y "$romzip" >> $tmpdir/zip.log
+    $aml_extract $(find . -type f -name "*aml*.img")
+    rename 's/.PARTITION$/.img/' *.PARTITION
+    rename 's/_aml_dtb.img$/dtb.img/' *.img
+    rename 's/_a.img/.img/' *.img
+    if [[ -f super.img ]]; then
+        superimage
+    fi
+    for partition in $PARTITIONS; do
+        [[ -e "$tmpdir/$partition.img" ]] && mv "$tmpdir/$partition.img" "$outdir/$partition.img"
+    done
+    rm -rf $tmpdir
+    exit 0
+fi
+
 if [[ ! $(7z l -ba "$romzip" | grep ".*system.ext4.tar.*\|.*.tar\|.*chunk\|system\/build.prop\|system.new.dat\|system_new.img\|system.img\|system-sign.img\|system.bin\|payload.bin\|.*.zip\|.*.rar\|.*rawprogram*\|system.sin\|.*system_.*\.sin\|system-p\|super\|UPDATE.APP\|.*.pac\|.*.nb0" | grep -v ".*chunk.*\.so$") ]]; then
     echo "BRUH: This type of firmwares not supported"
     cd "$LOCALDIR"
@@ -190,6 +202,13 @@ if [[ $(7z l -ba "$romzip" | grep system.new.dat) ]]; then
     echo "Aonly OTA detected"
     for partition in $PARTITIONS; do
         7z e -y "$romzip" $partition.new.dat* $partition.transfer.list $partition.img 2>/dev/null >> $tmpdir/zip.log
+        7z e -y "$romzip" $partition.*.new.dat* $partition.*.transfer.list $partition.*.img 2>/dev/null >> $tmpdir/zip.log
+        rename 's/(\w+)\.(\d+)\.(\w+)/$1.$3/' *
+        # For Oplus A-only OTAs, eg OnePlus Nord 2. Regex matches the 8 digits of Oplus NV ID (prop ro.build.oplus_nv_id) to remove them.
+        # hello@world:~/test_regex# rename -n 's/(\w+)\.(\d+)\.(\w+)/$1.$3/' *
+        # rename(my_bigball.00011011.new.dat.br, my_bigball.new.dat.br)
+        # rename(my_bigball.00011011.patch.dat, my_bigball.patch.dat)
+        # rename(my_bigball.00011011.transfer.list, my_bigball.transfer.list)
         if [[ -f $partition.new.dat.1 ]]; then
             cat $partition.new.dat.{0..999} 2>/dev/null >> $partition.new.dat
             rm -rf $partition.new.dat.{0..999}
@@ -212,12 +231,12 @@ if [[ $(7z l -ba "$romzip" | grep system.new.dat) ]]; then
     done
 elif [[ $(7z l -ba "$romzip" | grep rawprogram) ]]; then
     echo "QFIL detected"
-    rawprograms=$(7z l -ba "$romzip" | gawk '{ print $NF }' | grep rawprogram)
-    7z e -y "$romzip" $rawprograms 2>/dev/null >> $tmpdir/zip.log
+    rawprograms=$(7z l -ba $romzip | gawk '{ print $NF }' | grep rawprogram)
+    7z e -y $romzip $rawprograms 2>/dev/null >> $tmpdir/zip.log
     for partition in $PARTITIONS; do
-        partitionsonzip=$(7z l -ba "$romzip" | gawk '{ print $NF }' | grep $partition)
+        partitionsonzip=$(7z l -ba $romzip | gawk '{ print $NF }' | grep $partition)
         if [[ ! $partitionsonzip == "" ]]; then
-            7z e -y "$romzip" $partitionsonzip 2>/dev/null >> $tmpdir/zip.log
+            7z e -y $romzip $partitionsonzip 2>/dev/null >> $tmpdir/zip.log
             if [[ ! -f "$partition.img" ]]; then
                 if [[ -f "$partition.raw.img" ]]; then
                     mv "$partition.raw.img" "$partition.img"
@@ -229,6 +248,9 @@ elif [[ $(7z l -ba "$romzip" | grep rawprogram) ]]; then
             fi
         fi
     done
+    if [[ -f super.img ]]; then
+        superimage
+    fi
 elif [[ $(7z l -ba "$romzip" | grep nb0) ]]; then
     echo "nb0 detected"
     to_extract=`7z l "$romzip" | grep ".*.nb0" | gawk '{ print $6 }'`
@@ -258,6 +280,16 @@ elif [[ $(7z l -ba "$romzip" | grep system | grep chunk | grep -v ".*\.so$") ]];
             fi
         fi
     done
+elif [[ $(7z l -ba "$romzip" | grep "super.img") ]]; then
+    echo "super detected"
+    foundsupers=$(7z l -ba "$romzip" | gawk '{ print $NF }' | grep "super.img")
+    7z e -y "$romzip" $foundsupers dummypartition 2>/dev/null >> $tmpdir/zip.log
+    superchunk=$(ls | grep chunk | grep super | sort)
+    if [[ $(echo "$superchunk" | grep "sparsechunk") ]]; then
+        $simg2img $(echo "$superchunk" | tr '\n' ' ') super.img.raw 2>/dev/null
+        rm -rf *super*chunk*
+    fi
+    superimage
 elif [[ $(7z l -ba "$romzip" | gawk '{print $NF}' | grep "system_new.img\|^system.img\|\/system.img\|\/system_image.emmc.img\|^system_image.emmc.img") ]]; then
     echo "Image detected"
     7z x -y "$romzip" 2>/dev/null >> $tmpdir/zip.log
@@ -287,6 +319,12 @@ elif [[ $(7z l -ba "$romzip" | grep "system.sin\|.*system_.*\.sin") ]]; then
     find "$tmpdir" -maxdepth 1 -type f -name "*_$to_remove.sin" | rename 's/_'$to_remove'.sin/.sin/g' > /dev/null 2>&1 # proper names
     $unsin -d $tmpdir
     find "$tmpdir" -maxdepth 1 -type f -name "*.ext4" | rename 's/.ext4/.img/g' > /dev/null 2>&1 # proper names
+    foundsuperinsin=$(find "$tmpdir" -maxdepth 1 -type f -name "super_*.img")
+    if [ ! -z $foundsuperinsin ]; then
+        mv $(ls $tmpdir/super_*.img) "$tmpdir/super.img"
+        echo "super image inside a sin detected"
+        superimage
+    fi
     romzip=""
 elif [[ $(7z l -ba "$romzip" | grep ".pac$") ]]; then
     echo "pac detected"
@@ -296,6 +334,10 @@ elif [[ $(7z l -ba "$romzip" | grep ".pac$") ]]; then
     for file in $pac_list; do
        $pacextractor $file
     done
+    if [[ -f super.img ]]; then
+        superimage
+    fi
+
 elif [[ $(7z l -ba "$romzip" | grep "system.bin") ]]; then
     echo "bin images detected"
     7z x -y "$romzip" 2>/dev/null >> $tmpdir/zip.log
@@ -348,57 +390,28 @@ elif [[ $(7z l -ba "$romzip" | grep "system-sign.img") ]]; then
         fi
     done
     romzip=""
-elif [[ $(7z l -ba "$romzip" | grep "super.img") ]]; then
-    echo "super detected"
-    foundsupers=$(7z l -ba "$romzip" | gawk '{ print $NF }' | grep "super.img")
-    7z e -y "$romzip" $foundsupers dummypartition 2>/dev/null >> $tmpdir/zip.log
-    superchunk=$(ls | grep chunk | grep super | sort)
-    if [[ $(echo "$superchunk" | grep "sparsechunk") ]]; then
-        $simg2img $(echo "$superchunk" | tr '\n' ' ') super.img.raw 2>/dev/null
-        rm -rf *super*chunk*
-    fi
-    superimage
 elif [[ $(7z l -ba "$romzip" | grep tar.md5 | gawk '{ print $NF }' | grep AP_) ]]; then
     echo "AP tarmd5 detected"
-    mainmd5=$(7z l -ba "$romzip" | grep tar.md5 | gawk '{ print $NF }' | grep AP_)
-    cscmd5=$(7z l -ba "$romzip" | grep tar.md5 | gawk '{ print $NF }' | grep CSC_)
     echo "Extracting tarmd5"
-    7z e -y "$romzip" "$mainmd5" $cscmd5 2>/dev/null >> $tmpdir/zip.log
-    mainmd5=$(7z l -ba "$romzip" | grep tar.md5 | gawk '{ print $NF }' | grep AP_ | sed 's|.*/||')
-    cscmd5=$(7z l -ba "$romzip" | grep tar.md5 | gawk '{ print $NF }' | grep CSC_ | sed 's|.*/||')
+    7z e -y "$romzip" 2>/dev/null >> $tmpdir/zip.log
     echo "Extracting images..."
-    for i in "$mainmd5" "$cscmd5"; do
-        if [ ! -f "$i" ]; then
-            continue
-        fi
-        for partition in $PARTITIONS; do
-            tarulist=$(tar -tf $i | grep -e ".*$partition.*\.img.*\|.*$partition.*ext4")
-            echo "$tarulist" | while read line; do
-                tar -xf "$i" "$line"
-                if [[ $(echo "$line" | grep "\.lz4") ]]; then
-                    unlz4 -f -q "$line" "$partition.img"
-                    rm -f "$line"
-                    line=$(echo "$line" | sed 's/\.lz4$//')
-                fi
-                if [[ $(echo "$line" | grep "\.ext4") ]]; then
-                    mv "$line" "$(echo "$line" | cut -d'.' -f1).img"
-                fi
-            done
-        done
+    for i in $(ls *.tar.md5); do
+        tar -xf $i || exit 1
+        rm -fv $i || exit 1
+        echo "Extracted $i"
     done
-    if [[ -e "$tmpdir/super.img.lz4" ]]; then
-        echo "Extracting super.img.lz4"
-        lz4_list=`find "$tmpdir" -type f -name "*.lz4" -printf '%P\n' | sort`
-        for file in $lz4_list; do
-            [[ ! -e "$(  echo "$file" | sed "s|.lz4||1" )" ]] && unlz4 "$tmpdir/$file"
-        done
-        find $tmpdir/ -type f -name "*.lz4" -exec rm -rf {} \;
+    for f in $(ls *.lz4); do
+        lz4 -dc $f > ${f/.lz4/} || exit 1
+        rm -fv $f || exit 1
+        echo "Extracted $f"
+    done
+    if [[ -f super.img ]]; then
         superimage
     fi
-    if [[ -f system.img ]]; then
-        rm -rf $mainmd5
-        rm -rf $cscmd5
-    else
+    if [[ -f system.img.ext4 ]]; then
+        find "$tmpdir" -maxdepth 1 -type f -name "*.img.ext4" | rename 's/.img.ext4/.img/g' > /dev/null 2>&1
+    fi
+    if [[ ! -f system.img ]]; then
         echo "Extract failed"
         rm -rf "$tmpdir"
         exit 1

@@ -314,11 +314,11 @@ fi
 if mount -o remount,rw /system; then
     resize2fs "$(grep ' /system ' /proc/mounts | cut -d ' ' -f 1)" || true
 else
-    remount system
     mount -o remount,rw /
     major="$(stat -c '%D' /.|sed -E 's/^([0-9a-f]+)([0-9a-f]{2})$/\1/g')"
     minor="$(stat -c '%D' /.|sed -E 's/^([0-9a-f]+)([0-9a-f]{2})$/\2/g')"
     mknod /dev/tmp-phh b $((0x$major)) $((0x$minor))
+    blockdev --setrw /dev/tmp-phh
     resize2fs /dev/root || true
     resize2fs /dev/tmp-phh || true
 fi
@@ -569,6 +569,12 @@ if getprop ro.vendor.build.fingerprint | grep -iq -e xiaomi/daisy; then
 fi
 
 if getprop ro.vendor.build.fingerprint | grep -iq -e Redmi/merlin; then
+    setprop debug.sf.latch_unsignaled 1
+    setprop debug.sf.enable_hwc_vds 0
+fi
+
+if getprop ro.vendor.build.fingerprint | grep -iq -e Redmi/rosemary \
+    -e Redmi/secret -e Redmi/maltose; then
     setprop debug.sf.latch_unsignaled 1
     setprop debug.sf.enable_hwc_vds 0
 fi
@@ -1010,6 +1016,15 @@ fi
 # Disable secondary watchdogs
 echo -n V > /dev/watchdog1
 
+# Fix watchdog issue on Samsung Galaxy A20s
+if getprop ro.vendor.build.fingerprint | grep -iq samsung/a20sub/a20s; then
+    echo -n V > /dev/watchdog0
+fi
+
+if getprop ro.vendor.build.fingerprint | grep -iq samsung/a11que;then
+	echo -n V > /dev/watchdog0
+fi
+	
 if [ "$vndk" -le 30 ];then
 	# On older vendor the default behavior was to disable color management
 	# Don't override vendor value, merely add a fallback
@@ -1071,3 +1086,10 @@ mount /system/phh/empty /vendor/bin/install-recovery.sh
 if getprop ro.vendor.radio.default_network |grep -qE '[0-9]';then
   setprop ro.telephony.default_network $(getprop ro.vendor.radio.default_network)
 fi
+
+if getprop ro.vendor.build.fingerprint |grep -iq redmi/camellia;then
+	setprop persist.sys.qcom-brightness 4095
+fi
+
+mount -o bind /mnt/phh/empty_dir /vendor/app/qti-logkit
+mount -o bind /mnt/phh/empty_dir /vendor/app/qti-logkit-lite
