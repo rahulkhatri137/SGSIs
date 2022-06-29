@@ -14,10 +14,10 @@
 * [AndroidDump](https://github.com/AndroidDump/dumper)
 * [Stck-lzm](https://github.com/stck-lzm/badown) 
 * [Treble Experience](https://github.com/TrebleExperience)
-* 对上述列表表示感谢
-## 感谢九雨梦舟 https://github.com/pomelohan 的帮助  
-## 感谢 Col_or https://github.com/color597 的帮助  
-## 感谢 thka2016 https://github.com/thka2016 的帮助  
+* [Pomelohan](https://github.com/pomelohan)  
+* [Col_or](https://github.com/color597)  
+* [thka2016](https://github.com/thka2016)  
+* All contributors to [phh treble tree](https://github.com/phhusson/device_phh_treble/graphs/contributors)
 
 ## Setup
 ```

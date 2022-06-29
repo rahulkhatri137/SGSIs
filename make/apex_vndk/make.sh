@@ -18,7 +18,7 @@ fi
 7z x -y $thispath/v30apex.7z -o$systempath/apex/ 2>/dev/null >> $systempath/zip.log
 rm -rf $systempath/zip.log
 cd $bin/apex_tools
-./apex_extractor.sh "$TARGETDIR" "$systempath/apex"
+./apex_extractor.sh "$TARGETDIR" "$systempath/apex" > /dev/null 2>&1
 cd $LOCALDIR
 
 # Clean up default apex state

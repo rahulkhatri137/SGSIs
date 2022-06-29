@@ -5,3 +5,5 @@ ro.support_one_handed_mode=true
 persist.sys.overlay.nightmode=true
 # Don't write binary XML files
 persist.sys.binary_xml=false
+#Fixes fingerprint unlock delay
+persist.wm.enable_remote_keyguard_animation=0
