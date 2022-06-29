@@ -24,7 +24,7 @@ dependency_install(){
         echo -e "\033[33m [$INFO_STR] $DETECTED_LINUX \033[0m"
         echo -e "\033[33m [$INFO_STR] $INSTPKG_WITH_APT ... \033[0m"
         sudo apt update && sudo apt upgrade -y
-        sudo apt install git p7zip curl wget unace unrar zip unzip p7zip-full p7zip-rar sharutils uudeview mpack arj cabextract file-roller aptitude device-tree-compiler liblzma-dev liblz4-tool gawk aria2 selinux-utils busybox rename brotli lz4 -y
+        sudo apt install git p7zip curl wget unace unrar zip unzip p7zip-full p7zip-rar sharutils uudeview mpack arj cabextract file-roller aptitude device-tree-compiler liblzma-dev liblz4-tool gawk aria2 selinux-utils busybox rename squashfs-tools brotli lz4 -y
         sudo apt update --fix-missing
         
     elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -66,8 +66,6 @@ pip_module_install(){
             sudo pip3 install -r $requirements_list
         done
     fi
-    sudo pip install --upgrade "protobuf"
-    sudo pip3 install --upgrade "protobuf"
 }
 
 debug_packages_version(){
