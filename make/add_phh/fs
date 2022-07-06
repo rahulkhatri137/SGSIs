@@ -28,8 +28,8 @@ system/system/etc/init/phh-remotectl.rc 0 0 0644
 system/system/etc/init/vndk.rc 0 0 0644
 system/system/etc/init/wificonf.rc 0 0 0644
 system/system/etc/init/lpdumpd.rc 0 0 0644
-system/system/etc/permissions/android.hardware.bluetooth.xml 0 0 0644
 system/system/etc/permissions/privapp-permissions-me.phh.treble.app.xml 0 0 0644
+system/system/etc/permissions/android.hardware.bluetooth.xml 0 0 0644
 system/system/etc/permissions/android.hardware.bluetooth_le.xml 0 0 0644
 system/system/etc/permissions/android.hardware.ethernet.xml 0 0 0644
 system/system/etc/permissions/android.hardware.fingerprint.xml 0 0 0644
@@ -39,4 +39,5 @@ system/system/etc/permissions/interfaces.xml 0 0 0644
 system/system/etc/usb_audio_policy_configuration.xml 0 0 0644
 system/system/framework/android.hardware.wifi.hostapd-V1.0-java.jar 0 0 0644
 system/system/framework/vendor.qti.hardware.radio.am-V1.0-java.jar 0 0 0644
+system/system/bin/resetprop_phh 0 2000 0755
 system/system/bin/phh-securize.sh 0 2000 0755

@@ -5,7 +5,8 @@ cd $LOCALDIR
 source $LOCALDIR/../bin.sh
 
 os_type="$1"
-systemdir=" ../out/system/system"
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 rom_folder="$LOCALDIR/rom_make_patch"
 vintf_folder="$LOCALDIR/add_etc_vintf_patch"
 
@@ -76,7 +77,7 @@ if [ $os_type = "ColorOS" ];then
   ./add_build.sh > /dev/null 2>&1
   $vintf_folder/add_vintf.sh > /dev/null 2>&1
   # Fixing ROM Features
-  $rom_folder/color/make.sh > /dev/null 2>&1
+  $rom_folder/oppo/make.sh > /dev/null 2>&1
   $DEBLOATDIR/oppo.sh "$systemdir" > /dev/null 2>&1
 fi
 

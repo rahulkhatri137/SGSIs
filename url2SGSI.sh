@@ -7,10 +7,10 @@ LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd $LOCALDIR
 source $LOCALDIR/bin.sh
 DL="${SCRIPTDIR}/dl.sh"
-dummy=false
+image=false
 build="AB"
 
-usage() {
+Usage() {
 cat <<EOT
 Usage:
 $0 <Firmware link> <Firmware type> [Other args]
@@ -18,7 +18,7 @@ $0 <Firmware link> <Firmware type> [Other args]
    Firmware type: Firmware source type
    Example: <Firmware link> <Firmware type>:<SGSI Name>
    Other args:
-    [-fb]: Don't Fix bugs in Rom
+    [i]: Build image only(Processed/Failed)
 EOT
 }
 
@@ -29,7 +29,7 @@ key="$1"
 
 case $key in
     --help|-h|-?)
-    usage
+    Usage
     exit 1
     ;;
     --ab|-ab)
@@ -45,6 +45,10 @@ case $key in
     dummy=true
     shift
     ;;
+    --i|-i)
+    image=true
+    shift
+    ;;
     *)
     POSITIONAL+=("$1")
     shift
@@ -54,7 +58,7 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if [[ ! -n $2 ]]; then
-    echo "-> ERROR!"
+    echo "> ERROR!"
     echo " - Enter all needed parameters"
     usage
     exit 1
@@ -99,7 +103,7 @@ if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
 fi
 fi
 
-rm -rf output SGSI
+rm -rf output
 DOWNLOAD()
 {
     URL="$1"
@@ -118,6 +122,11 @@ DOWNLOAD()
     fi
 }
 
+LEAVE() {
+    rm -rf "$TARGETDIR" "$TMPDIR" "$LOCALDIR/SGSI" "$IMAGESDIR" 
+}
+
+if ! [ $image == true ];then
     if [[ "$URL" == "http"* ]]; then
         # URL detected
         ACTUAL_ZIP_NAME=update.zip
@@ -127,12 +136,8 @@ DOWNLOAD()
         echo "├─ Downloaded."
     fi
 
-LEAVE() {
-    rm -rf "$TARGETDIR" "$LOCALDIR/SGSI" "$IMAGESDIR" $TMPDIR
-}
-
 #Extract firmware
- "$LOCALDIR"/make.sh $URL || { echo "> Failed to extract!" ; exit  1 ; }
+ "$LOCALDIR"/make.sh $build $URL || { echo "> Failed to extract!" ; exit  1 ; }
 
 #SGSI Time
 cd $LOCALDIR
@@ -141,7 +146,8 @@ if [ -e $IMAGESDIR/system.img ];then
   "$LOCALDIR"/SGSI.sh $build $TYPE || { echo "> Failed to complete SGSI patching!" ; exit  1 ; }
 else
   echo "> System image not found!"
-  LEAVE
+  exit 1
+fi
 fi
 
 #Build image

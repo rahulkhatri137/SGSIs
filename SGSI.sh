@@ -1,31 +1,46 @@
 #!/bin/bash
 
-# Copyright (C) 2020 Xiaoxindada <2245062854@qq.com>
+# Copyright (C) 2021 Xiaoxindada <2245062854@qq.com>
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
-
-systemdir="$LOCALDIR/out/system/system"
-configdir="$LOCALDIR/out/config"
+source $LOCALDIR/bin.sh
 
 Usage() {
 cat <<EOT
 Usage:
-$0 AB|ab or $0 A|a
+$0 <Build Type> <OS Type>
+  Build Type: [AB|ab] or [A|a]
+  OS Type: Rom OS type to build
 EOT
 }
 
 case $1 in 
-  "AB"|"ab"|"A"|"a")
-    echo "" > /dev/null 2>&1
+  "AB"|"ab")
+    build_type="AB"
+    ;;
+  "A"|"a")
+    build_type="A"
+    ;;
+  "-h"|"--help")
+    Usage
+    exit 1
     ;;
   *)
     Usage
-    exit
+    exit 1
     ;;
 esac
+
+if [ $# -lt 2 ];then
+  Usage
+  exit 1
+fi
+
 os_type=$2
+other_args=""
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 
 ver=$(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2)
 if [ "$ver" == "30" ]; then
@@ -37,7 +52,7 @@ fi
 
 function normal() {
  echo "┠ Patching..."
-  # 为所有rom修改ramdisk层面的system
+  # Process ramdisk's system for all rom
   cd ./make/ab_boot
   ./ab_boot.sh > /dev/null 2>&1 
   cd $LOCALDIR
@@ -76,7 +91,7 @@ echo "├─ Adding vndk apex..."
   fi
 
   # apex_vndk调用处理
-  cd ./make/apex_vndk_start
+  cd $MAKEDIR/apex_vndk
   ./make.sh > /dev/null 2>&1 
   cd $LOCALDIR 
  
@@ -93,14 +108,14 @@ fi
   ./add_apex_fs.sh > /dev/null 2>&1 
   cd $LOCALDIR
 
-  # 重置make目录
-  true > ./make/add_etc_vintf_patch/manifest_custom
-  echo "" >> ./make/add_etc_vintf_patch/manifest_custom
-  echo "<!-- oem自定义接口 -->" >> ./make/add_etc_vintf_patch/manifest_custom
+# Reset manifest_custom
+  true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
+  echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
+  echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
 
-  true > ./make/add_build/add_oem_build
-  echo "" >> ./make/add_build/add_oem_build
-  echo "# oem厂商自定义属性" >> ./make/add_build/add_oem_build
+  true > $MAKEDIR/add_build/oem_prop
+  echo "" >> $MAKEDIR/add_build/oem_prop
+  echo "# oem common prop" >> $MAKEDIR/add_build/oem_prop
  
 # Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
@@ -131,17 +146,17 @@ fi
   fi
  
   build_modify() {
-  # 为所有qssi原包修复机型数据
+  # Fix Device Properties for qssi
     qssi() {
       cat $systemdir/build.prop | grep -qo 'qssi'
     }
     if qssi ;then
       echo "├─ Fixing device props..."
-      brand=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.brand')
-      device=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.device')
-      manufacturer=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.manufacturer')
-      model=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.model')
-      mame=$(cat ./out/vendor/build.prop | grep 'ro.product.vendor.name')
+      brand=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.brand')
+      device=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.device')
+      manufacturer=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.manufacturer')
+      model=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.model')
+      mame=$(cat $TARGETDIR/vendor/build.prop | grep 'ro.product.vendor.name')
   
       sed -i '/ro.product.system./d' $systemdir/build.prop
       echo "" >> $systemdir/build.prop
@@ -159,7 +174,7 @@ fi
     sed -i '/ro.apex.updatable/d' $systemdir/product/build.prop
     sed -i '/ro.apex.updatable/d' $systemdir/system_ext/build.prop
  
-    # 为所有rom改用分辨率自适应
+    # Enable auto-adapting dpi
     sed -i 's/ro.sf.lcd/#&/' $systemdir/build.prop
     sed -i 's/ro.sf.lcd/#&/' $systemdir/product/build.prop
     sed -i 's/ro.sf.lcd/#&/' $systemdir/system_ext/build.prop
@@ -186,7 +201,7 @@ fi
     echo "# Partial ROM sim fix" >> $systemdir/product/build.prop
     echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/build.prop
 
-    # 为所有rom清理一些无用属性
+    # Cleanup properties
     sed -i '/vendor.display/d' $systemdir/build.prop
     sed -i '/vendor.perf/d' $systemdir/build.prop
     sed -i '/debug.sf/d' $systemdir/build.prop
@@ -196,19 +211,19 @@ fi
     # 为所有rom禁用product vndk version
     sed -i '/product.vndk.version/d' $systemdir/product/build.prop
 
-    # 为所有rom禁用caf media.setting
+    # Disable caf media.setting
     sed -i '/media.settings.xml/d' $systemdir/build.prop
 
-    # 为所有rom添加必要的通用属性
+    # Add common properties
     sed -i '/system_root_image/d' $systemdir/build.prop
     sed -i '/ro.control_privapp_permissions/d' $systemdir/build.prop
     sed -i '/ro.control_privapp_permissions/d' $systemdir/product/build.prop
     sed -i '/ro.control_privapp_permissions/d' $systemdir/system_ext/build.prop  
-    cat ./make/add_build/add_build >> $systemdir/build.prop
-    cat ./make/add_build/add_product_build >> $systemdir/product/build.prop
-    cat ./make/add_build/add_system_ext_build >> $systemdir/system_ext/build.prop
+    cat $MAKEDIR/add_build/system_prop >> $systemdir/build.prop
+    cat $MAKEDIR/add_build/product_prop >> $systemdir/product/build.prop
+    cat $MAKEDIR/add_build/system_ext_prop >> $systemdir/system_ext/build.prop
 
-    # 为所有rom启用虚拟建
+    # Enable HW Mainkeys
     mainkeys() {
       grep -q 'qemu.hw.mainkeys=' $systemdir/build.prop
     }  
@@ -216,18 +231,18 @@ fi
       sed -i 's/qemu.hw.mainkeys\=1/qemu.hw.mainkeys\=0/g' $systemdir/build.prop
     else
       echo "" >> $systemdir/build.prop
-      echo "# 启用虚拟键" >> $systemdir/build.prop
+      echo "# Enable HW Mainkeys" >> $systemdir/build.prop
       echo "qemu.hw.mainkeys=0" >> $systemdir/build.prop
     fi
 
-    # 为所有qssi原包修改默认设备参数读取
+    # Hack qssi property read order
     source_order() {
       grep -q 'ro.product.property_source_order=' $systemdir/build.prop
     }
     if source_order ;then
       sed -i '/ro.product.property\_source\_order\=/d' $systemdir/build.prop  
       echo "" >> $systemdir/build.prop
-      echo "# 机型专有设备参数默认读取顺序" >> $systemdir/build.prop
+      echo "# Property Read Order" >> $systemdir/build.prop
       echo "ro.product.property_source_order=system,product,system_ext,vendor,odm" >> $systemdir/build.prop
     fi
 
@@ -248,18 +263,18 @@ fi
   }
   build_modify
 
-  # 为所有rom还原fstab.postinstall
-  find  ./out/system/ -type f -name "fstab.postinstall" | xargs rm -rf
+  # Revert fstab.postinstall to gsi state
+  find $systemdir/../ -type f -name "fstab.postinstall" | xargs rm -rf
   sed -i '/fstab\\.postinstall/d' $configdir/system_file_contexts
   sed -i '/fstab.postinstall/d' $configdir/system_fs_config
   
-  # 添加缺少的libs
-  cp -frpn ./make/add_libs/system/* $systemdir
+  # Add missing libs
+  cp -frpn $MAKEDIR/add_libs/system/* $systemdir
  
-  # 为default启用debug调试
-  sed -i 's/persist.sys.usb.config=none/persist.sys.usb.config=adb/g' $systemdir/etc/prop.default
-  sed -i 's/ro.debuggable=0/ro.debuggable=1/g' $systemdir/etc/prop.default
-  sed -i 's/ro.adb.secure=1/ro.adb.secure=0/g' $systemdir/etc/prop.default
+  # Enable debug feature
+  sed -i 's/persist.sys.usb.config=none/persist.sys.usb.config=adb/g' $systemdir/build.prop
+  sed -i 's/ro.debuggable=0/ro.debuggable=1/g' $systemdir/build.prop
+  sed -i 's/ro.adb.secure=1/ro.adb.secure=0/g' $systemdir/build.prop
   echo "ro.force.debuggable=1" >> $systemdir/etc/prop.default
  
   # 为default修补oem的SurfaceFlinger属性
@@ -284,50 +299,46 @@ fi
     fi
   fi
 
-  # 为所有rom删除qti_permissions
+  # Remove qti_permissions
   find $systemdir -type f -name "qti_permissions.xml" | xargs rm -rf
 
-  # 为所有rom删除firmware
+  # Remove firmware
   find $systemdir -type d -name "firmware" | xargs rm -rf
 
-  # 为所有rom删除avb
+  # Remove avb
   find $systemdir -type d -name "avb" | xargs rm -rf
   
-  # 为所有rom删除com.qualcomm.location
+  # Remove com.qualcomm.location
   find $systemdir -type d -name "com.qualcomm.location" | xargs rm -rf
 
-  # 为所有rom删除多余文件
-  rm -rf ./out/system/verity_key
-  rm -rf ./out/system/init.recovery*
+  # Remove some useless files
+  rm -rf $systemdir/../verity_key
+  rm -rf $systemdir/../init.recovery*
   rm -rf $systemdir/recovery-from-boot.*
 
-  # 为所有rom patch system
-  cp -frp ./make/system_patch/system/* $systemdir/
+  # Patch System
+  cp -frp $MAKEDIR/system_patch/system/* $systemdir/
 
-  # 为所有rom做phh化处理
-  cp -frp ./make/add_phh/system/* $systemdir/
+  # Patch system to phh system
+  cp -frp $MAKEDIR/add_phh/system/* $systemdir/
 
-  cp -frp ./make/resign/system/* $systemdir/
-   $MAKEDIR/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch overlays" && exit 1; }
+  # Register selinux contexts related by phh system
+  cat $MAKEDIR/add_plat_file_contexts/phh_plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
-  # 为添加的文件注册必要的selinux上下文
-  cat ./make/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
-  cat ./make/add_plat_file_contexts/phh_plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
+  # Register selinux contexts related by added files
+  cat $MAKEDIR/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
-  # 为所有rom的相机修改为aosp相机
-  #cd ./make/camera
-  #./camera.sh
   cd $LOCALDIR
 
-  # Rom specific patch
 echo "├─ Fixing ROM..."
-./apps_clean/pixel.sh "$systemdir" > /dev/null 2>&1 
-  cd ./make
+  # Rom specific patch
+  cd $MAKEDIR
+  $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1 
   ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
   cd $LOCALDIR 
 
   # oem_build合并
-  cat ./make/add_build/add_oem_build >> $systemdir/build.prop
+  cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
 
  # Change Build Number
 if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
@@ -423,10 +434,14 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 
  function fix_bug() {
     echo "┠ Fixing Bugs..."
-    cd fixbug
+    cd $FBDIR
     ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
     cd $LOCALDIR
 }
+
+ # Add prebuilt system files
+      cp -frp $MAKEDIR/resign/system/* $systemdir/
+      $MAKEDIR/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch treble overlays" && exit 1; }
 
 function resign() {
 echo "┠ Resigning with AOSP keys..."
@@ -434,7 +449,6 @@ echo "┠ Resigning with AOSP keys..."
 echo "├─ Resigned."
 }
 
-rm -rf $TOOLDIR/other/resign.log $TOOLDIR/other/img.log
 
 normal
 echo "├─ Patched."
@@ -442,6 +456,6 @@ fix_bug
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
-rm -rf $TOOLDIR/other/resign.log
+
 echo "┠⌬─ SGSI Processed."
 exit 0

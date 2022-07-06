@@ -1,18 +1,54 @@
 #!/bin/bash
 
-# Copyright (C) 2020 Xiaoxindada <2245062854@qq.com>
+# Copyright (C) 2021 Xiaoxindada <2245062854@qq.com>
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
+source $LOCALDIR/bin.sh
 
 Usage() {
 cat <<EOT
 Usage:
-$0 AB|ab or $0 A|a
+$0 <Build Type> <Firmware Path>
+  Build Type: [AB|ab] or [A|a]
+  Firmware Path: Rom Firmware Path
 EOT
 }
-firmware=$1
+
+case $1 in 
+  "AB"|"ab")
+    build_type="AB"
+    ;;
+  "A"|"a")
+    build_type="A"
+    echo "- A-only SGSI not supported"
+    exit 1
+    ;;
+  "-h"|"--help")
+    Usage
+    exit 1
+    ;;    
+  *)
+    Usage
+    exit 1
+    ;;
+esac
+
+if [ $# -lt 2 ];then
+  Usage
+  exit 1
+fi
+firmware=$2
+systemdir=$TARGETDIR/system/system
+configdir="$TARGETDIR/config"
+
+if [ ! -e $firmware ];then
+  if [ ! -e $TMPDIR/$firmware ];then
+    echo "- Firmware not found!"
+    exit 1
+  fi  
+fi
+
 function firmware_extract() { 
 cd $LOCALDIR
 rm -rf $IMAGESDIR $TARGETDIR
@@ -25,7 +61,6 @@ rm -rf $IMAGESDIR $TARGETDIR
 }
 
 chmod -R 777 ./
-chown -R root:root ./
 ./workspace_cleanup.sh > /dev/null 2>&1
 
 if [[ $firmware == system.img ]]; then

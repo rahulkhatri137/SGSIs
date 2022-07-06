@@ -1,14 +1,17 @@
 #!/bin/bash
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 
-# oem属性添加
-sed -i '/#end/d' ../out/vendor/build.prop
-echo "#end" >> ../out/vendor/build.prop
-start=$((`grep -n '# ADDITIONAL VENDOR BUILD PROPERTIES' ../out/vendor/build.prop | cut -d ":" -f 1`+2))
-end=$((`grep -n '#end' ../out/vendor/build.prop | sed 's/:#end//g' `-1))
-sed -n ${start},${end}p ../out/vendor/build.prop > ./oem.txt
+source $LOCALDIR/../bin.sh
+vendor="$TARGETDIR/vendor"
+
+# Add OEM Properties
+sed -i '/#end/d' $vendor/build.prop
+echo "#end" >> $vendor/build.prop
+start=$((`grep -n '# ADDITIONAL VENDOR BUILD PROPERTIES' $TARGETDIR/vendor/build.prop | cut -d ":" -f 1`+2))
+end=$((`grep -n '#end' $vendor/build.prop | sed 's/:#end//g' `-1))
+sed -n ${start},${end}p $vendor/build.prop > ./oem.txt
 sed -i '/ro.control_privapp_permissions/d' ./oem.txt
 sed -i '/debug.sf/d' ./oem.txt
 sed -i '/vendor.display/d' ./oem.txt
@@ -28,6 +31,6 @@ sed -i '/debug.media/d' ./oem.txt
 sed -i '/ro.telephony.iwlan_operation_mode/d' ./oem.txt
 sed -i '/external_storage/d' ./oem.txt
 sed -i '/^\s*$/d' ./oem.txt
-
 cat ./oem.txt >> ./add_build/add_oem_build
 rm -rf ./oem.txt
+

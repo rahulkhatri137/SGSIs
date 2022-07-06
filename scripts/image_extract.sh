@@ -2,8 +2,8 @@
  
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
-source ./language_helper.sh
+source $LOCALDIR/../bin.sh
+
 EROFS_MAGIC_V1="e2e1f5e0" # 0xE0F5E1E2
 EXT_MAGIC="53ef" # 0xEF53
 SQUASHFS_MAGIC="68737173" # 0x73717368

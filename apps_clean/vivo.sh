@@ -4,8 +4,6 @@ LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 
 systemdir=$1
-rm -rf $1/system_ext/apex/*v28*
-rm -rf $1/apex/*v28*
 # Remove stock apks
 rm -rf $1/app/AIEngine
 rm -rf $1/app/APrintSpooler

@@ -2,71 +2,70 @@
 
 # Copyright (C) 2020 Xiaoxindada <2245062854@qq.com>
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-source ./bin.sh
+source $LOCALDIR/bin.sh
 
 Usage() {
 cat <<EOT
 Usage:
-$0 AB|ab or $0 A|a
+$0 <os_repackage_type>
+  os_repackage_type: System.img repack type: [AB|ab or A|a]
 EOT
 }
 
-case $1 in 
-  "AB"|"ab"|"A"|"a")
-    echo "" > /dev/null 2>&1
+os_repackage_type=$1
+name=$2
+mkdir -p $OUTDIR
+case $os_repackage_type in
+  "A"|"a")
+    systemdir="$TARGETDIR/system/system"
+    system="$systemdir"
+    ;;
+  "AB"|"ab")  
+    systemdir="$TARGETDIR/system"
+    system="$systemdir/system"
+    ;;
+  "-h"|"--help")
+    Usage
+    exit 1
     ;;
   *)
     Usage
-    exit
-    ;;
-esac
-
-system_type=$1
-case $system_type in
-  "AB"|"ab")
-    systemdir="$LOCALDIR/out/system"
-    system="$LOCALDIR/out/system/system"
-    ;;
-  "A"|"a")
-    systemdir="$LOCALDIR/out/system/system"
-    ;;
-  *)
-    echo "error!"
-    exit
+    exit 1
     ;;    
 esac
-name=$2
-mkdir -p output
-case $system_type in
+
+configdir="$TARGETDIR/config"
+
+case $os_repackage_type in
   "A"|"a")
-    echo "/ u:object_r:system_file:s0" > ./out/config/system_A_contexts
-    echo "/system u:object_r:system_file:s0" >> ./out/config/system_A_contexts
-    echo "/system(/.*)? u:object_r:system_file:s0" >> ./out/config/system_A_contexts
-    echo "/system/lost+found u:object_r:system_file:s0" >> ./out/config/system_A_contexts
+    echo "/ u:object_r:system_file:s0" > $configdir/system_A_contexts
+    echo "/system u:object_r:system_file:s0" >> $configdir/system_A_contexts
+    echo "/system(/.*)? u:object_r:system_file:s0" >> $configdir/system_A_contexts
+    echo "/system/lost+found u:object_r:system_file:s0" >> $configdir/system_A_contexts
 
-    echo "/ 0 0 0755" > ./out/config/system_A_fs
-    echo "system 0 0 0755" >> ./out/config/system_A_fs
-    echo "system/lost+found 0 0 0700" >> ./out/config/system_A_fs
+    echo "/ 0 0 0755" > $configdir/system_A_fs
+    echo "system 0 0 0755" >> $configdir/system_A_fs
+    echo "system/lost+found 0 0 0700" >> $configdir/system_A_fs
 
-    cat ./out/config/system_file_contexts | grep "system_ext" >> ./out/config/system_ext_contexts
-    cat ./out/config/system_fs_config | grep "system_ext" >> ./out/config/system_ext_fs
-    cat ./out/config/system_file_contexts | grep "/system/system/" >> ./out/config/system_A_contexts
-    cat ./out/config/system_fs_config | grep "system/system/" >> ./out/config/system_A_fs
+    cat $configdir/system_file_contexts | grep "system_ext" >> $configdir/system_ext_contexts
+    cat $configdir/system_fs_config | grep "system_ext" >> $configdir/system_ext_fs
+    cat $configdir/system_file_contexts | grep "/system/system/" >> $configdir/system_A_contexts
+    cat $configdir/system_fs_config | grep "system/system/" >> $configdir/system_A_fs
 
-    sed -i 's#/system/system/system_ext#/system/system_ext#' ./out/config/system_ext_contexts
-    sed -i 's#system/system/system_ext#system/system_ext#' ./out/config/system_ext_fs
-    sed -i 's#/system/system#/system#' ./out/config/system_A_contexts
-    sed -i 's#system/system#system#' ./out/config/system_A_fs
+    sed -i 's#/system/system/system_ext#/system/system_ext#' $configdir/system_ext_contexts
+    sed -i 's#system/system/system_ext#system/system_ext#' $configdir/system_ext_fs
+    sed -i 's#/system/system#/system#' $configdir/system_A_contexts
+    sed -i 's#system/system#system#' $configdir/system_A_fs
 
-    cat ./out/config/system_ext_contexts >> ./out/config/system_A_contexts
-    cat ./out/config/system_ext_fs >> ./out/config/system_A_fs
+    cat $configdir/system_ext_contexts >> $configdir/system_A_contexts
+    cat $configdir/system_ext_fs >> $configdir/system_A_fs
   ;;
 esac  
 
 if [ ! -d $systemdir ];then
-  echo "system目录不存在！"
+  echo "- System directory not found!"
   exit
 fi
 
@@ -101,6 +100,7 @@ if [[ -d "$TARGETDIR/vendor/overlay" && ! -f "$outputvendoroverlays" ]]; then
  fi
 fi
 
+cd $LOCALDIR
 size=`du -sk $systemdir | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
 bytesToHuman() {
     b=${1:-0}; d=''; s=0; S=(Bytes {K,M,G,T,P,E,Z,Y}iB)
@@ -113,19 +113,19 @@ bytesToHuman() {
 }
 
 echo "┠⌬ Packing Image..."
-case $system_type in
+case $os_repackage_type in
   "A"|"a")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "./out/system.img" "ext4" "/system" $size -j "0" -T "1230768000" -C "./out/config/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "./out/config/system_A_contexts"
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts"
     ;;
   "AB"|"ab")
-    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "./out/config/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "./out/config/system_file_contexts"
+    $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts"
     ;;
 esac
 
 if [ -s $output ];then
   echo "├⌬ $name($codename) ━ $(bytesToHuman $size)" 
 else
-  rm -rf output 
+  rm -rf $OUTDIR 
   exit 1
 fi
 

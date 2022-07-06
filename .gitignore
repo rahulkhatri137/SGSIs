@@ -1,13 +1,10 @@
 *.pyc
-out/
-output/
-tmp/
-*.img
-*.pyc
 SGSI/
+tmp/
 out/
 boot/
 images/
 dtbo/
 dtbs/
+output/
 Firmware_extractor/

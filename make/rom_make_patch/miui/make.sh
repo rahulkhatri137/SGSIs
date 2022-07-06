@@ -3,14 +3,12 @@
 LOCALDIR=`cd "$( dirname $0 )" && pwd`
 cd $LOCALDIR
 
-systemrootdir="../../../out/system"
-systemdir="../../../out/system/system"
-configdir="../../../out/config"
-vendordir="../../../out/vendor"
+source $LOCALDIR/../../../bin.sh
 
-# 清除MIUI供应商分区挂载
-rm -f $systemrootdir/init.miui.cust.rc
-
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
+vendordir="$TARGETDIR/vendor"
+rm -f $systemdir/../init.miui.cust.rc
 # 清除该死的miui推广上下文导致的几乎所有机型bootloop或者直接启动到rec
 sed -i '/miui.reverse.charge/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
 sed -i '/ro.cust.test/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
@@ -50,9 +48,11 @@ xml_name=$(ls $vendor_device_features)
 if [[ ! -e $device_features ]] && [[ -e $vendor_device_features ]];then
   cp -frp $vendor_device_features $systemdir/etc/
   echo "/system/system/etc/device_features u:object_r:system_file:s0" >> $configdir/system_file_contexts
-  echo "/system/system/etc/device_features/$xml_name u:object_r:system_file:s0" >> $configdir/system_file_contexts
   echo "system/system/etc/device_features 0 0 0755" >> $configdir/system_fs_config
-  echo "system/system/etc/device_features/$xml_name 0 0 0644" >> $configdir/system_fs_config
+for xml in $xml_name; do
+  echo "/system/system/etc/device_features/$xml u:object_r:system_file:s0" >> $target_contexts
+  echo "system/system/etc/device_features/$xml 0 0 0644" >> $target_fs
+done
   sed -i '/^\s*$/d' $configdir/system_file_contexts
   sed -i '/^\s*$/d' $configdir/system_fs_config
 fi
@@ -73,14 +73,6 @@ if missi ;then
   model=$(cat $vendordir/build.prop | grep 'ro.product.vendor.model')
   mame=$(cat $vendordir/build.prop | grep 'ro.product.vendor.name')
   marketname=$(cat $vendordir/build.prop | grep 'ro.product.vendor.marketname')
-  
-  echo "当前原包机型参数为:"
-  echo "$brand"
-  echo "$device"
-  echo "$manufacturer"
-  echo "$model"
-  echo "$mame"
-  echo "$marketname"
 
   echo "正在修复"
   sed -i '/ro.product.system./d' $systemdir/build.prop

@@ -21,7 +21,7 @@ case "$os_type" in
     exit
     ;;
   "ColorOS")
-    ./color.sh
+    ./oppo.sh
     exit
     ;;
   "OxygenOS")
