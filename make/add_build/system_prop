@@ -3,7 +3,12 @@
 ro.build.system_root_image=true
 ro.support_one_handed_mode=true
 persist.sys.overlay.nightmode=true
+ro.sys.sdcardfs=0
+persist.sys.disable_rescue=true
+ro.control_privapp_permissions=disable
+ro.nnapi.extensions.deny_on_product=true
 # Don't write binary XML files
 persist.sys.binary_xml=false
 #Fixes fingerprint unlock delay
 persist.wm.enable_remote_keyguard_animation=0
+ro.vndk.lite=false

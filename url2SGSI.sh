@@ -9,10 +9,10 @@ source $LOCALDIR/bin.sh
 source $LOCALDIR/language_helper.sh
 DL="${SCRIPTDIR}/dl.sh"
 fixbug="--fix-bug"
-dummy=false
+image=false
 build="AB"
 
-usage() {
+Usage() {
 cat <<EOT
 Usage:
 $0 <Firmware link> <Firmware type> [Other args]
@@ -20,10 +20,10 @@ $0 <Firmware link> <Firmware type> [Other args]
    Firmware type: Firmware source type
    Example: <Firmware link> <Firmware type>:<SGSI Name>
    Other args:
-    [-fb]: Don't Fix bugs in Rom
+    [fb]: Don't Fix bugs in Rom
+    [i]: Build image only(Processed/Failed)
 EOT
 }
-
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
@@ -31,7 +31,7 @@ key="$1"
 
 case $key in
     --help|-h|-?)
-    usage
+    Usage
     exit 1
     ;;
     --ab|-ab)
@@ -49,6 +49,10 @@ case $key in
     ;;
     --t|-t)
     dummy=true
+    shift
+    ;;
+    --i|-i)
+    image=true
     shift
     ;;
     *)
@@ -103,6 +107,7 @@ if ! (cat $MAKEDIR/rom_support_list.txt | grep -qo "$GNAME");then
   exit 1
 fi
 fi
+
 rm -rf output
 DOWNLOAD()
 {
@@ -122,6 +127,11 @@ DOWNLOAD()
     fi
 }
 
+LEAVE() {
+    rm -rf "$WORKSPACE" "$TMPDIR" "$LOCALDIR/SGSI"
+}
+
+if ! [ $image == true ];then
     if [[ "$URL" == "http"* ]]; then
         # URL detected
         ACTUAL_ZIP_NAME=update.zip
@@ -131,25 +141,22 @@ DOWNLOAD()
         echo "├─ Downloaded."
     fi
 
-LEAVE() {
-    rm -rf "$LOCALDIR/workspace" "$TMPDIR" "$LOCALDIR/SGSI"
-}
-
 #Extract firmware
- "$LOCALDIR"/make.sh $build $URL || { echo "╰─ Failed to extract!" ; exit 1; }
+ "$LOCALDIR"/make.sh $build $URL || { echo "> Failed to extract!" ; exit 1 ; }
 
 #SGSI Time
 cd $LOCALDIR
 if [ -e $IMAGESDIR/system.img ];then
   echo "┠⌬ Porting SGSI..."
-  "$LOCALDIR"/SGSI.sh $build $TYPE $fixbug || { echo "╰─ Failed to complete SGSI patching!" ; exit 1 ; }
+  "$LOCALDIR"/SGSI.sh $build $TYPE $fixbug || { echo "> Failed to complete SGSI patching!" ; exit 1 ; }
 else
   echo "> $NOTFOUNDSYSTEMIMG"
   exit 1
 fi
+fi
 
 #Build image
-    "$LOCALDIR"/makeimg.sh "--ab_config" $NAME || { echo "╰─ Failed to build image!" ; exit 1 ; }
+    "$LOCALDIR"/makeimg.sh "ab_config" $NAME || { echo "> Failed to build image!" ; exit 1 ; }
 
 if [ -d "$OUTDIR" ]; then
    LEAVE

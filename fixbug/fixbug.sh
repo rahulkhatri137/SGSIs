@@ -9,17 +9,6 @@ source $TOOLDIR/language_helper.sh
 
 os_type="$1"
 
-echo "
---------------------
-
-$SUPPORTED_ROM_STR:
-
-Pixel
-MIUI
-Flyme
-ColorOS
---------------------
-"
 case "$os_type" in
   "Pixel")
     echo "$FIXING_STR"

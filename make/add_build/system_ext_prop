@@ -1,2 +1,6 @@
 
 # system_ext common prop
+persist.sys.disable_rescue=true
+ro.control_privapp_permissions=disable
+ro.nnapi.extensions.deny_on_product=true
+ro.vndk.lite=false

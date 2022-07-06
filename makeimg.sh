@@ -11,52 +11,40 @@ Usage() {
 cat <<EOT
 Usage:
 $0 <os_repackage_type>
-  os_repackage_type: System.img repack type: [--AB|--ab or -A|--a-only]
+  os_repackage_type: System.img repack type: [AB|ab or A|a]
   
-  [--AB_CONFIG|--ab_config]: Use fs_config to repack ab system.img
-  [--A-ONLY_CONFIG|--a-only_config]: Use fs_config to repack a-only system.img
+  [AB_CONFIG|ab_config]: Use fs_config to repack ab system.img
+  [A_CONFIG|a_config]: Use fs_config to repack a-only system.img
 EOT
 }
 
-os_repackage_type="$1"
+os_repackage_type=$1
 name=$2
 mkdir -p $OUTDIR
 case $os_repackage_type in
-  "-A"|"-a"|"--a-only"|"--A-ONLY_CONFIG"|"--a-only_config")
+  "A"|"a"|"A_CONFIG"|"a_config")
     systemdir="$TARGETDIR/system/system"
+    system="$systemdir"
     ;;
-  "--AB"|"--ab"|"--AB_CONFIG"|"--ab_config")  
+  "AB"|"ab"|"AB_CONFIG"|"ab_config")  
     systemdir="$TARGETDIR/system"
+    system="$systemdir/system"
     ;;
   "-h"|"--help")
     Usage
-    exit
+    exit 1
     ;;
   *)
     Usage
-    exit
+    exit 1
     ;;
 esac
-
-if [ "$1" = "" ];then
-  Usage
-  exit
-fi
 
 configdir="$TARGETDIR/config"
 target_contexts="system_test_contexts"
 
 case $os_repackage_type in
-  "--AB"|"--ab"|"--AB_CONFIG"|"--ab_config")
-    system="$systemdir/system"
-    ;;
-  "-A"|"--a-only"|"--A-ONLY_CONFIG"|"--a-only_config")
-    system="$systemdir"
-    ;;    
-esac
-
-case $os_repackage_type in
-  "--A-ONLY_CONFIG"|"--a-only_config")
+  "A_CONFIG"|"a_config")
     echo "/ u:object_r:system_file:s0" > $configdir/system_A_contexts
     echo "/system u:object_r:system_file:s0" >> $configdir/system_A_contexts
     echo "/system(/.*)? u:object_r:system_file:s0" >> $configdir/system_A_contexts
@@ -101,7 +89,7 @@ file_contexts() {
 file_contexts
 
 case $os_repackage_type in
-  "-A"|"--a-only"|"--AB"|"--ab"|"--AB_CONFIG"|"--ab_config")
+  "A"|"a"|"AB"|"ab"|"AB_CONFIG"|"ab_config")
     if [[ -f $configdir/$target_contexts ]]; then
       echo "/firmware(/.*)?         u:object_r:firmware_file:s0" >> $configdir/$target_contexts
       echo "/bt_firmware(/.*)?      u:object_r:bt_firmware_file:s0" >> $configdir/$target_contexts
@@ -201,28 +189,23 @@ bytesToHuman() {
 }
 
 echo "┠⌬ Packing Image..."
-#mke2fs+e2fsdroid 打包
-#$bin/mke2fs -L / -t ext4 -b 4096 $output $size
-#$bin/e2fsdroid -e -T 0 -S $configdir/system_file_contexts -C $configdir/system_fs_config  -a /system -f ./out/system $output
-
 case $os_repackage_type in
-  "-A"|"-a"|"--a-only")
+  "A"|"a")
     $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -L "system" -I "256" -M "/system" -m "0" $configdir/$target_contexts > /dev/null 2>&1
     ;;
-  "--AB"|"--ab")
+  "AB"|"ab")
     $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/" $size -j "0" -T "1230768000" -L "/" -I "256" -M "/" -m "0" $configdir/$target_contexts
     ;;
-  "--A-ONLY_CONFIG"|"--a-only_config")
+  "A_CONFIG"|"a_config")
     $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_A_fs" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_A_contexts" > /dev/null 2>&1
     ;;
-  "--AB_CONFIG"|"--ab_config")
+  "AB_CONFIG"|"ab_config")
     $bin/mkuserimg_mke2fs.sh "$systemdir" "$output" "ext4" "/system" $size -j "0" -T "1230768000" -C "$configdir/system_fs_config" -L "system" -I "256" -M "/system" -m "0" "$configdir/system_file_contexts"
     ;;
 esac
 
 if [ -s $output ];then
   echo "├⌬ $name($codename) ━ $(bytesToHuman $size)" 
-  echo "$OUTPUTTO_STR: $LOCALDIR/output" > /dev/null 2>&1
 else
   rm -rf $OUTDIR 
   exit 1

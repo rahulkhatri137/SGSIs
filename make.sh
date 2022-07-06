@@ -40,10 +40,8 @@ if [ $# -lt 2 ];then
   Usage
   exit 1
 fi
-firmware="$2"
-build_type="$build_type"
-shift 3
-systemdir="$TARGETDIR/system/system"
+firmware=$2
+systemdir=$TARGETDIR/system/system
 configdir="$TARGETDIR/config"
 
 if [ ! -e $firmware ];then

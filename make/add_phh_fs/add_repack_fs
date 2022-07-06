@@ -15,6 +15,7 @@ system/system/bin/secilc 0 2000 0755
 system/system/bin/strace 0 2000 0755
 system/system/bin/vintf 0 2000 0755
 system/system/bin/vndk-detect 0 2000 0755
+system/system/bin/wpa_supplicant 0 2000 0755
 system/system/bin/wificonf 0 2000 0755
 system/system/etc/init/config 0 0 0755
 system/system/etc/init/config/skip_mount.cfg 0 0 0644
@@ -28,6 +29,12 @@ system/system/etc/init/wificonf.rc 0 0 0644
 system/system/etc/init/lpdumpd.rc 0 0 0644
 system/system/etc/permissions/securelock.xml 0 0 0644
 system/system/etc/permissions/privapp-permissions-me.phh.treble.app.xml 0 0 0644
+system/system/etc/permissions/android.hardware.bluetooth.xml 0 0 0644
+system/system/etc/permissions/android.hardware.bluetooth_le.xml 0 0 0644
+system/system/etc/permissions/android.hardware.ethernet.xml 0 0 0644
+system/system/etc/permissions/android.hardware.fingerprint.xml 0 0 0644
+system/system/etc/permissions/android.hardware.telephony.ims.xml 0 0 0644
+system/system/etc/permissions/android.software.freeform_window_management.xml 0 0 0644
 system/system/etc/permissions/interfaces.xml 0 0 0644
 system/system/etc/usb_audio_policy_configuration.xml 0 0 0644
 system/system/framework/android.hardware.wifi.hostapd-V1.0-java.jar 0 0 0644

@@ -43,12 +43,10 @@ if [ $# -lt 2 ];then
   exit 1
 fi
 
-os_type="$2"
-build_type="$build_type"
+os_type=$2
 other_args=""
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
-shift 2
 
 ver=$(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2)
 if [ "$ver" == "31" ] || [ "$ver" == "32" ]; then
@@ -100,7 +98,7 @@ function normal() {
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
 
-  # Reset manifest_custom
+# Reset manifest_custom
   true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
@@ -109,7 +107,7 @@ function normal() {
   echo "" >> $MAKEDIR/add_build/oem_prop
   echo "# oem common prop" >> $MAKEDIR/add_build/oem_prop
 
-  # Patch SELinux to ensure maximum device compatibility
+# Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
   sed -i '/software.version/d'  $systemdir/etc/selinux/plat_property_contexts
   sed -i "/ro.build.fingerprint/d" $systemdir/etc/selinux/plat_property_contexts
@@ -287,11 +285,6 @@ echo "┠ Patching..."
   # Register selinux contexts related by added files
   cat $MAKEDIR/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
-  # Replace to AOSP Camera
-  #cd $MAKEDIR/camera
-  #./camera.sh > /dev/null 2>&1
-  #cd $LOCALDIR
-
   # Default flatten apex
 if [ "$os_type" == "Generic" ]; then
   echo "false" > $TARGETDIR/apex_state
@@ -311,6 +304,21 @@ echo "├─ Adding vndk apex..."
 cd $MAKEDIR/apex_vndk
 ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 
+# Fix vintf for different vndk version
+if [ "$os_type" == "Generic" ] && [ "$os_type" == "Pixel" ]; then
+manifest_file="$systemdir/system_ext/etc/vintf/manifest.xml"
+if [ -f $manifest_file ];then
+   sed -i "/<\/manifest>/d" $manifest_file
+   cat manifest.patch >> $manifest_file
+fi
+fi
+
+#Drop vndks
+if ! [ "$os_type" == "Generic" ] && ! [ "$os_type" == "Pixel" ]; then
+rm -rf $systemdir/apex/*28*
+rm -rf $systemdir/apex/*29*
+fi
+
 # Partial Devices Sim fix
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/system_ext/etc/build.prop
@@ -319,11 +327,13 @@ cd $MAKEDIR/apex_vndk
     echo "# Partial ROM sim fix" >> $systemdir/product/etc/build.prop
     echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/etc/build.prop
 
+if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
 # Disable bpfloader
     rm -rf $systemdir/etc/init/bpfloader.rc
     echo ""  >> $systemdir/product/etc/build.prop
     echo "# Disable bpfloader" >> $systemdir/product/etc/build.prop
     echo "bpf.progs_loaded=1" >> $systemdir/product/etc/build.prop
+fi
 
  # Change Build Number
 if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
@@ -369,13 +379,13 @@ function resign() {
 echo "┠ Resigning with AOSP keys..."
       cp -frp $MAKEDIR/resign/system/* $systemdir/
       $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
+echo "├─ Resigned."
 }
 
 if (echo $@ | grep -qo -- "--fix-bug") ;then
   other_args+=" --fix-bug"
 fi
 
-rm -rf ./SGSI
 cd $LOCALDIR
 
 normal
@@ -384,12 +394,9 @@ if (echo $other_args | grep -qo -- "--fix-bug") ;then
     fix_bug
 fi
 
-rm -rf $TOOLDIR/other/resign.log $TOOLDIR/other/img.log
 if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     resign
 fi
-echo "├─ Resigned."
-rm -rf $TOOLDIR/other/resign.log
 cd $LOCALDIR
 # Format output
 for i in $(ls $configdir);do
