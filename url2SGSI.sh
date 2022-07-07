@@ -4,11 +4,11 @@
 # Copyright to Rahul at https://github.com/rahulkhatri137
 
 LOCALDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-DL="dl.sh"
-fixbug=true
+cd $LOCALDIR
 ver=12
 build=AB
-
+fixbug=""
+image=""
 usage() {
 cat <<EOT
 Usage:
@@ -16,6 +16,9 @@ $0 <Firmware link> <Firmware type>
    Firmware link: Firmware download link or local path
    Firmware type: Firmware source type
    Example: <Firmware link> <Firmware type>:<SGSI Name>
+   Other args:
+    [fb]: Don't Fix bugs in Rom
+    [i]: Build image only(Processed/Failed)
 EOT
 }
 
@@ -23,14 +26,14 @@ POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
 key="$1"
-
 case $key in
     --help|-h|-?)
     usage
     exit 1
+    shift
     ;;
     --fb|-fb)
-    fixbug=false
+    fixbug="--fb"
     shift
     ;;
     --ab|-ab)
@@ -47,6 +50,18 @@ case $key in
     ;;
     --12|-12)
     ver=12
+    shift
+    ;;
+    --13|-13)
+    ver=13
+    shift
+    ;;
+    --i|-i)
+    image="--i"
+    shift
+    ;;
+    --t|-t)
+    dummy=true
     shift
     ;;
     *)
@@ -66,93 +81,60 @@ fi
 
 URL=$1
 shift
-GTYPE=$1
+TYPE=$1
 shift
 
 ORIGINAL_URL=$URL
-if [[ $GTYPE == *":"* ]]; then
-    N=`echo "$GTYPE" | cut -d ":" -f 2`
+if [[ $TYPE == *":"* ]]; then
+    NAME=`echo "$TYPE" | cut -d ":" -f 2`
 else
-    N=$GTYPE
+    NAME=$TYPE
 fi
-if [[ $GTYPE == *":"* ]]; then
-    TYPE=`echo "$GTYPE" | cut -d ":" -f 1`
+if [[ $TYPE == *":"* ]]; then
+    TYPE=`echo "$TYPE" | cut -d ":" -f 1`
 else
-    TYPE=$GTYPE
+    TYPE=$TYPE
 fi
 
-if ! (cat $LOCALDIR/rom_support_list.txt | grep -qo "$TYPE");then
-  echo "-> Rom type is not supported!"
-  echo "Following are the supported types -"
-  cat $LOCALDIR/other/rom_support_list.txt
-  exit 1
-fi
-
-./clean.sh
-DOWNLOAD()
-{
-    URL="$1"
-    ZIP_NAME="update.zip"
-    mkdir -p "$LOCALDIR/tmp"
-    echo "-> Downloading firmware..."
-    if echo "${URL}" | grep -q "mega.nz\|mediafire.com\|drive.google.com"; then
-        ("${DL}" "${URL}" "$LOCALDIR/tmp" "$ZIP_NAME") || exit 1
-    else
-        if echo "${URL}" | grep -q "1drv.ms"; then URL=${URL/ms/ws}; fi
-        { type -p aria2c > /dev/null 2>&1 && aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1; } || { wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1; }
-        aria2c -x16 -j$(nproc) -U "Mozilla/5.0" -d "$LOCALDIR/tmp" -o "$ACTUAL_ZIP_NAME" ${URL} > /dev/null 2>&1 || {
-            wget -U "Mozilla/5.0" ${URL} -O "$LOCALDIR/tmp/$ACTUAL_ZIP_NAME" > /dev/null 2>&1 || exit 1
-        }
-    fi
-}
-ZIP_NAME="$LOCALDIR/tmp/dummy"
-    if [[ "$URL" == "http"* ]]; then
-        # URL detected
-        ACTUAL_ZIP_NAME=update.zip
-        ZIP_NAME="$LOCALDIR"/tmp/update.zip
-        DOWNLOAD "$URL" "$ZIP_NAME"
-        URL="$ZIP_NAME"
-    fi
-
+rm -rf "$LOCALDIR/output" "$LOCALDIR/tmp" "11/output" "12/output" "13/output"
 LEAVE() {
-    echo "-> SGSI failed! Exiting..."
-    ./clean sh
-    rm -rf "$LOCALDIR/output" "$LOCALDIR/tmp" "11/output" "12/output"
+    cd $LOCALDIR
+    rm -rf "output" "tmp" "11/output" "12/output" "13/output"
     exit 1
 }
 
+mkdir -p tmp
 #Android 11 SGSI
 if [ $ver == 11 ]; then
-    mv tmp 11
-    echo "export NAME=$N" >> 11/bin.sh
-    "$LOCALDIR"/11/make.sh $build $TYPE update.zip  || LEAVE
+    "$LOCALDIR"/11/url2SGSI.sh $URL $TYPE:$NAME $image || LEAVE
 fi
 
 #Android 12 SGSI
 if [ $ver == 12 ]; then
-    mv tmp 12
-    echo "export NAME=$N" >> 12/bin.sh
-if [ $fixbug == true ]; then
-    "$LOCALDIR"/12/make.sh --$build $TYPE update.zip --fix-bug || LEAVE
-elif [ $fixbug == false ] ; then
-    "$LOCALDIR"/12/make.sh --$build $TYPE update.zip || LEAVE
-fi
+    "$LOCALDIR"/12/url2SGSI.sh $URL $TYPE:$NAME $fixbug $image || LEAVE
 fi
 
+#Android 13 SGSI
+if [ $ver == 13 ]; then
+    "$LOCALDIR"/13/url2SGSI.sh $URL $TYPE:$NAME $fixbug $image || LEAVE
+fi
+
+#Move output
 if [ -d "$LOCALDIR/11/output" ]; then
 mv $LOCALDIR/11/output .
 fi
 if [ -d "$LOCALDIR/12/output" ]; then
 mv $LOCALDIR/12/output .
 fi
+if [ -d "$LOCALDIR/13/output" ]; then
+mv $LOCALDIR/13/output .
+fi
 
 #Clean
-./clean.sh
+./clean.sh > /dev/null 2>&1
 
-if [ -d "$LOCALDIR/output" ]; then
-   cd output
-   cp -fr B*txt README.txt > /dev/null 2>&1 || LEAVE
-   echo "-> Porting SGSI done!"
+if [ -f "$LOCALDIR/output/README.txt" ]; then
+   exit 0
 else
    LEAVE
 fi
