@@ -107,27 +107,19 @@ mkdir -p tmp
 #Android 11 SGSI
 if [ $ver == 11 ]; then
     "$LOCALDIR"/11/url2SGSI.sh $URL $TYPE:$NAME $image || LEAVE
+    mv $LOCALDIR/11/output .
 fi
 
 #Android 12 SGSI
 if [ $ver == 12 ]; then
     "$LOCALDIR"/12/url2SGSI.sh $URL $TYPE:$NAME $fixbug $image || LEAVE
+    mv $LOCALDIR/12/output .
 fi
 
 #Android 13 SGSI
 if [ $ver == 13 ]; then
     "$LOCALDIR"/13/url2SGSI.sh $URL $TYPE:$NAME $fixbug $image || LEAVE
-fi
-
-#Move output
-if [ -d "$LOCALDIR/11/output" ]; then
-mv $LOCALDIR/11/output .
-fi
-if [ -d "$LOCALDIR/12/output" ]; then
-mv $LOCALDIR/12/output .
-fi
-if [ -d "$LOCALDIR/13/output" ]; then
-mv $LOCALDIR/13/output .
+    mv $LOCALDIR/13/output .
 fi
 
 #Clean
