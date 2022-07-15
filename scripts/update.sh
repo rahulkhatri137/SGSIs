@@ -1,8 +1,7 @@
 #!/bin/bash
 
 LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
-cd $LOCALDIR
-source $LOCALDIR/../bin.sh
+cd $LOCALDIR/..
 
 if [ ! -d ".git" ];then
         echo "Forcing updating"
@@ -14,11 +13,6 @@ if [ ! -d ".git" ];then
         git reset --hard FETCH_HEAD
         git clean -df
         git pull origin main11
-        git branch --set-upstream-to=origin/main
-        git submodule update --init --recursive
-        git pull --recurse-submodules
+        git branch --set-upstream-to=origin/main11
 fi
-
-git submodule update --init --recursive
-git pull --recurse-submodules
 

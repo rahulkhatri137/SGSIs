@@ -123,7 +123,7 @@ case $os_repackage_type in
 esac
 
 if [ -s $output ];then
-  echo "├⌬ $name($codename) ━ $(bytesToHuman $size)" 
+  echo "├⌬ $name ━ $(bytesToHuman $size)" 
 else
   rm -rf $OUTDIR 
   exit 1

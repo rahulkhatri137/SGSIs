@@ -5,7 +5,8 @@ cd $LOCALDIR
 
 prop_dir="$1"
 image_file="$2"
-prod_dir="$prop_dir/system/system/product/etc"
+prod_dir="$prop_dir/system/system/product"
+ext_dir="$prop_dir/system/system/system_ext"
 bytesToHuman() {
     b=${1:-0}; d=''; s=0; S=(Bytes {K,M,G,T,P,E,Z,Y}iB)
     while ((b > 1024)); do
@@ -15,28 +16,39 @@ bytesToHuman() {
     done
     echo "$b$d ${S[$s]}"
 }
-device_manufacturer=$(cat $prop_dir/build.prop | grep "ro.product.system.manufacture" | head -n 1 | cut -d "=" -f 2)
+
+manufacturer=$(grep -oP "(?<=^ro.product.vendor.manufacturer=).*" -hs "$prop_dir/vendor/build.prop" | head -1)
+[[ -z "${manufacturer}" ]] && model=$(grep -oP "(?<=^ro.product.product.manufacturer=).*" -hs "$prod_dir/build.prop" | head -1)
+[[ -z "${manufacturer}" ]] && manufacturer=$(cat $prop_dir/build.prop | grep "ro.product.system.manufacturer" | head -n 1 | cut -d "=" -f 2)
+if [[ "$manufacturer" == "Android" ]]; then
+   manufacturer=$(grep -oP "(?<=^ro.product.system_ext.manufacturer=).*" -hs $ext_dir/build.prop | head -1)
+fi
+[[ -z "${manufacturer}" ]] && manufacturer=Generic
 android_version=$(cat $prop_dir/build.prop | grep "ro.build.version.release" | head -n 1 | cut -d "=" -f 2)
-device_product=$(cat $prop_dir/build.prop | grep "ro.build.product=" | head -n 1 | cut -d "=" -f 2)
-model=$(grep -oP "(?<=^ro.product.product.model=).*" -hs "$prod_dir/build.prop" | head -1)
+model=$(grep -oP "(?<=^ro.product.vendor.model=).*" -hs "$prop_dir/vendor/build.prop" | head -1)
+[[ -z "${model}" ]] && model=$(grep -oP "(?<=^ro.product.product.model=).*" -hs "$prod_dir/build.prop" | head -1)
 [[ -z "${model}" ]] && model=$(grep -oP "(?<=^ro.product.system.model=).*" -hs $prop_dir/build.prop | head -1)
+if [[ "$model" == "mainline" ]]; then
+   model=$(grep -oP "(?<=^ro.product.system_ext.model=).*" -hs $ext_dir/build.prop | head -1)
+fi
 [[ -z "${model}" ]] && model=Generic
 codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$prop_dir/vendor/build.prop" | head -1)
-[[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.system.device=).*" -hs $prop_dir/build.prop | head -1)
 [[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.build.product=).*" -hs $prop_dir/build.prop | head -1)
+[[ -z "${codename}" ]] && codename=$(grep -oP "(?<=^ro.product.system.device=).*" -hs $prop_dir/build.prop | head -1)
+if [[ "$codename" == "generic" ]]; then
+   model=$(grep -oP "(?<=^ro.product.system_ext.device=).*" -hs $ext_dir/build.prop | head -1)
+fi
 [[ -z "${codename}" ]] && codename=Generic
-android_sdk=$(cat $prop_dir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2)
 andriod_spl=$(cat $prop_dir/build.prop | grep "ro.build.version.security_patch" | head -n 1 | cut -d "=" -f 2)
-device_model=$(cat $prop_dir/build.prop | grep "ro.product.system.model" | head -n 1 | cut -d "=" -f 2)
-description_info=$(cat $prop_dir/build.prop | grep "ro.build.description" | head -n 1 | cut -d "=" -f 2)
+description=$(cat $prop_dir/build.prop | grep "ro.build.description" | head -n 1 | cut -d "=" -f 2)
 android_image_size=`du -sk $image_file | awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
 
 echo "
 Android Version: $android_version
-Brand: $device_manufacturer
+Brand: $manufacturer
 Model: $model
 Codename: $codename
 Security Patch: $andriod_spl
-Description: $description_info
+Description: $description
 Image Size: $(bytesToHuman $android_image_size)
 "
