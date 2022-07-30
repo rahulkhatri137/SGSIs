@@ -142,7 +142,7 @@ if ! [ $image == true ];then
     fi
 
 #Extract firmware
- "$LOCALDIR"/make.sh $build $URL || { echo "> Failed to extract!" ; exit 1 ; }
+  "$LOCALDIR"/make.sh $build $URL || { echo "> Failed to extract!" ; exit 1 ; }
 
 #SGSI Time
 cd $LOCALDIR
@@ -156,12 +156,12 @@ fi
 fi
 
 #Build image
-    "$LOCALDIR"/makeimg.sh "ab_config" $NAME || { echo "> Failed to build image!" ; exit 1 ; }
+ "$LOCALDIR"/makeimg.sh "ab_config" $NAME || { echo "> Failed to build image!" ; exit 1 ; }
 
 if [ -d "$OUTDIR" ]; then
-   LEAVE
    cd $OUTDIR
-   cp -fr Build*txt README.txt > /dev/null 2>&1
+   cp -fr Build*txt README.txt > /dev/null 2>&1 || { echo "> SGSI not found!" ; exit 1 ; }
+   LEAVE
    echo "┠⌬─ Ported SGSI137!"
 else
    echo "> SGSI failed!"

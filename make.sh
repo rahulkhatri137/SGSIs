@@ -55,10 +55,10 @@ function firmware_extract() {
 rm -rf $WORKSPACE
 cd $LOCALDIR
   if [ -e $firmware ];then
-    ./Firmware_extractor/extractor.sh $firmware $TMPDIR  > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
+    ./Firmware_extractor/extractor.sh $firmware $TMPDIR > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
   fi
   if [ -e $TMPDIR/$firmware ];then
-       ./Firmware_extractor/extractor.sh "$TMPDIR/$firmware" "$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
+     ./Firmware_extractor/extractor.sh "$TMPDIR/$firmware" "$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
   fi
 }
 
@@ -66,12 +66,12 @@ chmod -R 777 ./
 ./workspace_cleanup.sh > /dev/null 2>&1
 
 if [[ $firmware == system.img ]]; then
-rm -rf $TARGETDIR
-mkdir -p $IMAGESDIR
-mv $firmware $IMAGESDIR/
+  rm -rf $TARGETDIR
+  mkdir -p $IMAGESDIR
+  mv $firmware $IMAGESDIR/
 else
-echo "┠ Extracting Firmware..."
-firmware_extract
+  echo "┠ Extracting Firmware..."
+  firmware_extract
 fi
 
 mkdir -p $IMAGESDIR
@@ -79,9 +79,14 @@ mkdir -p $TARGETDIR
 mkdir -p $OUTDIR
 
 # Detect image
- if [[ -d $TMPDIR ]];then
- cd $TMPDIR
- mv *.img $IMAGESDIR/
+if [[ -d $TMPDIR ]];then
+  cd $TMPDIR
+  mv *.img $IMAGESDIR/
+fi
+
+if ! [ -e $IMAGESDIR/system.img ];then
+  echo "> $NOTFOUNDSYSTEMIMG"
+  exit 1
 fi
 
 cd $LOCALDIR
