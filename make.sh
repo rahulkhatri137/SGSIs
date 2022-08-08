@@ -51,14 +51,16 @@ if [ ! -e $firmware ];then
   fi  
 fi
 
+rm -rf  $TOOLDIR/other/*.log
 function firmware_extract() {
 rm -rf $WORKSPACE
+mkdir -p $TARGETDIR
 cd $LOCALDIR
   if [ -e $firmware ];then
-    ./Firmware_extractor/extractor.sh $firmware $TMPDIR  > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
+    ./Firmware_extractor/extractor.sh $firmware $TMPDIR > $TARGETDIR/extract.log 2> $TOOLDIR/other/extract.log || { echo "> Failed to extract firmware" && exit 1; }
   fi
   if [ -e $TMPDIR/$firmware ];then
-       ./Firmware_extractor/extractor.sh "$TMPDIR/$firmware" "$TMPDIR/" > /dev/null 2>&1 || { echo "> Failed to extract firmware" && exit 1; }
+     ./Firmware_extractor/extractor.sh "$TMPDIR/$firmware" "$TMPDIR/" > $TARGETDIR/extract.log 2> $TOOLDIR/other/extract.log || { echo "> Failed to extract firmware" && exit 1; }
   fi
 }
 
@@ -66,12 +68,12 @@ chmod -R 777 ./
 ./workspace_cleanup.sh > /dev/null 2>&1
 
 if [[ $firmware == system.img ]]; then
-rm -rf $TARGETDIR
-mkdir -p $IMAGESDIR
-mv $firmware $IMAGESDIR/
+  rm -rf $TARGETDIR
+  mkdir -p $IMAGESDIR
+  mv $firmware $IMAGESDIR/ || mv $TMPDIR/$firmware $IMAGESDIR/
 else
-echo "┠ Extracting Firmware..."
-firmware_extract
+  echo "┠ Extracting Firmware..."
+  firmware_extract
 fi
 
 mkdir -p $IMAGESDIR
@@ -79,27 +81,32 @@ mkdir -p $TARGETDIR
 mkdir -p $OUTDIR
 
 # Detect image
- if [[ -d $TMPDIR ]];then
- cd $TMPDIR
- mv *.img $IMAGESDIR/
+if [[ -d $TMPDIR ]];then
+  cd $TMPDIR
+  mv *.img $IMAGESDIR/
+fi
+
+if ! [ -e $IMAGESDIR/system.img ];then
+  echo "> $NOTFOUNDSYSTEMIMG"
+  exit 1
 fi
 
 cd $LOCALDIR
 echo "├─ Extracting images..."
 # Sparse Image To Raw Image
-$SCRIPTDIR/simg2img.sh "$IMAGESDIR" > /dev/null 2>&1 || { echo "> Failed to convert sparse image!" ; exit 1; }
+$SCRIPTDIR/simg2img.sh "$IMAGESDIR" > $TARGETDIR/simg.log 2> $TOOLDIR/other/simg.log || { echo "> Failed to convert sparse image!" ; exit 1; }
 
 # Mount Partitions
 #./scripts/mount_partition.sh > /dev/null 2>&1 || { echo "> Failed to mount!" ; exit 1; }
 cd $LOCALDIR
 
 # Extract Image
-$SCRIPTDIR/image_extract.sh > /dev/null 2>&1 || { echo "> Failed to extract image!" ; exit 1; }
+$SCRIPTDIR/image_extract.sh > $TARGETDIR/eimg.log 2> $TOOLDIR/other/eimg.log || { echo "> Failed to extract image!" ; exit 1; }
 echo "├─ Extracted."
 if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
 || [[ -d $systemdir/../product && -L $systemdir/product ]];then
   echo "┠ Merging dynamic partitions..."
-  $SCRIPTDIR/partition_merge.sh > /dev/null 2>&1 || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
+  $SCRIPTDIR/partition_merge.sh > $TARGETDIR/dynamic.log 2> $TOOLDIR/other/dynamic.log || { echo "> Failed to merge dynamic partitions!" ; exit 1; }
   echo "├─ Merged."
 fi
 
