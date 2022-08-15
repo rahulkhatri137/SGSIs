@@ -12,3 +12,7 @@ persist.sys.binary_xml=false
 #Fixes fingerprint unlock delay
 persist.wm.enable_remote_keyguard_animation=0
 ro.vndk.lite=false
+#Improve scrolling 
+persist.sys.scrollingcache=0
+ro.min.fling_velocity=160
+ro.max.fling_velocity=20000
