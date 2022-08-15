@@ -50,8 +50,8 @@ if [[ ! -e $device_features ]] && [[ -e $vendor_device_features ]];then
   echo "/system/system/etc/device_features u:object_r:system_file:s0" >> $configdir/system_file_contexts
   echo "system/system/etc/device_features 0 0 0755" >> $configdir/system_fs_config
 for xml in $xml_name; do
-  echo "/system/system/etc/device_features/$xml u:object_r:system_file:s0" >> $target_contexts
-  echo "system/system/etc/device_features/$xml 0 0 0644" >> $target_fs
+  echo "/system/system/etc/device_features/$xml u:object_r:system_file:s0" >> $configdir/system_file_contexts
+  echo "system/system/etc/device_features/$xml 0 0 0644" >> $configdir/system_fs_config
 done
   sed -i '/^\s*$/d' $configdir/system_file_contexts
   sed -i '/^\s*$/d' $configdir/system_fs_config
