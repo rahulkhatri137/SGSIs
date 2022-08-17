@@ -98,7 +98,7 @@ function normal() {
   cd $LOCALDIR 
   echo "-> $OTHER_PROCESSINGS" > /dev/null 2>&1
 
-# Reset manifest_custom
+  # Reset manifest_custom
   true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
@@ -107,7 +107,7 @@ function normal() {
   echo "" >> $MAKEDIR/add_build/oem_prop
   echo "# oem common prop" >> $MAKEDIR/add_build/oem_prop
 
-# Patch SELinux to ensure maximum device compatibility
+  # Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
   sed -i '/software.version/d'  $systemdir/etc/selinux/plat_property_contexts
   sed -i "/ro.build.fingerprint/d" $systemdir/etc/selinux/plat_property_contexts
@@ -236,10 +236,10 @@ function normal() {
   sed -i '/fstab\\.postinstall/d' $configdir/system_file_contexts
   sed -i '/fstab.postinstall/d' $configdir/system_fs_config
   
-echo "┠ Patching..."
+  echo "┠ Patching..."
   # Add missing libs
   cp -frpn $MAKEDIR/add_libs/system/* $systemdir
- 
+
   # Enable debug feature
   sed -i 's/persist.sys.usb.config=none/persist.sys.usb.config=adb/g' $systemdir/build.prop
   sed -i 's/ro.debuggable=0/ro.debuggable=1/g' $systemdir/build.prop
@@ -255,6 +255,11 @@ echo "┠ Patching..."
   echo "" >> $systemdir/product/etc/build.prop
   echo "# force debug" >> $systemdir/product/etc/build.prop
   echo "ro.force.debuggable=1" >> $systemdir/product/etc/build.prop
+
+  # Remove OEM specific
+  rm -f $systemdir/etc/init/otapreopt.rc
+  rm -f $systemdir/etc/init/recovery-*.rc
+  rm -f $systemdir/etc/init/update_*.rc
 
   # Remove qti_permissions
   find $systemdir -type f -name "qti_permissions.xml" | xargs rm -rf
@@ -292,66 +297,66 @@ echo "┠ Patching..."
   cat $MAKEDIR/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
   # Default flatten apex
-if [ "$os_type" == "Generic" ]; then
-  echo "false" > $TARGETDIR/apex_state
-else
-  echo "true" > $TARGETDIR/apex_state
-fi
+  if [ "$os_type" == "Generic" ]; then
+    echo "false" > $TARGETDIR/apex_state
+  else
+    echo "true" > $TARGETDIR/apex_state
+  fi
 
-echo "├─ $FIXING_ROM"
+  echo "├─ $FIXING_ROM"
   # Rom specific patch
   cd $MAKEDIR
   $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1 
   ./romtype.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to to patch rom" ; exit 1; }
   cd $LOCALDIR
 
-# Common apex process
-echo "├─ Adding vndk apex..."
-cd $MAKEDIR/apex_vndk
-./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
+  # Common apex process
+  echo "├─ Adding vndk apex..."
+  cd $MAKEDIR/apex_vndk
+  ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 
-# Fix vintf for different vndk version
-if [ "$os_type" == "Generic" ] && [ "$os_type" == "Pixel" ]; then
-manifest_file="$systemdir/system_ext/etc/vintf/manifest.xml"
-if [ -f $manifest_file ];then
-   sed -i "/<\/manifest>/d" $manifest_file
-   cat manifest.patch >> $manifest_file
-fi
-fi
+  # Fix vintf for different vndk version
+  if [ "$os_type" == "Generic" ] && [ "$os_type" == "Pixel" ]; then
+    manifest_file="$systemdir/system_ext/etc/vintf/manifest.xml"
+    if [ -f $manifest_file ];then
+      sed -i "/<\/manifest>/d" $manifest_file
+      cat manifest.patch >> $manifest_file
+    fi
+  fi
 
-#Drop vndks
-if ! [ "$os_type" == "Generic" ] && ! [ "$os_type" == "Pixel" ]; then
-rm -rf $systemdir/apex/*28*
-rm -rf $systemdir/apex/*29*
-fi
+  #Drop vndks
+  if ! [ "$os_type" == "Generic" ] && ! [ "$os_type" == "Pixel" ]; then
+  rm -rf $systemdir/apex/*28*
+  rm -rf $systemdir/apex/*29*
+  fi
 
-# Partial Devices Sim fix
-    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop
-    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/system_ext/etc/build.prop
-    sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/product/etc/build.prop
-    echo "" >> $systemdir/product/etc/build.prop
-    echo "# Partial ROM sim fix" >> $systemdir/product/etc/build.prop
-    echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/etc/build.prop
+  # Partial Devices Sim fix
+  sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop
+  sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/system_ext/etc/build.prop
+  sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/product/etc/build.prop
+  echo "" >> $systemdir/product/etc/build.prop
+  echo "# Partial ROM sim fix" >> $systemdir/product/etc/build.prop
+  echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/etc/build.prop
 
-if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
-# Disable bpfloader
+  # Disable bpfloader
+  if [ "$os_type" == "Generic" ]; then
     rm -rf $systemdir/etc/init/bpfloader.rc
     echo ""  >> $systemdir/product/etc/build.prop
     echo "# Disable bpfloader" >> $systemdir/product/etc/build.prop
     echo "bpf.progs_loaded=1" >> $systemdir/product/etc/build.prop
-fi
+  fi
 
- # Change Build Number
-if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
+  # Change Build Number
+  if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
     displayid="ro.build.display.id"
-elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
+  elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
     displayid="ro.system.build.id"
-elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
+  elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
     displayid="ro.build.id"
-fi
-displayid2=$(echo "$displayid" | sed 's/\./\\./g')
-bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
-sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
+  fi
+  displayid2=$(echo "$displayid" | sed 's/\./\\./g')
+  bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
+  sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 
   # Add oem_build
   cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
@@ -375,17 +380,17 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 }
 
 function fix_bug() {
-    echo "┠ $START_BUG_FIX"
-    cd $FBDIR
-    ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
-    cd $LOCALDIR
+   echo "┠ $START_BUG_FIX"
+   cd $FBDIR
+   ./fixbug.sh "$os_type" > /dev/null 2>&1 || { echo "> Failed to fixbug!" ; exit 1; }
+   cd $LOCALDIR
 }
 
 function resign() {
-echo "┠ Resigning with AOSP keys..."
-      cp -frp $MAKEDIR/resign/system/* $systemdir/
-      $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
-echo "├─ Resigned."
+   echo "┠ Resigning with AOSP keys..."
+   cp -frp $MAKEDIR/resign/system/* $systemdir/
+   $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
+   echo "├─ Resigned."
 }
 
 if (echo $@ | grep -qo -- "--fix-bug") ;then
@@ -393,7 +398,6 @@ if (echo $@ | grep -qo -- "--fix-bug") ;then
 fi
 
 cd $LOCALDIR
-
 normal
 echo "├─ Patched."
 if (echo $other_args | grep -qo -- "--fix-bug") ;then
