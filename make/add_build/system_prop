@@ -1,5 +1,8 @@
 
 # system common prop
+ro.setupwizard.mode=OPTIONAL
+ro.cp_system_other_odox=0
+persist.sys.fflag.override.settings_network_and_internet_v2=true
 ro.build.system_root_image=true
 ro.support_one_handed_mode=true
 persist.sys.overlay.nightmode=true

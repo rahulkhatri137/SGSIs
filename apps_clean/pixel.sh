@@ -19,7 +19,7 @@ rm -rf $1/*app/*FM*
 rm -rf $1/*app/*account*
 
 # Gapps
-app_list="BasicDreams PlayAuto DynamicSystem SpeechServices PhotoTable EmergenyInfo Google*Lens WfdService Game TouchAssistant Health MusicPlayerGO AEXPapers Superiorwalls Recorder Compass Warranty Map acebook YouTube Velvet PixelWall Micropaper Ornament DevicePersonalization Duo Pay pay Market Dreamliner Videos Gmail Browser Photos Keep Tips DevicePolicy arcore ARCORE AndroidAuto Verizon LiveWallpaper Scribe Calendar Chrome Drive GoogleOne GoogleAssist Bugle Tycho talkback Maestro UserCent OTA ppstore Diagnostics NgaResources BetaFeedback HelpRtcPrebuilt SafetyHub Sprint DCMO ConnMO GoogleCamera Wallpaper Euicc TTS"
+app_list="BasicDreams PlayAuto SpeechServices PhotoTable EmergenyInfo Google*Lens WfdService Game TouchAssistant Health MusicPlayerGO AEXPapers Superiorwalls Recorder Compass Warranty Map acebook YouTube Velvet PixelWall Micropaper Ornament DevicePersonalization Duo Pay pay Market Dreamliner Videos Gmail Browser Photos Keep Tips DevicePolicy arcore ARCORE AndroidAuto Verizon LiveWallpaper Scribe Calendar Chrome Drive GoogleOne GoogleAssist Bugle Tycho talkback Maestro UserCent OTA ppstore Diagnostics NgaResources BetaFeedback HelpRtcPrebuilt SafetyHub Sprint DCMO ConnMO GoogleCamera Wallpaper Euicc TTS"
 
 for app in $app_list; do
 rm -rf $1/*app/*$app*

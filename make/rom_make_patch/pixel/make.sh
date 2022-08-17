@@ -8,19 +8,6 @@ source $LOCALDIR/../../../language_helper.sh
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 
-# Skip Setup Wizard for Pixel 
-echo "" >> $systemdir/build.prop
-echo "# Skip Setup Wizard" >> $systemdir/build.prop
-echo "ro.setupwizard.mode=DISABLED" >> $systemdir/build.prop
-
-echo "" >> $systemdir/product/etc/build.prop
-echo "# Skip Setup Wizard" >> $systemdir/product/etc/build.prop
-echo "ro.setupwizard.mode=DISABLED" >> $systemdir/product/etc/build.prop
-
-echo "" >> $systemdir/system_ext/etc/build.prop
-echo "# Skip Setup Wizard" >> $systemdir/system_ext/etc/build.prop
-echo "ro.setupwizard.mode=DISABLED" >> $systemdir/system_ext/etc/build.prop
-
 init_environ_patch() {
   # Fix init.environ
   if ! (cat $systemdir/../init.environ.rc | grep -qo "BOOTCLASSPATH") ;then

@@ -1,5 +1,8 @@
 
-# product commom prop 
+# product commom prop
+ro.setupwizard.mode=OPTIONAL
+ro.cp_system_other_odox=0
+persist.sys.fflag.override.settings_network_and_internet_v2=true
 ro.sys.sdcardfs=0
 persist.sys.disable_rescue=true
 ro.control_privapp_permissions=disable
