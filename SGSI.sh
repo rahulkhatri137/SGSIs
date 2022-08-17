@@ -256,6 +256,11 @@ echo "┠ Patching..."
   echo "# force debug" >> $systemdir/product/etc/build.prop
   echo "ro.force.debuggable=1" >> $systemdir/product/etc/build.prop
 
+  # Remove OEM specific
+  rm -f $systemdir/etc/init/otapreopt.rc
+  rm -f $systemdir/etc/init/recovery-*.rc
+  rm -f $systemdir/etc/init/update_*.rc
+
   # Remove qti_permissions
   find $systemdir -type f -name "qti_permissions.xml" | xargs rm -rf
 
@@ -333,7 +338,7 @@ fi
     echo "# Partial ROM sim fix" >> $systemdir/product/etc/build.prop
     echo "persist.sys.fflag.override.settings_provider_model=false" >> $systemdir/product/etc/build.prop
 
-if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
+if [ "$os_type" == "Generic" ] ; then
 # Disable bpfloader
     rm -rf $systemdir/etc/init/bpfloader.rc
     echo ""  >> $systemdir/product/etc/build.prop
