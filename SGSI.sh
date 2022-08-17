@@ -51,7 +51,7 @@ else
 fi
 
 function normal() {
- echo "┠ Patching..."
+  echo "┠ Patching..."
   # Process ramdisk's system for all rom
   cd ./make/ab_boot
   ./ab_boot.sh > /dev/null 2>&1 
@@ -64,13 +64,13 @@ function normal() {
     ls
     cd $LOCALDIR
   }
-echo "├─ Adding vndk apex..."
+  echo "├─ Adding vndk apex..."
   apex_file() {
     apex_ls | grep -q '.apex'
   }
   if apex_file ;then
     ./make/apex_flat/apex.sh "official" > /dev/null 2>&1 
- fi
+  fi
 
   # 如果原包不支持apex封装，则添加 *.apex 
   if ! apex_file ;then
@@ -95,20 +95,20 @@ echo "├─ Adding vndk apex..."
   ./make.sh > /dev/null 2>&1 
   cd $LOCALDIR 
  
-#Drop vndks
-if ! [ "$os_type" == "Generic" ] && ! [ "$os_type" == "Pixel" ]; then
-rm -rf $systemdir/apex/*28*
-rm -rf $systemdir/apex/*29*
-rm -rf $systemdir/system_ext/apex/*28*
-rm -rf $systemdir/system_ext/apex/*29*
-fi
+  #Drop vndks
+  if ! [ "$os_type" == "Generic" ] && ! [ "$os_type" == "Pixel" ]; then
+    rm -rf $systemdir/apex/*28*
+    rm -rf $systemdir/apex/*29*
+    rm -rf $systemdir/system_ext/apex/*28*
+    rm -rf $systemdir/system_ext/apex/*29*
+  fi
 
   # apex_fs数据整合
   cd ./make/apex_flat
   ./add_apex_fs.sh > /dev/null 2>&1 
   cd $LOCALDIR
 
-# Reset manifest_custom
+  # Reset manifest_custom
   true > $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
   echo "<!-- oem hal -->" >> $MAKEDIR/add_etc_vintf_patch/manifest_custom
@@ -117,7 +117,7 @@ fi
   echo "" >> $MAKEDIR/add_build/oem_prop
   echo "# oem common prop" >> $MAKEDIR/add_build/oem_prop
  
-# Patch SELinux to ensure maximum device compatibility
+  # Patch SELinux to ensure maximum device compatibility
   sed -i "/typetransition location_app/d" $systemdir/etc/selinux/plat_sepolicy.cil
   sed -i '/software.version/d'  $systemdir/etc/selinux/plat_property_contexts
   sed -i "/ro.build.fingerprint/d" $systemdir/etc/selinux/plat_property_contexts
@@ -160,7 +160,6 @@ fi
   
       sed -i '/ro.product.system./d' $systemdir/build.prop
       echo "" >> $systemdir/build.prop
-      echo "# 设备参数" >> $systemdir/build.prop
       echo "$brand" >> $systemdir/build.prop
       echo "$device" >> $systemdir/build.prop
       echo "$manufacturer" >> $systemdir/build.prop
@@ -169,7 +168,7 @@ fi
       sed -i 's/ro.product.vendor./ro.product.system./g' $systemdir/build.prop
     fi
 
-    # 为所有rom改用自适应apex更新支持状态
+    # Clear updatable apex prop 
     sed -i '/ro.apex.updatable/d' $systemdir/build.prop
     sed -i '/ro.apex.updatable/d' $systemdir/product/build.prop
     sed -i '/ro.apex.updatable/d' $systemdir/system_ext/build.prop
@@ -179,7 +178,7 @@ fi
     sed -i 's/ro.sf.lcd/#&/' $systemdir/product/build.prop
     sed -i 's/ro.sf.lcd/#&/' $systemdir/system_ext/build.prop
    
-    # 为所有rom启用CDM电话的系统属性
+    # Fix cdma telephony
     sed -i '/telephony.lteOnCdmaDevice/d' $systemdir/build.prop
     sed -i '/telephony.lteOnCdmaDevice/d' $systemdir/product/build.prop
     sed -i '/telephony.lteOnCdmaDevice/d' $systemdir/system_ext/build.prop
@@ -193,7 +192,7 @@ fi
     echo "# System prop to turn on CdmaLTEPhone always" >> $systemdir/system_ext/build.prop
     echo "telephony.lteOnCdmaDevice=1" >> $systemdir/system_ext/build.prop       
   
-  # Partial Devices Sim fix
+    # Partial Devices Sim fix
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/build.prop
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/system_ext/build.prop
     sed -i '/persist.sys.fflag.override.settings\_provider\_model\=/d' $systemdir/product/build.prop
@@ -299,6 +298,11 @@ fi
     fi
   fi
 
+  # Remove OEM specific
+  rm -f $systemdir/etc/init/otapreopt.rc
+  rm -f $systemdir/etc/init/recovery-*.rc
+  rm -f $systemdir/etc/init/update_*.rc
+
   # Remove qti_permissions
   find $systemdir -type f -name "qti_permissions.xml" | xargs rm -rf
 
@@ -335,8 +339,7 @@ fi
   cat $MAKEDIR/add_plat_file_contexts/plat_file_contexts >> $systemdir/etc/selinux/plat_file_contexts
 
   cd $LOCALDIR
-
-echo "├─ Fixing ROM..."
+  echo "├─ Fixing ROM..."
   # Rom specific patch
   cd $MAKEDIR
   $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1 
@@ -346,17 +349,17 @@ echo "├─ Fixing ROM..."
   # oem_build合并
   cat $MAKEDIR/add_build/oem_prop >> $systemdir/build.prop
 
- # Change Build Number
-if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
+  # Change Build Number
+  if [[ $(grep "ro.build.display.id" $systemdir/build.prop) ]]; then
     displayid="ro.build.display.id"
-elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
+  elif [[ $(grep "ro.system.build.id" $systemdir/build.prop) ]]; then
     displayid="ro.system.build.id"
-elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
+  elif [[ $(grep "ro.build.id" $systemdir/build.prop) ]]; then
     displayid="ro.build.id"
-fi
-displayid2=$(echo "$displayid" | sed 's/\./\\./g')
-bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
-sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
+  fi
+  displayid2=$(echo "$displayid" | sed 's/\./\\./g')
+  bdisplay=$(grep "$displayid" $systemdir/build.prop | sed 's/\./\\./g; s:/:\\/:g; s/\,/\\,/g; s/\ /\\ /g')
+  sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 
   # 为rom添加oem服务所依赖的hal接口
   rm -rf ./vintf
@@ -371,7 +374,7 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
   cp -frp $manifest $systemdir/etc/vintf/
   rm -rf ./vintf
   
-  # fs数据整合
+  # Write fs & contexts
   cat ./make/add_fs/vndk_symlink_contexts >> $configdir/system_file_contexts
   cat ./make/add_fs/vndk_symlink_fs >> $configdir/system_fs_config  
   cat ./make/add_fs/bin_contexts >> $configdir/system_file_contexts 
@@ -446,13 +449,13 @@ sed -i "s/$bdisplay/$displayid2=Ported\.by\.RK137/" $systemdir/build.prop
 }
 
  # Add prebuilt system files
-      cp -frp $MAKEDIR/resign/system/* $systemdir/
-      $MAKEDIR/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch treble overlays" && exit 1; }
+  cp -frp $MAKEDIR/resign/system/* $systemdir/
+  $MAKEDIR/resign/generate_fs.sh > /dev/null 2>&1 || { echo "> Failed to patch treble overlays" && exit 1; }
 
 function resign() {
-echo "┠ Resigning with AOSP keys..."
-      $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
-echo "├─ Resigned."
+   echo "┠ Resigning with AOSP keys..."
+   $bin/tools/signapk/resign.py "$systemdir" "$bin/tools/signapk/AOSP_security" "$bin/$HOST/$platform/lib64" > $TARGETDIR/resign.log 2> $TOOLDIR/other/resign.log || { echo "> Failed to resign!" ; exit 1; }
+   echo "├─ Resigned."
 }
 
 
