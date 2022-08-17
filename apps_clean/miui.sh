@@ -85,7 +85,6 @@ rm -rf $1/app/wps-lite
 rm -rf $1/app/CatcherPatch
 rm -rf $1/app/VsimCore
 rm -rf $1/app/Protips
-rm -rf $1/app/SecureElement
 rm -rf $1/app/XMSFKeeper
 rm -rf $1/app/CompanionDeviceManager
 rm -rf $1/app/Health
@@ -111,7 +110,6 @@ rm -rf $1/priv-app/Weather
 rm -rf $1/priv-app/WeatherProvider
 rm -rf $1/priv-app/MiuiVideo
 rm -rf $1/priv-app/PersonalAssistant
-rm -rf $1/priv-app/MiService
 rm -rf $1/priv-app/Music
 rm -rf $1/priv-app/Provision
 rm -rf $1/priv-app/GameBoosterGlobal
@@ -140,7 +138,7 @@ rm -rf $1/priv-app/MiGameCenterSDKService
 rm -rf $1/priv-app/MiRcs
 rm -rf $1/priv-app/NewHome
 
-app_list="InMIpay MIDrop MiLinkGlobal miPlayClient MIUIFileExplorer MIUICompass Cit MIUIHealthGlobal MiuiScanner MIUIMiPicks MIUINotes MIWallpaper MIUITouchAssistantGlobal XMSFKeepekAll DynamicSystemInstallationService MIShare* MiuiCamera MIUIMusic* MIUIYellowPage* DeviceInfo DynamicDDSService dpmserviceapp EmergencyInfo GoogleFeedback seccamservice WfdService MiuiAod MiRecycle MiPics MiPay MiRadio"
+app_list="InMIpay MIDrop MiLinkGlobal miPlayClient MIUIFileExplorer MIUICompass Cit MIUIHealthGlobal MiuiScanner MIUIMiPicks MIUINotes MIWallpaper MIUITouchAssistantGlobal XMSFKeepekAll MIShare* MiuiCamera MIUIMusic* MIUIYellowPage* DeviceInfo dpmserviceapp EmergencyInfo GoogleFeedback seccamservice WfdService MiuiAod MiRecycle MiPics MiPay MiRadio"
 for app in $app_list; do
 rm -rf $1/*app/$app
 rm -rf $1/*/*app/$app
