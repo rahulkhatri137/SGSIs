@@ -116,7 +116,7 @@ function normal() {
   mv -f "$systemdir/etc/selinux/plat_property_contexts.tmp" "$systemdir/etc/selinux/plat_property_contexts"
 
   if [ -e $systemdir/product/etc/selinux/mapping ];then
-    find $systemdir/product/etc/selinux/mapping/ -type f -empty | xargs rm -rf
+    find $systemdir/product/etc/selinux/mapping/ -type f | xargs rm -rf
     sed -i '/software.version/d'  $systemdir/product/etc/selinux/product_property_contexts
     sed -i '/miui.reverse.charge/d' $systemdir/product/etc/selinux/product_property_contexts
     sed -i '/ro.cust.test/d' $systemdir/product/etc/selinux/product_property_contexts
@@ -126,7 +126,7 @@ function normal() {
   fi
  
   if [ -e $systemdir/system_ext/etc/selinux/mapping ];then
-    find $systemdir/system_ext/etc/selinux/mapping/ -type f -empty | xargs rm -rf
+    find $systemdir/system_ext/etc/selinux/mapping/ -type f | xargs rm -rf
     sed -i '/software.version/d'  $systemdir/system_ext/etc/selinux/system_ext_property_contexts
     sed -i '/ro.cust.test/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
     sed -i '/miui.reverse.charge/d' $systemdir/system_ext/etc/selinux/system_ext_property_contexts
@@ -173,6 +173,10 @@ function normal() {
     sed -i '/persist.sar.mode/d' $systemdir/build.prop
     sed -i '/opengles.version/d' $systemdir/build.prop
     sed -i '/actionable_compatible_property.enabled/d' $systemdir/build.prop
+    sed -i '/vendor.vibrator/d' $systemdir/product/etc/build.prop
+    sed -i '/vendor.camera/d' $systemdir/product/etc/build.prop
+    sed -i '/ab_ota_partitions/d' $systemdir/product/etc/build.prop
+    sed -i '/postinstall.fstab/d' $systemdir/product/etc/build.prop
 
     # Disable caf media.setting
     sed -i '/media.settings.xml/d' $systemdir/build.prop
@@ -316,7 +320,7 @@ function normal() {
   ./make.sh $systemdir || { echo "> Failed to add vndk apex" ; exit 1; }
 
   # Fix vintf for different vndk version
-  if [ "$os_type" == "Generic" ] && [ "$os_type" == "Pixel" ]; then
+  if [ "$os_type" == "Generic" ] || [ "$os_type" == "Pixel" ]; then
     manifest_file="$systemdir/system_ext/etc/vintf/manifest.xml"
     if [ -f $manifest_file ];then
       sed -i "/<\/manifest>/d" $manifest_file

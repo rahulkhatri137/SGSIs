@@ -1,5 +1,4 @@
 /system/bin/vndk-detect u:object_r:update_engine_exec:s0
-/system/bin/wificonf u:object_r:wificonf_exec:s0
 /system/bin/phh-on-boot\.sh u:object_r:update_engine_exec:s0
 /system/bin/phh-prop-handler\.sh u:object_r:update_engine_exec:s0
 /system/bin/phh-on-data\.sh u:object_r:update_engine_exec:s0
