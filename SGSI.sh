@@ -49,10 +49,10 @@ systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 
 ver=$(cat $systemdir/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2)
-if [ "$ver" == "31" ] || [ "$ver" == "32" ]; then
-    echo "Detected Android12" > /dev/null 2>&1
+if [ "$ver" == "33" ] || [ "$ver" == "32" ]; then
+    echo "Detected Android13" > /dev/null 2>&1
 else
-    echo "> This branch is only to build Android 12!"
+    echo "> This branch is only to build Android 13!"
     exit 1
 fi
 function normal() {
@@ -241,9 +241,6 @@ function normal() {
   sed -i '/fstab.postinstall/d' $configdir/system_fs_config
   
   echo "┠ Patching..."
-  # Add missing libs
-  cp -frpn $MAKEDIR/add_libs/system/* $systemdir
-
   # Enable debug feature
   sed -i 's/persist.sys.usb.config=none/persist.sys.usb.config=adb/g' $systemdir/build.prop
   sed -i 's/ro.debuggable=0/ro.debuggable=1/g' $systemdir/build.prop

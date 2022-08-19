@@ -11,4 +11,7 @@
    <vendor-ndk>
         <version>31</version>
     </vendor-ndk>
+   <vendor-ndk>
+        <version>32</version>
+    </vendor-ndk>
 </manifest>

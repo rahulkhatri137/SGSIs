@@ -150,13 +150,8 @@ codename=$(grep -oP "(?<=^ro.product.vendor.device=).*" -hs "$TARGETDIR/vendor/b
 
 #Out Variable
 date=`date +%Y%m%d`
-if [ $(cat $system/build.prop | grep "ro.build.version.sdk" | head -n 1 | cut -d "=" -f 2) = "32" ];then
-outputname="$name-12.1-$date-$codename-SGSI137"
-ioutputname="$name-AB-12.1-$date-$codename-SGSI137"
-else
-outputname="$name-12-$date-$codename-SGSI137"
-ioutputname="$name-AB-12-$date-$codename-SGSI137"
-fi
+outputname="$name-13-$date-$codename-SGSI137"
+ioutputname="$name-AB-13-$date-$codename-SGSI137"
 outputimagename="$ioutputname".img
 outputtextname="Build-info-$outputname".txt
 output="$OUTDIR/$outputimagename"

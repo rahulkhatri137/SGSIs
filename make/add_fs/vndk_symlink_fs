@@ -14,3 +14,7 @@ system/system/lib/vndk-31 0 0 0644 /apex/com.android.vndk.v31/lib
 system/system/lib64/vndk-31 0 0 0644 /apex/com.android.vndk.v31/lib64
 system/system/lib/vndk-sp-31 0 0 0644 /apex/com.android.vndk.v31/lib
 system/system/lib64/vndk-sp-31 0 0 0644 /apex/com.android.vndk.v31/lib64
+system/system/lib/vndk-32 0 0 0644 /apex/com.android.vndk.v32/lib
+system/system/lib64/vndk-32 0 0 0644 /apex/com.android.vndk.v32/lib64
+system/system/lib/vndk-sp-32 0 0 0644 /apex/com.android.vndk.v32/lib
+system/system/lib64/vndk-sp-32 0 0 0644 /apex/com.android.vndk.v32/lib64
