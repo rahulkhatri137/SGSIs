@@ -1,7 +1,8 @@
 
 # system common prop
+persist.sys.usb.config=adb,mtp
 ro.setupwizard.mode=OPTIONAL
-ro.cp_system_other_odox=0
+ro.cp_system_other_odex=0
 persist.sys.fflag.override.settings_network_and_internet_v2=true
 ro.build.system_root_image=true
 ro.support_one_handed_mode=true
@@ -14,7 +15,6 @@ ro.nnapi.extensions.deny_on_product=true
 persist.sys.binary_xml=false
 #Fixes fingerprint unlock delay
 persist.wm.enable_remote_keyguard_animation=0
-ro.vndk.lite=false
 #Improve scrolling 
 persist.sys.scrollingcache=0
 ro.min.fling_velocity=160
