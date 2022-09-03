@@ -1,14 +1,10 @@
 #!/bin/bash
 
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
-
-bin="$LOCALDIR/../../../tool_bin"
-systemdir="$LOCALDIR/../../../out/system/system"
-configdir="$LOCALDIR/../../../out/config"
-toolsdir="$LOCALDIR/../../.."
-tmpdir="$LOCALDIR/tmp"
-outdir="$tmpdir/out"
+source $LOCALDIR/../../../bin.sh
+systemdir="$TARGETDIR/system/system"
+configdir="$TARGETDIR/config"
 
 # 为oneplus禁用向导的上下文 以保证在部分机型上发生的向导fc
 sed -i '/ro.setupwizard.mode/d' $systemdir/etc/selinux/plat_property_contexts 

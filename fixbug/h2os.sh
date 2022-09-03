@@ -4,7 +4,6 @@ LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 source $LOCALDIR/../bin.sh
 
-romdir="$LOCALDIR/oppo"
 systemdir="$TARGETDIR/system/system"
 configdir="$TARGETDIR/config"
 #build修复

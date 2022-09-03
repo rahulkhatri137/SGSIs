@@ -1,8 +1,6 @@
-LOCALDIR=`cd "$( dirname $0 )" && pwd`
+LOCALDIR=`cd "$( dirname ${BASH_SOURCE[0]} )" && pwd`
 cd $LOCALDIR
 
-bin="$LOCALDIR/../../../tool_bin"
-configdir="$LOCALDIR/../../../out/config"
 contexts="$LOCALDIR/contexts"
 fs="$LOCALDIR/fs"
 

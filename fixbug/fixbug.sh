@@ -12,6 +12,18 @@ case "$os_type" in
     ./pixel.sh
     exit
     ;;
+  "MyOs")
+    ./myos.sh
+    exit
+    ;;
+  "Nubia")
+    ./nubia.sh
+    exit
+    ;;
+  "FuntouchOS")
+    ./vivo.sh
+    exit
+    ;;
   "MIUI")
     ./miui.sh
     exit
@@ -29,7 +41,7 @@ case "$os_type" in
     exit
     ;;
   *)
-    echo "$os_type not supported!"
+    echo "os_type is not supported!"
     exit  
     ;;
 esac

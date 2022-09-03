@@ -14,7 +14,6 @@ vintf_folder="$LOCALDIR/add_etc_vintf_patch"
 if [ $os_type = "Pixel" ];then
   # Add oem properites
   #./add_build.sh > /dev/null 2>&1
-  $vintf_folder/pixel/add_vintf.sh > /dev/null 2>&1
   # Fixing ROM Features
   $rom_folder/pixel/make.sh > /dev/null 2>&1
   $DEBLOATDIR/pixel.sh "$systemdir" > /dev/null 2>&1
@@ -55,6 +54,7 @@ if [ $os_type = "JoyUI" ];then
   echo "system/system/etc/init/init.blackshark.common.rc 0 0 0644" >> ../out/config/system_fs_config
   echo "system/system/etc/init/init.blackshark.rc 0 0 0644" >> ../out/config/system_fs_config
   sed -i '/^\s*$/d' ../out/config/system_fs_config
+  $rom_folder/joyui/make.sh > /dev/null 2>&1
   $DEBLOATDIR/miui.sh "$systemdir" > /dev/null 2>&1
 fi
 
@@ -75,7 +75,6 @@ fi
 # oppo
 if [ $os_type = "ColorOS" ];then
   ./add_build.sh > /dev/null 2>&1
-  $vintf_folder/add_vintf.sh > /dev/null 2>&1
   # Fixing ROM Features
   $rom_folder/oppo/make.sh > /dev/null 2>&1
   $DEBLOATDIR/oppo.sh "$systemdir" > /dev/null 2>&1
@@ -84,7 +83,6 @@ fi
 # Asus
 if [ $os_type = "RogUI" ];then
   ./add_build.sh > /dev/null 2>&1
-  $vintf_folder/add_vintf.sh > /dev/null 2>&1
   # Fixing ROM Features
   $DEBLOATDIR/rog.sh "$systemdir" > /dev/null 2>&1
 fi
