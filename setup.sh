@@ -11,13 +11,6 @@ USE_MIRROR_FOR_PIP=false
 # Python pip mirror link
 PIP_MIRROR=https://pypi.tuna.tsinghua.edu.cn/simple/
 
-dump_welcome(){
-    echo
-    source ./language_helper.sh
-    echo -e "\033[33m [$INFO_STR] $WELCOME - $ENVSETUP_TOOLS \033[0m"
-    echo
-}
-
 dependency_install(){
     echo -e "\033[33m [$INFO_STR] $DETECTING_SYSTEM ... \033[0m"
     if [[ "$OSTYPE" == "linux-gnu" ]]; then
@@ -95,7 +88,6 @@ java_install(){
     sudo apt install -y $JAVA_PACKAGE default-jre
 }
 
-dump_welcome
 {
     trap 'echo -e "\033[31m [$ERROR_STR] $FAILED_INSTPKG ! \033[0m"; exit 1' ERR
     java_install
