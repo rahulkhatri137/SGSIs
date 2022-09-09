@@ -540,19 +540,11 @@ if grep -qF 'PowerVR Rogue GE8100' /vendor/lib/egl/GLESv1_CM_mtk.so ||
 
     setprop debug.hwui.renderer opengl
     setprop ro.skia.ignore_swizzle true
-    if [ "$vndk" = 26 ] || [ "$vndk" = 27 ];then
-       setprop debug.hwui.use_buffer_age false
-
-    fi
 fi
 
 #If we have both Samsung and AOSP power hal, take Samsung's
 if [ -f /vendor/bin/hw/vendor.samsung.hardware.miscpower@1.0-service ] && [ "$vndk" -lt 28 ]; then
     mount -o bind /system/phh/empty /vendor/bin/hw/android.hardware.power@1.0-service
-fi
-
-if [ "$vndk" = 27 ] || [ "$vndk" = 26 ]; then
-    mount -o bind /system/phh/libnfc-nci-oreo.conf /system/etc/libnfc-nci.conf
 fi
 
 if busybox_phh unzip -p /vendor/app/ims/ims.apk classes.dex | grep -qF -e Landroid/telephony/ims/feature/MmTelFeature -e Landroid/telephony/ims/feature/MMTelFeature; then
@@ -627,12 +619,6 @@ fi
 if getprop ro.vendor.build.fingerprint | grep -qiE '^samsung'; then
     if getprop ro.hardware | grep -q qcom; then
         setprop persist.sys.overlay.devinputjack false
-    fi
-
-    if getprop ro.hardware | grep -q -e samsungexynos7870 -e qcom; then
-        if [ "$vndk" -le 27 ]; then
-            setprop persist.sys.phh.sdk_override /vendor/bin/hw/rild=27
-        fi
     fi
 fi
 
@@ -1015,19 +1001,11 @@ if [ -f /vendor/etc/init/vendor.ozoaudio.media.c2@1.0-service.rc ];then
     fi
 fi
 
-if [ "$vndk" -le 27 ];then
-    setprop persist.sys.phh.no_present_or_validate true
-fi
-
 [ -d /mnt/vendor/persist ] && mount /mnt/vendor/persist /persist
 
 for f in $(find /sys -name fts_gesture_mode);do
     setprop persist.sys.phh.focaltech_node "$f"
 done
-
-if [ "$vndk" -le 27 ] && [ -f /vendor/bin/mnld ];then
-    setprop persist.sys.phh.sdk_override /vendor/bin/mnld=26
-fi
 
 # Disable secondary watchdogs
 echo -n V > /dev/watchdog1

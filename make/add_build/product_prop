@@ -1,7 +1,7 @@
 
 # product commom prop
 ro.setupwizard.mode=OPTIONAL
-ro.cp_system_other_odox=0
+ro.cp_system_other_odex=0
 ro.sys.sdcardfs=0
 persist.sys.disable_rescue=true
 ro.control_privapp_permissions=disable
@@ -9,4 +9,3 @@ ro.nnapi.extensions.deny_on_product=true
 ro.lmk.kill_heaviest_task=true
 ro.lmk.kill_timeout_ms=100
 ro.lmk.use_minfree_levels=true
-ro.vndk.lite=false

@@ -274,8 +274,8 @@ function normal() {
   sed -i 's/persist.sys.usb.config=none/persist.sys.usb.config=adb/g' $systemdir/build.prop
   sed -i 's/ro.debuggable=0/ro.debuggable=1/g' $systemdir/build.prop
   sed -i 's/ro.adb.secure=1/ro.adb.secure=0/g' $systemdir/build.prop
-  echo "ro.force.debuggable=1" >> $systemdir/etc/prop.default
- 
+  sed -i 's/ro.secure=1/ro.secure=0/g' $systemdir/build.prop
+
   # 为default修补oem的SurfaceFlinger属性
   if [ -e ./out/vendor/default.prop ];then
     rm -rf ./default.txt
