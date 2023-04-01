@@ -110,11 +110,4 @@ if [[ -d $systemdir/../system_ext && -L $systemdir/system_ext ]] \
   echo "├─ Merged."
 fi
 
-if [[ ! -d $systemdir/product ]];then
-  echo "> product $DIR_NOT_FOUND_STR!"
-  exit 1
-elif [[ ! -d $systemdir/system_ext ]];then
-  echo "> system_ext $DIR_NOT_FOUND_STR!"
-  exit 1
-fi
 exit 0
